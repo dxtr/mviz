@@ -1,5 +1,7 @@
 module Mviz.SDL (
   Window,
+  SDLWindow,
+  GLContext,
   SDLError (..),
   initialize,
   quit,
@@ -13,7 +15,9 @@ module Mviz.SDL (
   getWindowSize,
   getDrawableSize,
   getScalingFactor,
-  makeContextCurrent
+  makeContextCurrent,
+  sdlWindow,
+  glContext,
 ) where
 
 import Control.Exception (bracket)
@@ -23,9 +27,12 @@ import Graphics.Rendering.OpenGL qualified as OpenGL
 import Mviz.Window.Types (Size (..), WindowMode (..))
 import SDL qualified
 
+type SDLWindow = SDL.Window
+type GLContext = SDL.GLContext
+
 data Window = Window
   { windowSdlHandle :: SDL.Window
-  , windowGlContext :: SDL.GLContext
+  , windowGlContext :: GLContext
   }
 
 data SDLErrorKind
@@ -133,3 +140,9 @@ getScalingFactor window = do
 makeContextCurrent :: Window -> IO ()
 makeContextCurrent Window{windowSdlHandle = window, windowGlContext = glContext} =
   SDL.glMakeCurrent window glContext
+
+sdlWindow :: Window -> SDLWindow
+sdlWindow Window{windowSdlHandle = window} = window
+
+glContext :: Window -> GLContext
+glContext Window{windowGlContext = glContext} = glContext

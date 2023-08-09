@@ -9,19 +9,27 @@ module Mviz.UI (
   showUserGuide,
   newFrame,
   endFrame,
-  render
+  render,
 ) where
 
 import DearImGui qualified as ImGUI
 import DearImGui.OpenGL3 qualified as ImGUI.GL
---import DearImGui.SDL qualified as ImGUI.SDL
+import DearImGui.SDL qualified as ImGUI.SDL
+import DearImGui.SDL.OpenGL qualified as ImGUI.SDL.OpenGL
 import Mviz.GL (GLMakeCurrent, glMakeCurrent)
+import Mviz.SDL (Window, glContext, sdlWindow)
 
 type UIContext = ImGUI.Context
 
-initialize :: IO Bool
-initialize = do
+initialize :: Window -> IO Bool
+initialize window = do
+  ImGUI.checkVersion
+  ImGUI.styleColorsDark
+  ImGUI.SDL.OpenGL.sdl2InitForOpenGL wnd ctx
   ImGUI.GL.openGL3Init
+ where
+  wnd = sdlWindow window
+  ctx = glContext window
 
 shutdown :: IO ()
 shutdown = do
@@ -52,4 +60,3 @@ endFrame = ImGUI.endFrame
 
 render :: IO ()
 render = ImGUI.render
-

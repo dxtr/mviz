@@ -53,15 +53,15 @@ main = do
     -- Initialize everything
     ( do
         Mviz.SDL.initialize
-        _ <- Mviz.UI.initialize
         wnd <- Mviz.SDL.createWindow "mviz" True
         uiCtx <- Mviz.UI.createUIContext wnd
+        _ <- Mviz.UI.initialize wnd
         return $ (wnd, uiCtx)
     )
     -- Release resources
     ( \(wnd, uiContext) ->
-        Mviz.UI.destroyUIContext uiContext
-          >> Mviz.UI.shutdown
+        Mviz.UI.shutdown
+          >> Mviz.UI.destroyUIContext uiContext
           >> Mviz.SDL.destroyWindow wnd
           >> Mviz.SDL.quit
     )
