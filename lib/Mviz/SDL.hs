@@ -2,6 +2,7 @@ module Mviz.SDL (
   Window,
   SDLWindow,
   GLContext,
+  Event,
   SDLError (..),
   initialize,
   quit,
@@ -29,6 +30,7 @@ import SDL qualified
 
 type SDLWindow = SDL.Window
 type GLContext = SDL.GLContext
+type Event = SDL.Event
 
 data Window = Window
   { windowSdlHandle :: SDL.Window

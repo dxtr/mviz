@@ -10,6 +10,8 @@ module Mviz.UI (
   newFrame,
   endFrame,
   render,
+  pollEvent,
+  collectEvents
 ) where
 
 import DearImGui qualified as ImGUI
@@ -17,7 +19,7 @@ import DearImGui.OpenGL3 qualified as ImGUI.GL
 import DearImGui.SDL qualified as ImGUI.SDL
 import DearImGui.SDL.OpenGL qualified as ImGUI.SDL.OpenGL
 import Mviz.GL (GLMakeCurrent, glMakeCurrent)
-import Mviz.SDL (Window, glContext, sdlWindow)
+import Mviz.SDL (Window, glContext, sdlWindow, Event)
 
 type UIContext = ImGUI.Context
 
@@ -43,6 +45,9 @@ createUIContext glContext = do
 destroyUIContext :: UIContext -> IO ()
 destroyUIContext = ImGUI.destroyContext
 
+getCurrentContext :: IO UIContext
+getCurrentContext = ImGUI.getCurrentContext
+
 showDemoWindow :: IO ()
 showDemoWindow = ImGUI.showDemoWindow
 
@@ -53,10 +58,25 @@ showUserGuide :: IO ()
 showUserGuide = ImGUI.showUserGuide
 
 newFrame :: IO ()
-newFrame = ImGUI.newFrame
+newFrame = do
+  ImGUI.GL.openGL3NewFrame
+  ImGUI.SDL.sdl2NewFrame
+  ImGUI.newFrame
 
 endFrame :: IO ()
 endFrame = ImGUI.endFrame
 
 render :: IO ()
-render = ImGUI.render
+render = do
+  ImGUI.render
+  ImGUI.GL.openGL3RenderDrawData =<< ImGUI.getDrawData
+
+pollEvent :: IO (Maybe Event)
+pollEvent = ImGUI.SDL.pollEventWithImGui
+
+collectEvents :: IO [Event]
+collectEvents = do
+  e <- pollEvent
+  case e of
+    Nothing -> return []
+    Just e' -> (e' :) <$> collectEvents

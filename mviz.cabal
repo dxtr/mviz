@@ -75,7 +75,8 @@ library
         Mviz.SDL,
         Mviz.UI,
         Mviz.Window,
-        Mviz.Window.Types
+        Mviz.Window.Types,
+        Mviz.Audio
 
     -- LANGUAGE extensions used by modules in this package.
     other-extensions: Strict
@@ -83,9 +84,11 @@ library
     -- Other library packages from which modules are imported.
     build-depends:
         base ^>=4.18.0.0,
+        async,
         containers,
         monad-logger,
         mtl,
+        stm,
         bytestring,
         text,
         sdl2,
