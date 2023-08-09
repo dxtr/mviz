@@ -68,16 +68,25 @@ library
     exposed-modules:  Mviz
 
     -- Modules included in this library but not exported.
-    other-modules: Mviz.SDL, Mviz.Window, Mviz.Window.Types
+    other-modules:
+        Mviz.Types,
+        Mviz.GL,
+        Mviz.Graphics.Shader,
+        Mviz.SDL,
+        Mviz.UI,
+        Mviz.Window,
+        Mviz.Window.Types
 
     -- LANGUAGE extensions used by modules in this package.
-    -- other-extensions:
+    other-extensions: Strict
 
     -- Other library packages from which modules are imported.
     build-depends:
         base ^>=4.18.0.0,
+        containers,
+        monad-logger,
         mtl,
-        resourcet,
+        bytestring,
         text,
         sdl2,
         OpenGL,

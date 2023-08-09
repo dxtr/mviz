@@ -1,7 +1,7 @@
 module Mviz.Window where
 
 import Mviz.SDL (getDrawableSize, getScalingFactor, getWindowSize)
-import Mviz.SDL qualified (Window, hideWindow, setWindowMode, showWindow)
+import Mviz.SDL qualified (Window, hideWindow, setWindowMode, showWindow, swapWindow)
 import Mviz.Window.Types (Size, WindowMode)
 
 --
@@ -21,6 +21,9 @@ class GetWindowSize a where
   getDrawableSize :: a -> IO (Size)
   getScalingFactor :: a -> IO (Float, Float)
 
+class DrawWindow a where
+  swapWindowBuffers :: a -> IO ()
+
 --
 -- Instances
 --
@@ -37,6 +40,9 @@ instance GetWindowSize Mviz.SDL.Window where
   getWindowSize = Mviz.SDL.getWindowSize
   getDrawableSize = Mviz.SDL.getDrawableSize
   getScalingFactor = Mviz.SDL.getScalingFactor
+
+instance DrawWindow Mviz.SDL.Window where
+  swapWindowBuffers = Mviz.SDL.swapWindow
 
 -- withWindow :: T.Text -> Bool -> (Window -> GLContext -> IO c) -> IO c
 -- withWindow title vsync body =
