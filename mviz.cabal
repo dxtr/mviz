@@ -76,6 +76,8 @@ library
         Mviz.UI,
         Mviz.Window,
         Mviz.Window.Types,
+        Mviz.Audio.Types,
+        Mviz.Audio.Client,
         Mviz.Audio
 
     -- LANGUAGE extensions used by modules in this package.
@@ -85,16 +87,19 @@ library
     build-depends:
         base ^>=4.18.0.0,
         async,
+        bytestring,
         containers,
+        dear-imgui,
+        explicit-exception,
+        jack,
         monad-logger,
         mtl,
-        stm,
-        bytestring,
-        text,
-        sdl2,
         OpenGL,
-        jack,
-        dear-imgui
+        sdl2,
+        stm,
+        text,
+        time,
+        transformers
 
     -- Directories containing source files.
     hs-source-dirs:   lib

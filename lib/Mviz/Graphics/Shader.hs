@@ -1,6 +1,10 @@
-module Mviz.Graphics.Shader (ProgramObject(..)) where
+module Mviz.Graphics.Shader (
+  ProgramObject (..),
+  createProgram,
+  activeUniforms,
+) where
 
-import Control.Monad.Except (ExceptT (..), MonadError (throwError), runExceptT)
+import Control.Monad.Trans.Except (ExceptT (..), runExceptT)
 import Data.ByteString qualified as B
 import Graphics.Rendering.OpenGL (($=!))
 import Graphics.Rendering.OpenGL qualified as GL
@@ -10,6 +14,7 @@ type Shader = GL.Shader
 type ShaderType = GL.ShaderType
 
 type Program = GL.Program
+
 type UniformSpec = (GL.GLint, GL.VariableType, String)
 
 data ShaderSource = ShaderSource
@@ -55,13 +60,11 @@ attachShaders program = mapM_ (GL.attachShader program)
 activeUniforms :: Program -> IO [UniformSpec]
 activeUniforms = GL.get . GL.activeUniforms
 
--- (Int -> Bool) ->
-
 createProgram :: [ShaderSource] -> IO (Either String Program)
 createProgram shaderSources = do
   newProgram <- GL.createProgram
-  shaderResult <- (runExceptT $ mapM (ExceptT . createShader') shaderSources)
-  return $ case fmap (attachShaders newProgram) shaderResult of
+  shaderResult <- runExceptT $ mapM (ExceptT . createShader') shaderSources
+  return $ case attachShaders newProgram <$> shaderResult of
     Left msg -> Left msg
     Right _ -> Right newProgram
 

@@ -20,6 +20,7 @@ import DearImGui.SDL qualified as ImGUI.SDL
 import DearImGui.SDL.OpenGL qualified as ImGUI.SDL.OpenGL
 import Mviz.GL (GLMakeCurrent, glMakeCurrent)
 import Mviz.SDL (Window, glContext, sdlWindow, Event)
+import Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
 
 type UIContext = ImGUI.Context
 
@@ -75,8 +76,7 @@ pollEvent :: IO (Maybe Event)
 pollEvent = ImGUI.SDL.pollEventWithImGui
 
 collectEvents :: IO [Event]
-collectEvents = do
-  e <- pollEvent
-  case e of
-    Nothing -> return []
-    Just e' -> (e' :) <$> collectEvents
+collectEvents = pollEvent >>= f
+  where
+    f Nothing = return []
+    f (Just e) = (e :) <$> collectEvents

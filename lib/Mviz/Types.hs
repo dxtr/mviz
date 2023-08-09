@@ -1,38 +1,44 @@
 module Mviz.Types (
   MvizError (..),
   MvizState (..),
+  MvizEnvironment (..),
   MvizM (..),
   runMviz,
 ) where
 
-import Control.Concurrent
 import Control.Concurrent.Async (Async)
-import Control.Exception qualified as E
 import Control.Concurrent.STM (TChan)
+import Control.Exception qualified as E
 import Control.Monad.Except (ExceptT, MonadError, runExceptT)
--- import Control.Monad.Logger (MonadLogger (..), MonadLoggerIO (..))
-import Control.Monad.State.Strict
+import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.Reader (MonadReader, ReaderT, runReaderT)
+import Control.Monad.State.Strict (MonadState, StateT, evalStateT)
 import Data.Map.Strict qualified as Map
 import Data.Text qualified as T
+import Mviz.Audio (AudioMessage (..), AudioReturn)
 import Mviz.Graphics.Shader qualified as Shader
 import Mviz.SDL qualified
 import Mviz.UI qualified
-import Mviz.Audio (AudioMessage(..))
 
 data MvizError
   = IOError E.IOException
+  | NoError
 
-data MvizState = MvizState
-  { mvizWindow :: !Mviz.SDL.Window
+data MvizEnvironment = MvizEnvironment
+  { mvizWindow :: Mviz.SDL.Window
   , mvizUIContext :: Mviz.UI.UIContext
-  , mvizShaders :: Map.Map T.Text Shader.ProgramObject
-  , mvizAudioThread :: Async (Either String ())
+  , mvizAudioThread :: Async AudioReturn
   , mvizAudioSendChannel :: TChan AudioMessage
   , mvizAudioRecvChannel :: TChan AudioMessage
-  , mvizAudioReturn :: MVar (Either T.Text ())
   }
 
-newtype MvizM a = MvizM (StateT MvizState (ExceptT MvizError IO) a)
+data MvizState = MvizState
+  { mvizShaders :: Map.Map T.Text Shader.ProgramObject
+  , mvizShowUI :: Bool
+  }
+
+newtype MvizM a
+  = MvizM (ReaderT MvizEnvironment (StateT MvizState (ExceptT MvizError IO)) a)
   deriving
     ( Applicative
     , Functor
@@ -40,7 +46,15 @@ newtype MvizM a = MvizM (StateT MvizState (ExceptT MvizError IO) a)
     , MonadIO
     , MonadError MvizError
     , MonadState MvizState
+    , MonadReader MvizEnvironment
     )
 
-runMviz :: MvizState -> MvizM a -> IO (Either MvizError (a, MvizState))
-runMviz env (MvizM action) = runExceptT $ runStateT action env
+runMviz
+  :: MvizEnvironment
+  -> MvizM a
+  -> IO (Either MvizError a)
+runMviz environment (MvizM action) = runExceptT runState
+ where
+  initialState = MvizState{mvizShaders = Map.empty, mvizShowUI = True}
+  runReader = runReaderT action environment
+  runState = evalStateT runReader initialState
