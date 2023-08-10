@@ -69,16 +69,17 @@ library
 
     -- Modules included in this library but not exported.
     other-modules:
-        Mviz.Types,
+        Mviz.Audio,
+        Mviz.Audio.Client,
+        Mviz.Audio.Types,
         Mviz.GL,
         Mviz.Graphics.Shader,
         Mviz.SDL,
+        Mviz.Types,
         Mviz.UI,
+        Mviz.Utils,
         Mviz.Window,
-        Mviz.Window.Types,
-        Mviz.Audio.Types,
-        Mviz.Audio.Client,
-        Mviz.Audio
+        Mviz.Window.Types
 
     -- LANGUAGE extensions used by modules in this package.
     other-extensions: Strict

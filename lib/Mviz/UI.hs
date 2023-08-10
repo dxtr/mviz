@@ -1,17 +1,18 @@
 module Mviz.UI (
-  UIContext,
-  initialize,
-  shutdown,
+  collectEvents,
   createUIContext,
   destroyUIContext,
+  endFrame,
+  getCurrentContext,
+  initialize,
+  newFrame,
+  pollEvent,
+  render,
   showDemoWindow,
   showMetricsWindow,
   showUserGuide,
-  newFrame,
-  endFrame,
-  render,
-  pollEvent,
-  collectEvents
+  shutdown,
+  UIContext,
 ) where
 
 import DearImGui qualified as ImGUI
@@ -19,8 +20,8 @@ import DearImGui.OpenGL3 qualified as ImGUI.GL
 import DearImGui.SDL qualified as ImGUI.SDL
 import DearImGui.SDL.OpenGL qualified as ImGUI.SDL.OpenGL
 import Mviz.GL (GLMakeCurrent, glMakeCurrent)
-import Mviz.SDL (Window, glContext, sdlWindow, Event)
-import Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
+import Mviz.SDL (Event, Window, glContext, sdlWindow)
+import Mviz.Utils ((<&&>))
 
 type UIContext = ImGUI.Context
 
@@ -28,8 +29,7 @@ initialize :: Window -> IO Bool
 initialize window = do
   ImGUI.checkVersion
   ImGUI.styleColorsDark
-  ImGUI.SDL.OpenGL.sdl2InitForOpenGL wnd ctx
-  ImGUI.GL.openGL3Init
+  ImGUI.SDL.OpenGL.sdl2InitForOpenGL wnd ctx <&&> ImGUI.GL.openGL3Init
  where
   wnd = sdlWindow window
   ctx = glContext window
@@ -39,8 +39,8 @@ shutdown = do
   ImGUI.GL.openGL3Shutdown
 
 createUIContext :: (GLMakeCurrent c) => c -> IO UIContext
-createUIContext glContext = do
-  _ <- glMakeCurrent glContext
+createUIContext glCtx = do
+  _ <- glMakeCurrent glCtx
   ImGUI.createContext
 
 destroyUIContext :: UIContext -> IO ()
@@ -77,6 +77,6 @@ pollEvent = ImGUI.SDL.pollEventWithImGui
 
 collectEvents :: IO [Event]
 collectEvents = pollEvent >>= f
-  where
-    f Nothing = return []
-    f (Just e) = (e :) <$> collectEvents
+ where
+  f Nothing = return []
+  f (Just e) = (e :) <$> collectEvents

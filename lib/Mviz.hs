@@ -86,15 +86,6 @@ cleanup
       >> return ()
 
 main :: IO ()
-main = do
-  -- Create window
-  bracket
-    -- Initialize everything
-    startup
-    -- Release resources
-    cleanup
-    -- Run
-    ( \env -> do
-        _ <- runMviz env run
-        return ()
-    )
+main = bracket startup cleanup $ \env -> do
+  _ <- runMviz env run
+  return ()

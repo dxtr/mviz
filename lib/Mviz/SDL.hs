@@ -23,13 +23,14 @@ module Mviz.SDL (
 
 import Control.Exception (bracket)
 import Data.Text qualified as T
-import Graphics.Rendering.OpenGL (Color4 (Color4))
-import Graphics.Rendering.OpenGL qualified as OpenGL
+import Graphics.Rendering.OpenGL qualified as SDL
 import Mviz.Window.Types (Size (..), WindowMode (..))
 import SDL qualified
 
 type SDLWindow = SDL.Window
+
 type GLContext = SDL.GLContext
+
 type Event = SDL.Event
 
 data Window = Window
@@ -76,13 +77,13 @@ windowFlags =
 createWindow :: T.Text -> Bool -> IO Window
 createWindow title vsync = do
   wnd <- SDL.createWindow title windowFlags
-  glContext <- createGlContext wnd vsync
-  SDL.glMakeCurrent wnd glContext
-  return $ Window{windowSdlHandle = wnd, windowGlContext = glContext}
+  glCtx <- createGlContext wnd vsync
+  SDL.glMakeCurrent wnd glCtx
+  return $ Window{windowSdlHandle = wnd, windowGlContext = glCtx}
 
 destroyWindow :: Window -> IO ()
-destroyWindow Window{windowSdlHandle = wndHandle, windowGlContext = glContext} = do
-  SDL.glDeleteContext glContext
+destroyWindow Window{windowSdlHandle = wndHandle, windowGlContext = glCtx} = do
+  SDL.glDeleteContext glCtx
   SDL.destroyWindow wndHandle
 
 createGlContext :: SDL.Window -> Bool -> IO (SDL.GLContext)
@@ -140,11 +141,11 @@ getScalingFactor window = do
     )
 
 makeContextCurrent :: Window -> IO ()
-makeContextCurrent Window{windowSdlHandle = window, windowGlContext = glContext} =
-  SDL.glMakeCurrent window glContext
+makeContextCurrent Window{windowSdlHandle = window, windowGlContext = glCtx} =
+  SDL.glMakeCurrent window glCtx
 
 sdlWindow :: Window -> SDLWindow
 sdlWindow Window{windowSdlHandle = window} = window
 
 glContext :: Window -> GLContext
-glContext Window{windowGlContext = glContext} = glContext
+glContext Window{windowGlContext = glCtx} = glCtx
