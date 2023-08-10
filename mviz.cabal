@@ -32,10 +32,12 @@ library
         Mviz.Audio.Types,
         Mviz.GL,
         Mviz.Graphics.Shader,
+        Mviz.Logger,
         Mviz.SDL,
         Mviz.Types,
         Mviz.UI,
         Mviz.Utils,
+        Mviz.Utils.Ringbuffer,
         Mviz.Window,
         Mviz.Window.Types
 
@@ -56,6 +58,7 @@ library
         OpenGL,
         sdl2,
         stm,
+        template-haskell,
         text,
         time,
         transformers
