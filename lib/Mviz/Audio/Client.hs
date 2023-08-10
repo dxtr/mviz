@@ -1,10 +1,10 @@
 module Mviz.Audio.Client (createClient) where
 
-import Mviz.Audio.Types
+import Control.Monad.Exception.Synchronous qualified as Sync
+import Control.Monad.IO.Class (MonadIO, liftIO)
+import Mviz.Audio.Types (AudioError (..))
 import Sound.JACK qualified as JACK
 import Sound.JACK.Exception qualified as JACKE
-import Control.Monad.IO.Class (MonadIO, liftIO)
-import Control.Monad.Exception.Synchronous qualified as Sync
 
 type JackReturnType a = Sync.ExceptionalT JACKE.All IO a
 
@@ -16,7 +16,6 @@ jackAction action = liftIO . Sync.toEitherT . Sync.mapExceptionT mapJackExceptio
 
 createClient :: (MonadIO m) => String -> m (Either AudioError JACK.Client)
 createClient name = jackAction $ JACK.newClientDefault name
-
 
 --  runExceptT $ do
 --  Sync.toEitherT . Sync.mapExceptionT mapJackException $ JACK.newClientDefault name
