@@ -1,21 +1,22 @@
-module Mviz.Utils.Ringbuffer (Ringbuffer, make, empty, put, next) where
+module Mviz.Utils.Ringbuffer (Ringbuffer, make, empty, put, next, toList) where
 
-import Control.Concurrent.STM (atomically)
-import Control.Concurrent.STM.TVar (
-  TVar,
-  newTVarIO,
-  readTVar,
-  stateTVar,
-  writeTVar,
- )
 import Data.Foldable (foldl')
+import Data.Foldable qualified as F
+import Data.IORef (
+  IORef,
+  atomicModifyIORef',
+  atomicWriteIORef,
+  newIORef,
+  readIORef,
+ )
+import Data.Maybe (catMaybes)
 import Data.Sequence qualified as S
 
 data Ringbuffer a = Ringbuffer
-  { ringWriterIndex :: TVar Word
-  , ringReaderIndex :: TVar Word
+  { ringWriterIndex :: IORef Word
+  , ringReaderIndex :: IORef Word
   , ringSize :: Word -- This is static so doesn't have to be a TVar
-  , ringBuffer :: S.Seq (TVar (Maybe a)) -- Only the items are mutable, not the buffer itself
+  , ringBuffer :: S.Seq (IORef (Maybe a)) -- Only the items are mutable, not the buffer itself
   }
 
 nextIndex :: Ringbuffer a -> Word -> Word
@@ -23,9 +24,9 @@ nextIndex Ringbuffer{ringSize = size} idx = (idx + 1) `mod` size
 
 make_ :: [Maybe a] -> IO (Ringbuffer a)
 make_ items = do
-  wIdx <- newTVarIO 0
-  rIdx <- newTVarIO 0
-  buf <- mapM newTVarIO items
+  wIdx <- newIORef 0
+  rIdx <- newIORef 0
+  buf <- mapM newIORef items
   return $
     Ringbuffer
       { ringWriterIndex = wIdx
@@ -42,16 +43,17 @@ empty size = make_ $ replicate size Nothing
 
 put :: Ringbuffer a -> a -> IO ()
 put ringBuffer@Ringbuffer{ringBuffer = buffer, ringWriterIndex = wIndex} newItem =
-  atomically $
-    S.index buffer <$> stateTVar wIndex updateIndexFunc
-      >>= ((flip writeTVar) $ Just newItem)
+  S.index buffer <$> atomicModifyIORef' wIndex updateIndexFunc
+    >>= ((flip atomicWriteIORef) $ Just newItem)
  where
-  updateIndexFunc idx = (fromIntegral idx, nextIndex ringBuffer idx)
+  updateIndexFunc idx = (nextIndex ringBuffer idx, fromIntegral idx)
 
 next :: Ringbuffer a -> IO (Maybe a)
 next ringBuffer@Ringbuffer{ringBuffer = buffer, ringReaderIndex = rIndex} =
-  atomically $
-    readTVar
-      =<< S.index buffer <$> stateTVar rIndex updateIndexFunc
+  readIORef
+    =<< S.index buffer <$> atomicModifyIORef' rIndex updateIndexFunc
  where
-  updateIndexFunc idx = (fromIntegral idx, nextIndex ringBuffer idx)
+  updateIndexFunc idx = (nextIndex ringBuffer idx, fromIntegral idx)
+
+toList :: Ringbuffer a -> IO [a]
+toList Ringbuffer{ringBuffer = buffer} = catMaybes . F.toList <$> traverse readIORef buffer
