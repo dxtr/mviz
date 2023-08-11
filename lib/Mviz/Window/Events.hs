@@ -1,9 +1,10 @@
 module Mviz.Window.Events where
 
-import SDL (InputMotion (..))
+import Data.Word (Word32)
 import SDL qualified
 
 data Event
   = Quit
-  | WindowResized Int32 Int32
-
+  | WindowResized Word32 Word32
+  | IgnoredEvent SDL.EventPayload
+  deriving (Show, Eq)

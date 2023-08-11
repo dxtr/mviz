@@ -12,22 +12,20 @@ import Control.Monad.State.Strict (get)
 import Graphics.Rendering.OpenGL qualified as OpenGL
 import Mviz.Audio qualified
 import Mviz.SDL qualified
-import Mviz.Types (MvizEnvironment (..), MvizM (..), MvizState (..), runMviz)
+import Mviz.Types (
+  MvizEnvironment (..),
+  MvizM (..),
+  MvizState (..),
+  runMviz,
+ )
 import Mviz.UI qualified
 import Mviz.Window (showWindow, swapWindowBuffers)
-import SDL qualified
-
-renderUI :: IO ()
-renderUI = do
-  liftIO $ Mviz.UI.newFrame
-  liftIO $ Mviz.UI.showDemoWindow
-  liftIO $ Mviz.UI.render
+import Mviz.Window.Events qualified
 
 mainLoop :: MvizM ()
 mainLoop = do
   events <- liftIO $ Mviz.UI.collectEvents
-  let mappedEvents = map SDL.eventPayload events
-  let doQuit = elem SDL.QuitEvent mappedEvents
+  let doQuit = elem Mviz.Window.Events.Quit events
 
   OpenGL.clearColor OpenGL.$= (OpenGL.Color4 0 0 0 1)
   liftIO $ OpenGL.clear [OpenGL.ColorBuffer]
@@ -36,7 +34,7 @@ mainLoop = do
   state <- get
   -- Render the UI
   let showUI = mvizShowUI state
-  when showUI $ liftIO renderUI
+  when showUI $ Mviz.UI.render
 
   let wnd = mvizWindow environment
   liftIO $ swapWindowBuffers wnd

@@ -10,11 +10,8 @@ import Control.Concurrent.STM (
   TChan,
   atomically,
   readTChan,
-  tryReadTChan,
   writeTChan,
  )
-
-import Control.Monad.Trans.Except (ExceptT(..))
 import Control.Monad.Except (MonadError, runExceptT)
 import Control.Monad.State.Strict (
   MonadIO,
@@ -24,6 +21,7 @@ import Control.Monad.State.Strict (
   get,
   liftIO,
  )
+import Control.Monad.Trans.Except (ExceptT (..))
 import Mviz.Audio.Client qualified as Client
 import Mviz.Audio.Types (AudioError (..))
 import Sound.JACK qualified as JACK
@@ -75,10 +73,10 @@ runAudioSystem sendChan recvChan = runExceptT $ do
   client <- ExceptT $ Client.createClient "mviz"
   let state =
         AudioState
-        { audioSendChannel = sendChan
-        , audioRecvChannel = recvChan
-        , audioClient = client
-        }
+          { audioSendChannel = sendChan
+          , audioRecvChannel = recvChan
+          , audioClient = client
+          }
   ExceptT $ runAudio state audioLoop
 
 shutdown :: TChan AudioMessage -> IO ()

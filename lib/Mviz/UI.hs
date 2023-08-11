@@ -12,18 +12,26 @@ module Mviz.UI (
   showMetricsWindow,
   showUserGuide,
   shutdown,
-  UIContext,
 ) where
 
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Maybe (MaybeT (..), runMaybeT)
 import DearImGui qualified as ImGUI
 import DearImGui.OpenGL3 qualified as ImGUI.GL
 import DearImGui.SDL qualified as ImGUI.SDL
 import DearImGui.SDL.OpenGL qualified as ImGUI.SDL.OpenGL
 import Mviz.GL (GLMakeCurrent, glMakeCurrent)
-import Mviz.SDL (Event, Window, glContext, sdlWindow)
+import Mviz.SDL (Window, glContext, sdlWindow)
+import Mviz.Types (MvizM)
+import Mviz.UI.Types
 import Mviz.Utils ((<&&>))
-
-type UIContext = ImGUI.Context
+import Mviz.Window.Events (Event (IgnoredEvent, Quit, WindowResized))
+import SDL qualified (
+  EventPayload (QuitEvent, WindowResizedEvent),
+  V2 (..),
+  WindowResizedEventData (WindowResizedEventData, windowResizedEventSize),
+  eventPayload,
+ )
 
 initialize :: Window -> IO Bool
 initialize window = do
@@ -67,15 +75,24 @@ newFrame = do
 endFrame :: IO ()
 endFrame = ImGUI.endFrame
 
-render :: IO ()
+render :: MvizM ()
 render = do
+  liftIO $ do
+    newFrame
+    showDemoWindow
   ImGUI.render
   ImGUI.GL.openGL3RenderDrawData =<< ImGUI.getDrawData
 
-pollEvent :: IO (Maybe Event)
-pollEvent = ImGUI.SDL.pollEventWithImGui
+pollEvent :: IO (Maybe Mviz.Window.Events.Event)
+pollEvent = runMaybeT $ do
+  event <- MaybeT $ ImGUI.SDL.pollEventWithImGui
+  return $ case SDL.eventPayload event of
+    SDL.QuitEvent -> Mviz.Window.Events.Quit
+    SDL.WindowResizedEvent
+      SDL.WindowResizedEventData{SDL.windowResizedEventSize = SDL.V2 newX newY} -> Mviz.Window.Events.WindowResized (fromIntegral newX) (fromIntegral newY)
+    ignoredEvent -> IgnoredEvent ignoredEvent
 
-collectEvents :: IO [Event]
+collectEvents :: IO [Mviz.Window.Events.Event]
 collectEvents = pollEvent >>= f
  where
   f Nothing = return []
