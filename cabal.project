@@ -4,10 +4,3 @@ optimization: 0
 package dear-imgui
     flags: +sdl +opengl3
 
-package mviz
-    optimization: 0
-    debug-info: True
-    executable-stripping: False
-    library-stripping: False
-    profiling: True
-    coverage: True

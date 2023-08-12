@@ -1,29 +1,27 @@
 module Mviz.Logger (runRingbufferLoggingT, LogMessage (..)) where
 
-import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.Logger (
-  Loc,
-  LogLevel,
-  LogSource,
-  LogStr,
-  LoggingT (runLoggingT),
- )
-import Data.Time.LocalTime (ZonedTime, getZonedTime)
-import Mviz.Utils.Ringbuffer qualified as RB
+import           Control.Monad.IO.Class   (MonadIO)
+import           Control.Monad.Logger     (Loc, LogLevel, LogSource, LogStr,
+                                           LoggingT (runLoggingT))
+import           Data.Time.Clock          (UTCTime, getCurrentTime)
+import           Data.Time.Format.ISO8601 (FormatExtension (ExtendedFormat),
+                                           formatShow, hourMinuteFormat)
+import           Data.Time.LocalTime      (LocalTime (localTimeOfDay),
+                                           ZonedTime (zonedTimeToLocalTime, zonedTimeZone),
+                                           getZonedTime, utcToLocalTimeOfDay,
+                                           utcToLocalZonedTime)
+import qualified Mviz.Utils.Ringbuffer    as RB
 
 data LogMessage = LogMessage ZonedTime Loc LogSource LogLevel LogStr
 
--- defaultOutput
---   :: Handle
---   -> Loc
---   -> LogSource
---   -> LogLevel
---   -> LogStr
---   -> IO ()
--- defaultOutput h loc src level msg =
---   S8.hPutStr h ls
---  where
---   ls = defaultLogStrBS loc src level msg
+instance Show LogMessage where
+  show (LogMessage zt loc logSource logLevel logStr) =
+    "[" <> timestamp <> "][" <> show logLevel <> "]" <> show logStr
+    where
+      timezone = zonedTimeZone zt
+      localTime = localTimeOfDay $ zonedTimeToLocalTime zt
+      timestampFormat = hourMinuteFormat ExtendedFormat
+      timestamp = formatShow timestampFormat localTime
 
 ringBufferOutput
   :: RB.Ringbuffer LogMessage -> Loc -> LogSource -> LogLevel -> LogStr -> IO ()

@@ -5,6 +5,7 @@ import SDL qualified
 
 data Event
   = Quit
+  | KeyUpEvent
   | WindowResized Word32 Word32
   | IgnoredEvent SDL.EventPayload
   deriving (Show, Eq)

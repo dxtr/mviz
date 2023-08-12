@@ -46,6 +46,8 @@ data MvizFramerate = MvizFramerate
 data MvizState = MvizState
   { mvizShaders :: Map.Map T.Text Shader.ProgramObject
   , mvizShowUI :: Bool
+  , mvizShowDebugLog :: Bool
+  , mvizShowConsole :: Bool
   , mvizLog :: RB.Ringbuffer LogMessage
   , mvizFPS :: MvizFramerate
   }
@@ -74,6 +76,8 @@ runMviz environment (MvizM action) = do
         MvizState
           { mvizShaders = Map.empty
           , mvizShowUI = True
+          , mvizShowDebugLog = False
+          , mvizShowConsole = False
           , mvizLog = logBuffer
           , mvizFPS =
               MvizFramerate

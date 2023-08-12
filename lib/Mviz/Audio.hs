@@ -5,26 +5,15 @@ module Mviz.Audio (
   shutdown,
 ) where
 
-import Control.Concurrent.STM (
-  STM,
-  TChan,
-  atomically,
-  readTChan,
-  writeTChan,
- )
-import Control.Monad.Except (MonadError, runExceptT)
-import Control.Monad.State.Strict (
-  MonadIO,
-  MonadState,
-  StateT,
-  evalStateT,
-  get,
-  liftIO,
- )
-import Control.Monad.Trans.Except (ExceptT (..))
-import Mviz.Audio.Client qualified as Client
-import Mviz.Audio.Types (AudioError (..))
-import Sound.JACK qualified as JACK
+import           Control.Concurrent.STM     (STM, TChan, atomically, readTChan,
+                                             writeTChan)
+import           Control.Monad.Except       (MonadError, runExceptT)
+import           Control.Monad.State.Strict (MonadIO, MonadState, StateT,
+                                             evalStateT, get, liftIO)
+import           Control.Monad.Trans.Except (ExceptT (..))
+import qualified Mviz.Audio.Client          as Client
+import           Mviz.Audio.Types           (AudioError (..))
+import qualified Sound.JACK                 as JACK
 
 type AudioReturn = Either AudioError ()
 
@@ -34,24 +23,22 @@ data AudioMessage
 data AudioState = AudioState
   { audioSendChannel :: TChan AudioMessage
   , audioRecvChannel :: TChan AudioMessage
-  , audioClient :: JACK.Client
+  , audioClient      :: JACK.Client
   }
 
 newtype AudioM a = AudioM (StateT AudioState (ExceptT AudioError IO) a)
-  deriving
-    ( Applicative
-    , Functor
-    , Monad
-    , MonadIO
-    , MonadError AudioError
-    , MonadState AudioState
-    )
+  deriving (Applicative
+           , Functor
+           , Monad
+           , MonadIO
+           , MonadError AudioError
+           , MonadState AudioState
+           )
 
 runAudio :: AudioState -> AudioM a -> IO (Either AudioError a)
 runAudio env (AudioM action) = runExceptT $ evalStateT action env
 
 readChannel :: TChan AudioMessage -> STM (Maybe AudioMessage)
--- readChannel channel = tryReadTChan channel
 readChannel channel = Just <$> readTChan channel
 
 audioLoop :: AudioM ()
@@ -69,14 +56,11 @@ runAudioSystem
   -> TChan AudioMessage
   -> IO (Either AudioError ())
 runAudioSystem sendChan recvChan = runExceptT $ do
-  -- client <- Client.createClient "mviz"
   client <- ExceptT $ Client.createClient "mviz"
-  let state =
-        AudioState
-          { audioSendChannel = sendChan
-          , audioRecvChannel = recvChan
-          , audioClient = client
-          }
+  let state = AudioState { audioSendChannel = sendChan
+                         , audioRecvChannel = recvChan
+                         , audioClient = client
+                         }
   ExceptT $ runAudio state audioLoop
 
 shutdown :: TChan AudioMessage -> IO ()

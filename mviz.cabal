@@ -36,10 +36,13 @@ library
         Mviz.SDL,
         Mviz.Types,
         Mviz.UI,
+        Mviz.UI.Types,
         Mviz.Utils,
         Mviz.Utils.Ringbuffer,
+        Mviz.Utils.TSRingbuffer,
         Mviz.Window,
-        Mviz.Window.Types
+        Mviz.Window.Types,
+        Mviz.Window.Events
 
     -- LANGUAGE extensions used by modules in this package.
     other-extensions: Strict
@@ -52,6 +55,7 @@ library
         containers,
         dear-imgui,
         explicit-exception,
+        hashable,
         jack,
         monad-logger,
         mtl,
@@ -61,7 +65,8 @@ library
         template-haskell,
         text,
         time,
-        transformers
+        transformers,
+        unordered-containers
 
     -- Directories containing source files.
     hs-source-dirs:   lib
