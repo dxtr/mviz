@@ -1,0 +1,6 @@
+dist-newstyle/*
+vendor/*
+imgui.ini
+cabal.project.local
+*.tix
+*.zip
