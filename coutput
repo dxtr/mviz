@@ -1,0 +1,2385 @@
+
+In file included from vendor/cimgui.cpp:19:0: error: 
+
+vendor/cimgui.h:3144:18: error:
+     error: ‘ImGuiDockNodeSettings’ was not declared in this scope; did you mean ‘ImGuiWindowSettings’?
+     3144 | typedef ImVector<ImGuiDockNodeSettings> ImVector_ImGuiDockNodeSettings;
+          |                  ^~~~~~~~~~~~~~~~~~~~~
+          |                  ImGuiWindowSettings
+     |
+3144 | typedef ImVector<ImGuiDockNodeSettings> ImVector_ImGuiDockNodeSettings;
+     |                  ^
+
+vendor/cimgui.h:3144:39: error:
+     error: template argument 1 is invalid
+     3144 | typedef ImVector<ImGuiDockNodeSettings> ImVector_ImGuiDockNodeSettings;
+          |                                       ^
+     |
+3144 | typedef ImVector<ImGuiDockNodeSettings> ImVector_ImGuiDockNodeSettings;
+     |                                       ^
+
+vendor/cimgui.h:3145:18: error:
+     error: ‘ImGuiDockRequest’ was not declared in this scope
+     3145 | typedef ImVector<ImGuiDockRequest> ImVector_ImGuiDockRequest;
+          |                  ^~~~~~~~~~~~~~~~
+     |
+3145 | typedef ImVector<ImGuiDockRequest> ImVector_ImGuiDockRequest;
+     |                  ^
+
+vendor/cimgui.h:3145:34: error:
+     error: template argument 1 is invalid
+     3145 | typedef ImVector<ImGuiDockRequest> ImVector_ImGuiDockRequest;
+          |                                  ^
+     |
+3145 | typedef ImVector<ImGuiDockRequest> ImVector_ImGuiDockRequest;
+     |                                  ^
+
+vendor/cimgui.h:3155:18: error:
+     error: ‘ImGuiPlatformMonitor’ was not declared in this scope
+     3155 | typedef ImVector<ImGuiPlatformMonitor> ImVector_ImGuiPlatformMonitor;
+          |                  ^~~~~~~~~~~~~~~~~~~~
+     |
+3155 | typedef ImVector<ImGuiPlatformMonitor> ImVector_ImGuiPlatformMonitor;
+     |                  ^
+
+vendor/cimgui.h:3155:38: error:
+     error: template argument 1 is invalid
+     3155 | typedef ImVector<ImGuiPlatformMonitor> ImVector_ImGuiPlatformMonitor;
+          |                                      ^
+     |
+3155 | typedef ImVector<ImGuiPlatformMonitor> ImVector_ImGuiPlatformMonitor;
+     |                                      ^
+
+vendor/cimgui.h:3482:61: error:
+     error: ‘ImGuiDockNodeFlags’ has not been declared
+     3482 | CIMGUI_API ImGuiID igDockSpace(ImGuiID id,const ImVec2 size,ImGuiDockNodeFlags flags,const ImGuiWindowClass* window_class);
+          |                                                             ^~~~~~~~~~~~~~~~~~
+     |
+3482 | CIMGUI_API ImGuiID igDockSpace(ImGuiID id,const ImVec2 size,ImGuiDockNodeFlags flags,const ImGuiWindowClass* window_class);
+     |                                                             ^
+
+vendor/cimgui.h:3482:92: error:
+     error: ‘ImGuiWindowClass’ does not name a type; did you mean ‘ImGuiWindowFlags’?
+     3482 | CIMGUI_API ImGuiID igDockSpace(ImGuiID id,const ImVec2 size,ImGuiDockNodeFlags flags,const ImGuiWindowClass* window_class);
+          |                                                                                            ^~~~~~~~~~~~~~~~
+          |                                                                                            ImGuiWindowFlags
+     |
+3482 | CIMGUI_API ImGuiID igDockSpace(ImGuiID id,const ImVec2 size,ImGuiDockNodeFlags flags,const ImGuiWindowClass* window_class);
+     |                                                                                            ^
+
+vendor/cimgui.h:3483:74: error:
+     error: ‘ImGuiDockNodeFlags’ has not been declared
+     3483 | CIMGUI_API ImGuiID igDockSpaceOverViewport(const ImGuiViewport* viewport,ImGuiDockNodeFlags flags,const ImGuiWindowClass* window_class);
+          |                                                                          ^~~~~~~~~~~~~~~~~~
+     |
+3483 | CIMGUI_API ImGuiID igDockSpaceOverViewport(const ImGuiViewport* viewport,ImGuiDockNodeFlags flags,const ImGuiWindowClass* window_class);
+     |                                                                          ^
+
+vendor/cimgui.h:3483:105: error:
+     error: ‘ImGuiWindowClass’ does not name a type; did you mean ‘ImGuiWindowFlags’?
+     3483 | CIMGUI_API ImGuiID igDockSpaceOverViewport(const ImGuiViewport* viewport,ImGuiDockNodeFlags flags,const ImGuiWindowClass* window_class);
+          |                                                                                                         ^~~~~~~~~~~~~~~~
+          |                                                                                                         ImGuiWindowFlags
+     |
+3483 | CIMGUI_API ImGuiID igDockSpaceOverViewport(const ImGuiViewport* viewport,ImGuiDockNodeFlags flags,const ImGuiWindowClass* window_class);
+     |                                                                                                         ^
+
+vendor/cimgui.h:3485:44: error:
+     error: ‘ImGuiWindowClass’ does not name a type; did you mean ‘ImGuiWindowFlags’?
+     3485 | CIMGUI_API void igSetNextWindowClass(const ImGuiWindowClass* window_class);
+          |                                            ^~~~~~~~~~~~~~~~
+          |                                            ImGuiWindowFlags
+     |
+3485 | CIMGUI_API void igSetNextWindowClass(const ImGuiWindowClass* window_class);
+     |                                            ^
+
+vendor/cimgui.h:3579:12: error:
+     error: ‘ImGuiPlatformIO’ does not name a type; did you mean ‘ImGuiPlatformImeData’?
+     3579 | CIMGUI_API ImGuiPlatformIO* igGetPlatformIO(void);
+          |            ^~~~~~~~~~~~~~~
+          |            ImGuiPlatformImeData
+     |
+3579 | CIMGUI_API ImGuiPlatformIO* igGetPlatformIO(void);
+     |            ^
+
+vendor/cimgui.h:3612:12: error:
+     error: ‘ImGuiWindowClass’ does not name a type; did you mean ‘ImGuiWindowFlags’?
+     3612 | CIMGUI_API ImGuiWindowClass* ImGuiWindowClass_ImGuiWindowClass(void);
+          |            ^~~~~~~~~~~~~~~~
+          |            ImGuiWindowFlags
+     |
+3612 | CIMGUI_API ImGuiWindowClass* ImGuiWindowClass_ImGuiWindowClass(void);
+     |            ^
+
+vendor/cimgui.h:3613:17: error:
+     error: variable or field ‘ImGuiWindowClass_destroy’ declared void
+     3613 | CIMGUI_API void ImGuiWindowClass_destroy(ImGuiWindowClass* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~
+     |
+3613 | CIMGUI_API void ImGuiWindowClass_destroy(ImGuiWindowClass* self);
+     |                 ^
+
+vendor/cimgui.h:3613:42: error:
+     error: ‘ImGuiWindowClass’ was not declared in this scope; did you mean ‘ImGuiWindowFlags’?
+     3613 | CIMGUI_API void ImGuiWindowClass_destroy(ImGuiWindowClass* self);
+          |                                          ^~~~~~~~~~~~~~~~
+          |                                          ImGuiWindowFlags
+     |
+3613 | CIMGUI_API void ImGuiWindowClass_destroy(ImGuiWindowClass* self);
+     |                                          ^
+
+vendor/cimgui.h:3613:60: error:
+     error: ‘self’ was not declared in this scope
+     3613 | CIMGUI_API void ImGuiWindowClass_destroy(ImGuiWindowClass* self);
+          |                                                            ^~~~
+     |
+3613 | CIMGUI_API void ImGuiWindowClass_destroy(ImGuiWindowClass* self);
+     |                                                            ^
+
+vendor/cimgui.h:3829:12: error:
+     error: ‘ImGuiPlatformIO’ does not name a type; did you mean ‘ImGuiPlatformImeData’?
+     3829 | CIMGUI_API ImGuiPlatformIO* ImGuiPlatformIO_ImGuiPlatformIO(void);
+          |            ^~~~~~~~~~~~~~~
+          |            ImGuiPlatformImeData
+     |
+3829 | CIMGUI_API ImGuiPlatformIO* ImGuiPlatformIO_ImGuiPlatformIO(void);
+     |            ^
+
+vendor/cimgui.h:3830:17: error:
+     error: variable or field ‘ImGuiPlatformIO_destroy’ declared void
+     3830 | CIMGUI_API void ImGuiPlatformIO_destroy(ImGuiPlatformIO* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~
+     |
+3830 | CIMGUI_API void ImGuiPlatformIO_destroy(ImGuiPlatformIO* self);
+     |                 ^
+
+vendor/cimgui.h:3830:41: error:
+     error: ‘ImGuiPlatformIO’ was not declared in this scope; did you mean ‘ImGuiPlatformImeData’?
+     3830 | CIMGUI_API void ImGuiPlatformIO_destroy(ImGuiPlatformIO* self);
+          |                                         ^~~~~~~~~~~~~~~
+          |                                         ImGuiPlatformImeData
+     |
+3830 | CIMGUI_API void ImGuiPlatformIO_destroy(ImGuiPlatformIO* self);
+     |                                         ^
+
+vendor/cimgui.h:3830:58: error:
+     error: ‘self’ was not declared in this scope
+     3830 | CIMGUI_API void ImGuiPlatformIO_destroy(ImGuiPlatformIO* self);
+          |                                                          ^~~~
+     |
+3830 | CIMGUI_API void ImGuiPlatformIO_destroy(ImGuiPlatformIO* self);
+     |                                                          ^
+
+vendor/cimgui.h:3831:12: error:
+     error: ‘ImGuiPlatformMonitor’ does not name a type
+     3831 | CIMGUI_API ImGuiPlatformMonitor* ImGuiPlatformMonitor_ImGuiPlatformMonitor(void);
+          |            ^~~~~~~~~~~~~~~~~~~~
+     |
+3831 | CIMGUI_API ImGuiPlatformMonitor* ImGuiPlatformMonitor_ImGuiPlatformMonitor(void);
+     |            ^
+
+vendor/cimgui.h:3832:17: error:
+     error: variable or field ‘ImGuiPlatformMonitor_destroy’ declared void
+     3832 | CIMGUI_API void ImGuiPlatformMonitor_destroy(ImGuiPlatformMonitor* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+3832 | CIMGUI_API void ImGuiPlatformMonitor_destroy(ImGuiPlatformMonitor* self);
+     |                 ^
+
+vendor/cimgui.h:3832:46: error:
+     error: ‘ImGuiPlatformMonitor’ was not declared in this scope
+     3832 | CIMGUI_API void ImGuiPlatformMonitor_destroy(ImGuiPlatformMonitor* self);
+          |                                              ^~~~~~~~~~~~~~~~~~~~
+     |
+3832 | CIMGUI_API void ImGuiPlatformMonitor_destroy(ImGuiPlatformMonitor* self);
+     |                                              ^
+
+vendor/cimgui.h:3832:68: error:
+     error: ‘self’ was not declared in this scope
+     3832 | CIMGUI_API void ImGuiPlatformMonitor_destroy(ImGuiPlatformMonitor* self);
+          |                                                                    ^~~~
+     |
+3832 | CIMGUI_API void ImGuiPlatformMonitor_destroy(ImGuiPlatformMonitor* self);
+     |                                                                    ^
+
+vendor/cimgui.h:4047:12: error:
+     error: ‘ImGuiDockNode’ does not name a type
+     4047 | CIMGUI_API ImGuiDockNode* ImGuiDockNode_ImGuiDockNode(ImGuiID id);
+          |            ^~~~~~~~~~~~~
+     |
+4047 | CIMGUI_API ImGuiDockNode* ImGuiDockNode_ImGuiDockNode(ImGuiID id);
+     |            ^
+
+vendor/cimgui.h:4048:17: error:
+     error: variable or field ‘ImGuiDockNode_destroy’ declared void
+     4048 | CIMGUI_API void ImGuiDockNode_destroy(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~
+     |
+4048 | CIMGUI_API void ImGuiDockNode_destroy(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.h:4048:39: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     4048 | CIMGUI_API void ImGuiDockNode_destroy(ImGuiDockNode* self);
+          |                                       ^~~~~~~~~~~~~
+          |                                       ImGuiMod_None
+     |
+4048 | CIMGUI_API void ImGuiDockNode_destroy(ImGuiDockNode* self);
+     |                                       ^
+
+vendor/cimgui.h:4048:54: error:
+     error: ‘self’ was not declared in this scope
+     4048 | CIMGUI_API void ImGuiDockNode_destroy(ImGuiDockNode* self);
+          |                                                      ^~~~
+     |
+4048 | CIMGUI_API void ImGuiDockNode_destroy(ImGuiDockNode* self);
+     |                                                      ^
+
+vendor/cimgui.h:4049:17: error:
+     warning: ‘ImGuiDockNode_IsRootNode’ initialized and declared ‘extern’
+     4049 | CIMGUI_API bool ImGuiDockNode_IsRootNode(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4049 | CIMGUI_API bool ImGuiDockNode_IsRootNode(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.h:4049:42: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     4049 | CIMGUI_API bool ImGuiDockNode_IsRootNode(ImGuiDockNode* self);
+          |                                          ^~~~~~~~~~~~~
+          |                                          ImGuiMod_None
+     |
+4049 | CIMGUI_API bool ImGuiDockNode_IsRootNode(ImGuiDockNode* self);
+     |                                          ^
+
+vendor/cimgui.h:4049:57: error:
+     error: ‘self’ was not declared in this scope
+     4049 | CIMGUI_API bool ImGuiDockNode_IsRootNode(ImGuiDockNode* self);
+          |                                                         ^~~~
+     |
+4049 | CIMGUI_API bool ImGuiDockNode_IsRootNode(ImGuiDockNode* self);
+     |                                                         ^
+
+vendor/cimgui.h:4050:17: error:
+     warning: ‘ImGuiDockNode_IsDockSpace’ initialized and declared ‘extern’
+     4050 | CIMGUI_API bool ImGuiDockNode_IsDockSpace(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4050 | CIMGUI_API bool ImGuiDockNode_IsDockSpace(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.h:4050:43: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     4050 | CIMGUI_API bool ImGuiDockNode_IsDockSpace(ImGuiDockNode* self);
+          |                                           ^~~~~~~~~~~~~
+          |                                           ImGuiMod_None
+     |
+4050 | CIMGUI_API bool ImGuiDockNode_IsDockSpace(ImGuiDockNode* self);
+     |                                           ^
+
+vendor/cimgui.h:4050:58: error:
+     error: ‘self’ was not declared in this scope
+     4050 | CIMGUI_API bool ImGuiDockNode_IsDockSpace(ImGuiDockNode* self);
+          |                                                          ^~~~
+     |
+4050 | CIMGUI_API bool ImGuiDockNode_IsDockSpace(ImGuiDockNode* self);
+     |                                                          ^
+
+vendor/cimgui.h:4051:17: error:
+     warning: ‘ImGuiDockNode_IsFloatingNode’ initialized and declared ‘extern’
+     4051 | CIMGUI_API bool ImGuiDockNode_IsFloatingNode(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4051 | CIMGUI_API bool ImGuiDockNode_IsFloatingNode(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.h:4051:46: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     4051 | CIMGUI_API bool ImGuiDockNode_IsFloatingNode(ImGuiDockNode* self);
+          |                                              ^~~~~~~~~~~~~
+          |                                              ImGuiMod_None
+     |
+4051 | CIMGUI_API bool ImGuiDockNode_IsFloatingNode(ImGuiDockNode* self);
+     |                                              ^
+
+vendor/cimgui.h:4051:61: error:
+     error: ‘self’ was not declared in this scope
+     4051 | CIMGUI_API bool ImGuiDockNode_IsFloatingNode(ImGuiDockNode* self);
+          |                                                             ^~~~
+     |
+4051 | CIMGUI_API bool ImGuiDockNode_IsFloatingNode(ImGuiDockNode* self);
+     |                                                             ^
+
+vendor/cimgui.h:4052:17: error:
+     warning: ‘ImGuiDockNode_IsCentralNode’ initialized and declared ‘extern’
+     4052 | CIMGUI_API bool ImGuiDockNode_IsCentralNode(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4052 | CIMGUI_API bool ImGuiDockNode_IsCentralNode(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.h:4052:45: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     4052 | CIMGUI_API bool ImGuiDockNode_IsCentralNode(ImGuiDockNode* self);
+          |                                             ^~~~~~~~~~~~~
+          |                                             ImGuiMod_None
+     |
+4052 | CIMGUI_API bool ImGuiDockNode_IsCentralNode(ImGuiDockNode* self);
+     |                                             ^
+
+vendor/cimgui.h:4052:60: error:
+     error: ‘self’ was not declared in this scope
+     4052 | CIMGUI_API bool ImGuiDockNode_IsCentralNode(ImGuiDockNode* self);
+          |                                                            ^~~~
+     |
+4052 | CIMGUI_API bool ImGuiDockNode_IsCentralNode(ImGuiDockNode* self);
+     |                                                            ^
+
+vendor/cimgui.h:4053:17: error:
+     warning: ‘ImGuiDockNode_IsHiddenTabBar’ initialized and declared ‘extern’
+     4053 | CIMGUI_API bool ImGuiDockNode_IsHiddenTabBar(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4053 | CIMGUI_API bool ImGuiDockNode_IsHiddenTabBar(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.h:4053:46: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     4053 | CIMGUI_API bool ImGuiDockNode_IsHiddenTabBar(ImGuiDockNode* self);
+          |                                              ^~~~~~~~~~~~~
+          |                                              ImGuiMod_None
+     |
+4053 | CIMGUI_API bool ImGuiDockNode_IsHiddenTabBar(ImGuiDockNode* self);
+     |                                              ^
+
+vendor/cimgui.h:4053:61: error:
+     error: ‘self’ was not declared in this scope
+     4053 | CIMGUI_API bool ImGuiDockNode_IsHiddenTabBar(ImGuiDockNode* self);
+          |                                                             ^~~~
+     |
+4053 | CIMGUI_API bool ImGuiDockNode_IsHiddenTabBar(ImGuiDockNode* self);
+     |                                                             ^
+
+vendor/cimgui.h:4054:17: error:
+     warning: ‘ImGuiDockNode_IsNoTabBar’ initialized and declared ‘extern’
+     4054 | CIMGUI_API bool ImGuiDockNode_IsNoTabBar(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4054 | CIMGUI_API bool ImGuiDockNode_IsNoTabBar(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.h:4054:42: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     4054 | CIMGUI_API bool ImGuiDockNode_IsNoTabBar(ImGuiDockNode* self);
+          |                                          ^~~~~~~~~~~~~
+          |                                          ImGuiMod_None
+     |
+4054 | CIMGUI_API bool ImGuiDockNode_IsNoTabBar(ImGuiDockNode* self);
+     |                                          ^
+
+vendor/cimgui.h:4054:57: error:
+     error: ‘self’ was not declared in this scope
+     4054 | CIMGUI_API bool ImGuiDockNode_IsNoTabBar(ImGuiDockNode* self);
+          |                                                         ^~~~
+     |
+4054 | CIMGUI_API bool ImGuiDockNode_IsNoTabBar(ImGuiDockNode* self);
+     |                                                         ^
+
+vendor/cimgui.h:4055:17: error:
+     warning: ‘ImGuiDockNode_IsSplitNode’ initialized and declared ‘extern’
+     4055 | CIMGUI_API bool ImGuiDockNode_IsSplitNode(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4055 | CIMGUI_API bool ImGuiDockNode_IsSplitNode(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.h:4055:43: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     4055 | CIMGUI_API bool ImGuiDockNode_IsSplitNode(ImGuiDockNode* self);
+          |                                           ^~~~~~~~~~~~~
+          |                                           ImGuiMod_None
+     |
+4055 | CIMGUI_API bool ImGuiDockNode_IsSplitNode(ImGuiDockNode* self);
+     |                                           ^
+
+vendor/cimgui.h:4055:58: error:
+     error: ‘self’ was not declared in this scope
+     4055 | CIMGUI_API bool ImGuiDockNode_IsSplitNode(ImGuiDockNode* self);
+          |                                                          ^~~~
+     |
+4055 | CIMGUI_API bool ImGuiDockNode_IsSplitNode(ImGuiDockNode* self);
+     |                                                          ^
+
+vendor/cimgui.h:4056:17: error:
+     warning: ‘ImGuiDockNode_IsLeafNode’ initialized and declared ‘extern’
+     4056 | CIMGUI_API bool ImGuiDockNode_IsLeafNode(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4056 | CIMGUI_API bool ImGuiDockNode_IsLeafNode(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.h:4056:42: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     4056 | CIMGUI_API bool ImGuiDockNode_IsLeafNode(ImGuiDockNode* self);
+          |                                          ^~~~~~~~~~~~~
+          |                                          ImGuiMod_None
+     |
+4056 | CIMGUI_API bool ImGuiDockNode_IsLeafNode(ImGuiDockNode* self);
+     |                                          ^
+
+vendor/cimgui.h:4056:57: error:
+     error: ‘self’ was not declared in this scope
+     4056 | CIMGUI_API bool ImGuiDockNode_IsLeafNode(ImGuiDockNode* self);
+          |                                                         ^~~~
+     |
+4056 | CIMGUI_API bool ImGuiDockNode_IsLeafNode(ImGuiDockNode* self);
+     |                                                         ^
+
+vendor/cimgui.h:4057:17: error:
+     warning: ‘ImGuiDockNode_IsEmpty’ initialized and declared ‘extern’
+     4057 | CIMGUI_API bool ImGuiDockNode_IsEmpty(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~
+     |
+4057 | CIMGUI_API bool ImGuiDockNode_IsEmpty(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.h:4057:39: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     4057 | CIMGUI_API bool ImGuiDockNode_IsEmpty(ImGuiDockNode* self);
+          |                                       ^~~~~~~~~~~~~
+          |                                       ImGuiMod_None
+     |
+4057 | CIMGUI_API bool ImGuiDockNode_IsEmpty(ImGuiDockNode* self);
+     |                                       ^
+
+vendor/cimgui.h:4057:54: error:
+     error: ‘self’ was not declared in this scope
+     4057 | CIMGUI_API bool ImGuiDockNode_IsEmpty(ImGuiDockNode* self);
+          |                                                      ^~~~
+     |
+4057 | CIMGUI_API bool ImGuiDockNode_IsEmpty(ImGuiDockNode* self);
+     |                                                      ^
+
+vendor/cimgui.h:4058:49: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     4058 | CIMGUI_API void ImGuiDockNode_Rect(ImRect *pOut,ImGuiDockNode* self);
+          |                                                 ^~~~~~~~~~~~~
+     |
+4058 | CIMGUI_API void ImGuiDockNode_Rect(ImRect *pOut,ImGuiDockNode* self);
+     |                                                 ^
+
+vendor/cimgui.h:4059:17: error:
+     error: variable or field ‘ImGuiDockNode_SetLocalFlags’ declared void
+     4059 | CIMGUI_API void ImGuiDockNode_SetLocalFlags(ImGuiDockNode* self,ImGuiDockNodeFlags flags);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4059 | CIMGUI_API void ImGuiDockNode_SetLocalFlags(ImGuiDockNode* self,ImGuiDockNodeFlags flags);
+     |                 ^
+
+vendor/cimgui.h:4059:45: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     4059 | CIMGUI_API void ImGuiDockNode_SetLocalFlags(ImGuiDockNode* self,ImGuiDockNodeFlags flags);
+          |                                             ^~~~~~~~~~~~~
+          |                                             ImGuiMod_None
+     |
+4059 | CIMGUI_API void ImGuiDockNode_SetLocalFlags(ImGuiDockNode* self,ImGuiDockNodeFlags flags);
+     |                                             ^
+
+vendor/cimgui.h:4059:60: error:
+     error: ‘self’ was not declared in this scope
+     4059 | CIMGUI_API void ImGuiDockNode_SetLocalFlags(ImGuiDockNode* self,ImGuiDockNodeFlags flags);
+          |                                                            ^~~~
+     |
+4059 | CIMGUI_API void ImGuiDockNode_SetLocalFlags(ImGuiDockNode* self,ImGuiDockNodeFlags flags);
+     |                                                            ^
+
+vendor/cimgui.h:4059:65: error:
+     error: ‘ImGuiDockNodeFlags’ was not declared in this scope; did you mean ‘ImGuiTreeNodeFlags’?
+     4059 | CIMGUI_API void ImGuiDockNode_SetLocalFlags(ImGuiDockNode* self,ImGuiDockNodeFlags flags);
+          |                                                                 ^~~~~~~~~~~~~~~~~~
+          |                                                                 ImGuiTreeNodeFlags
+     |
+4059 | CIMGUI_API void ImGuiDockNode_SetLocalFlags(ImGuiDockNode* self,ImGuiDockNodeFlags flags);
+     |                                                                 ^
+
+vendor/cimgui.h:4060:17: error:
+     error: variable or field ‘ImGuiDockNode_UpdateMergedFlags’ declared void
+     4060 | CIMGUI_API void ImGuiDockNode_UpdateMergedFlags(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4060 | CIMGUI_API void ImGuiDockNode_UpdateMergedFlags(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.h:4060:49: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     4060 | CIMGUI_API void ImGuiDockNode_UpdateMergedFlags(ImGuiDockNode* self);
+          |                                                 ^~~~~~~~~~~~~
+          |                                                 ImGuiMod_None
+     |
+4060 | CIMGUI_API void ImGuiDockNode_UpdateMergedFlags(ImGuiDockNode* self);
+     |                                                 ^
+
+vendor/cimgui.h:4060:64: error:
+     error: ‘self’ was not declared in this scope
+     4060 | CIMGUI_API void ImGuiDockNode_UpdateMergedFlags(ImGuiDockNode* self);
+          |                                                                ^~~~
+     |
+4060 | CIMGUI_API void ImGuiDockNode_UpdateMergedFlags(ImGuiDockNode* self);
+     |                                                                ^
+
+vendor/cimgui.h:4061:12: error:
+     error: ‘ImGuiDockContext’ does not name a type; did you mean ‘ImGuiContext’?
+     4061 | CIMGUI_API ImGuiDockContext* ImGuiDockContext_ImGuiDockContext(void);
+          |            ^~~~~~~~~~~~~~~~
+          |            ImGuiContext
+     |
+4061 | CIMGUI_API ImGuiDockContext* ImGuiDockContext_ImGuiDockContext(void);
+     |            ^
+
+vendor/cimgui.h:4062:17: error:
+     error: variable or field ‘ImGuiDockContext_destroy’ declared void
+     4062 | CIMGUI_API void ImGuiDockContext_destroy(ImGuiDockContext* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4062 | CIMGUI_API void ImGuiDockContext_destroy(ImGuiDockContext* self);
+     |                 ^
+
+vendor/cimgui.h:4062:42: error:
+     error: ‘ImGuiDockContext’ was not declared in this scope; did you mean ‘ImGuiContext’?
+     4062 | CIMGUI_API void ImGuiDockContext_destroy(ImGuiDockContext* self);
+          |                                          ^~~~~~~~~~~~~~~~
+          |                                          ImGuiContext
+     |
+4062 | CIMGUI_API void ImGuiDockContext_destroy(ImGuiDockContext* self);
+     |                                          ^
+
+vendor/cimgui.h:4062:60: error:
+     error: ‘self’ was not declared in this scope
+     4062 | CIMGUI_API void ImGuiDockContext_destroy(ImGuiDockContext* self);
+          |                                                            ^~~~
+     |
+4062 | CIMGUI_API void ImGuiDockContext_destroy(ImGuiDockContext* self);
+     |                                                            ^
+
+vendor/cimgui.h:4149:68: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     4149 | CIMGUI_API void igStartMouseMovingWindowOrNode(ImGuiWindow* window,ImGuiDockNode* node,bool undock_floating_node);
+          |                                                                    ^~~~~~~~~~~~~
+     |
+4149 | CIMGUI_API void igStartMouseMovingWindowOrNode(ImGuiWindow* window,ImGuiDockNode* node,bool undock_floating_node);
+     |                                                                    ^
+
+vendor/cimgui.h:4160:18: error:
+     error: ‘ImGuiPlatformMonitor’ does not name a type
+     4160 | CIMGUI_API const ImGuiPlatformMonitor* igGetViewportPlatformMonitor(ImGuiViewport* viewport);
+          |                  ^~~~~~~~~~~~~~~~~~~~
+     |
+4160 | CIMGUI_API const ImGuiPlatformMonitor* igGetViewportPlatformMonitor(ImGuiViewport* viewport);
+     |                  ^
+
+vendor/cimgui.h:4295:78: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     4295 | CIMGUI_API void igDockContextQueueDock(ImGuiContext* ctx,ImGuiWindow* target,ImGuiDockNode* target_node,ImGuiWindow* payload,ImGuiDir split_dir,float split_ratio,bool split_outer);
+          |                                                                              ^~~~~~~~~~~~~
+     |
+4295 | CIMGUI_API void igDockContextQueueDock(ImGuiContext* ctx,ImGuiWindow* target,ImGuiDockNode* target_node,ImGuiWindow* payload,ImGuiDir split_dir,float split_ratio,bool split_outer);
+     |                                                                              ^
+
+vendor/cimgui.h:4297:64: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     4297 | CIMGUI_API void igDockContextQueueUndockNode(ImGuiContext* ctx,ImGuiDockNode* node);
+          |                                                                ^~~~~~~~~~~~~
+     |
+4297 | CIMGUI_API void igDockContextQueueUndockNode(ImGuiContext* ctx,ImGuiDockNode* node);
+     |                                                                ^
+
+vendor/cimgui.h:4299:66: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     4299 | CIMGUI_API void igDockContextProcessUndockNode(ImGuiContext* ctx,ImGuiDockNode* node);
+          |                                                                  ^~~~~~~~~~~~~
+     |
+4299 | CIMGUI_API void igDockContextProcessUndockNode(ImGuiContext* ctx,ImGuiDockNode* node);
+     |                                                                  ^
+
+vendor/cimgui.h:4300:72: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     4300 | CIMGUI_API bool igDockContextCalcDropPosForDocking(ImGuiWindow* target,ImGuiDockNode* target_node,ImGuiWindow* payload_window,ImGuiDockNode* payload_node,ImGuiDir split_dir,bool split_outer,ImVec2* out_pos);
+          |                                                                        ^~~~~~~~~~~~~
+     |
+4300 | CIMGUI_API bool igDockContextCalcDropPosForDocking(ImGuiWindow* target,ImGuiDockNode* target_node,ImGuiWindow* payload_window,ImGuiDockNode* payload_node,ImGuiDir split_dir,bool split_outer,ImVec2* out_pos);
+     |                                                                        ^
+
+vendor/cimgui.h:4300:127: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     4300 | CIMGUI_API bool igDockContextCalcDropPosForDocking(ImGuiWindow* target,ImGuiDockNode* target_node,ImGuiWindow* payload_window,ImGuiDockNode* payload_node,ImGuiDir split_dir,bool split_outer,ImVec2* out_pos);
+          |                                                                                                                               ^~~~~~~~~~~~~
+     |
+4300 | CIMGUI_API bool igDockContextCalcDropPosForDocking(ImGuiWindow* target,ImGuiDockNode* target_node,ImGuiWindow* payload_window,ImGuiDockNode* payload_node,ImGuiDir split_dir,bool split_outer,ImVec2* out_pos);
+     |                                                                                                                               ^
+
+vendor/cimgui.h:4301:12: error:
+     error: ‘ImGuiDockNode’ does not name a type
+     4301 | CIMGUI_API ImGuiDockNode* igDockContextFindNodeByID(ImGuiContext* ctx,ImGuiID id);
+          |            ^~~~~~~~~~~~~
+     |
+4301 | CIMGUI_API ImGuiDockNode* igDockContextFindNodeByID(ImGuiContext* ctx,ImGuiID id);
+     |            ^
+
+vendor/cimgui.h:4302:71: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     4302 | CIMGUI_API void igDockNodeWindowMenuHandler_Default(ImGuiContext* ctx,ImGuiDockNode* node,ImGuiTabBar* tab_bar);
+          |                                                                       ^~~~~~~~~~~~~
+     |
+4302 | CIMGUI_API void igDockNodeWindowMenuHandler_Default(ImGuiContext* ctx,ImGuiDockNode* node,ImGuiTabBar* tab_bar);
+     |                                                                       ^
+
+vendor/cimgui.h:4303:17: error:
+     warning: ‘igDockNodeBeginAmendTabBar’ initialized and declared ‘extern’
+     4303 | CIMGUI_API bool igDockNodeBeginAmendTabBar(ImGuiDockNode* node);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4303 | CIMGUI_API bool igDockNodeBeginAmendTabBar(ImGuiDockNode* node);
+     |                 ^
+
+vendor/cimgui.h:4303:44: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     4303 | CIMGUI_API bool igDockNodeBeginAmendTabBar(ImGuiDockNode* node);
+          |                                            ^~~~~~~~~~~~~
+          |                                            ImGuiMod_None
+     |
+4303 | CIMGUI_API bool igDockNodeBeginAmendTabBar(ImGuiDockNode* node);
+     |                                            ^
+
+vendor/cimgui.h:4303:59: error:
+     error: ‘node’ was not declared in this scope
+     4303 | CIMGUI_API bool igDockNodeBeginAmendTabBar(ImGuiDockNode* node);
+          |                                                           ^~~~
+     |
+4303 | CIMGUI_API bool igDockNodeBeginAmendTabBar(ImGuiDockNode* node);
+     |                                                           ^
+
+vendor/cimgui.h:4305:12: error:
+     error: ‘ImGuiDockNode’ does not name a type
+     4305 | CIMGUI_API ImGuiDockNode* igDockNodeGetRootNode(ImGuiDockNode* node);
+          |            ^~~~~~~~~~~~~
+     |
+4305 | CIMGUI_API ImGuiDockNode* igDockNodeGetRootNode(ImGuiDockNode* node);
+     |            ^
+
+vendor/cimgui.h:4306:17: error:
+     warning: ‘igDockNodeIsInHierarchyOf’ initialized and declared ‘extern’
+     4306 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4306 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent);
+     |                 ^
+
+vendor/cimgui.h:4306:43: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     4306 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent);
+          |                                           ^~~~~~~~~~~~~
+          |                                           ImGuiMod_None
+     |
+4306 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent);
+     |                                           ^
+
+vendor/cimgui.h:4306:58: error:
+     error: ‘node’ was not declared in this scope
+     4306 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent);
+          |                                                          ^~~~
+     |
+4306 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent);
+     |                                                          ^
+
+vendor/cimgui.h:4306:63: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     4306 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent);
+          |                                                               ^~~~~~~~~~~~~
+          |                                                               ImGuiMod_None
+     |
+4306 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent);
+     |                                                               ^
+
+vendor/cimgui.h:4306:78: error:
+     error: ‘parent’ was not declared in this scope
+     4306 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent);
+          |                                                                              ^~~~~~
+     |
+4306 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent);
+     |                                                                              ^
+
+vendor/cimgui.h:4306:84: error:
+     error: expression list treated as compound expression in initializer [-fpermissive]
+     4306 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent);
+          |                                                                                    ^
+     |
+4306 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent);
+     |                                                                                    ^
+
+vendor/cimgui.h:4307:41: error:
+     error: ‘ImGuiDockNode’ does not name a type
+     4307 | CIMGUI_API int igDockNodeGetDepth(const ImGuiDockNode* node);
+          |                                         ^~~~~~~~~~~~~
+     |
+4307 | CIMGUI_API int igDockNodeGetDepth(const ImGuiDockNode* node);
+     |                                         ^
+
+vendor/cimgui.h:4308:58: error:
+     error: ‘ImGuiDockNode’ does not name a type
+     4308 | CIMGUI_API ImGuiID igDockNodeGetWindowMenuButtonId(const ImGuiDockNode* node);
+          |                                                          ^~~~~~~~~~~~~
+     |
+4308 | CIMGUI_API ImGuiID igDockNodeGetWindowMenuButtonId(const ImGuiDockNode* node);
+     |                                                          ^
+
+vendor/cimgui.h:4309:12: error:
+     error: ‘ImGuiDockNode’ does not name a type
+     4309 | CIMGUI_API ImGuiDockNode* igGetWindowDockNode(void);
+          |            ^~~~~~~~~~~~~
+     |
+4309 | CIMGUI_API ImGuiDockNode* igGetWindowDockNode(void);
+     |            ^
+
+vendor/cimgui.h:4316:12: error:
+     error: ‘ImGuiDockNode’ does not name a type
+     4316 | CIMGUI_API ImGuiDockNode* igDockBuilderGetNode(ImGuiID node_id);
+          |            ^~~~~~~~~~~~~
+     |
+4316 | CIMGUI_API ImGuiDockNode* igDockBuilderGetNode(ImGuiID node_id);
+     |            ^
+
+vendor/cimgui.h:4317:12: error:
+     error: ‘ImGuiDockNode’ does not name a type
+     4317 | CIMGUI_API ImGuiDockNode* igDockBuilderGetCentralNode(ImGuiID node_id);
+          |            ^~~~~~~~~~~~~
+     |
+4317 | CIMGUI_API ImGuiDockNode* igDockBuilderGetCentralNode(ImGuiID node_id);
+     |            ^
+
+vendor/cimgui.h:4318:57: error:
+     error: ‘ImGuiDockNodeFlags’ has not been declared
+     4318 | CIMGUI_API ImGuiID igDockBuilderAddNode(ImGuiID node_id,ImGuiDockNodeFlags flags);
+          |                                                         ^~~~~~~~~~~~~~~~~~
+     |
+4318 | CIMGUI_API ImGuiID igDockBuilderAddNode(ImGuiID node_id,ImGuiDockNodeFlags flags);
+     |                                                         ^
+
+vendor/cimgui.h:4397:93: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     4397 | CIMGUI_API bool igBeginTabBarEx(ImGuiTabBar* tab_bar,const ImRect bb,ImGuiTabBarFlags flags,ImGuiDockNode* dock_node);
+          |                                                                                             ^~~~~~~~~~~~~
+     |
+4397 | CIMGUI_API bool igBeginTabBarEx(ImGuiTabBar* tab_bar,const ImRect bb,ImGuiTabBarFlags flags,ImGuiDockNode* dock_node);
+     |                                                                                             ^
+
+vendor/cimgui.h:4444:62: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     4444 | CIMGUI_API bool igCollapseButton(ImGuiID id,const ImVec2 pos,ImGuiDockNode* dock_node);
+          |                                                              ^~~~~~~~~~~~~
+     |
+4444 | CIMGUI_API bool igCollapseButton(ImGuiID id,const ImVec2 pos,ImGuiDockNode* dock_node);
+     |                                                              ^
+
+vendor/cimgui.h:4493:17: error:
+     error: variable or field ‘igDebugNodeDockNode’ declared void
+     4493 | CIMGUI_API void igDebugNodeDockNode(ImGuiDockNode* node,const char* label);
+          |                 ^~~~~~~~~~~~~~~~~~~
+     |
+4493 | CIMGUI_API void igDebugNodeDockNode(ImGuiDockNode* node,const char* label);
+     |                 ^
+
+vendor/cimgui.h:4493:37: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     4493 | CIMGUI_API void igDebugNodeDockNode(ImGuiDockNode* node,const char* label);
+          |                                     ^~~~~~~~~~~~~
+          |                                     ImGuiMod_None
+     |
+4493 | CIMGUI_API void igDebugNodeDockNode(ImGuiDockNode* node,const char* label);
+     |                                     ^
+
+vendor/cimgui.h:4493:52: error:
+     error: ‘node’ was not declared in this scope
+     4493 | CIMGUI_API void igDebugNodeDockNode(ImGuiDockNode* node,const char* label);
+          |                                                    ^~~~
+     |
+4493 | CIMGUI_API void igDebugNodeDockNode(ImGuiDockNode* node,const char* label);
+     |                                                    ^
+
+vendor/cimgui.h:4493:57: error:
+     error: expected primary-expression before ‘const’
+     4493 | CIMGUI_API void igDebugNodeDockNode(ImGuiDockNode* node,const char* label);
+          |                                                         ^~~~~
+     |
+4493 | CIMGUI_API void igDebugNodeDockNode(ImGuiDockNode* node,const char* label);
+     |                                                         ^
+vendor/cimgui.cpp: In function ‘float igGetWindowDpiScale()’:
+
+vendor/cimgui.cpp:181:19: error:
+     error: ‘GetWindowDpiScale’ is not a member of ‘ImGui’; did you mean ‘SetWindowFontScale’?
+      181 |     return ImGui::GetWindowDpiScale();
+          |                   ^~~~~~~~~~~~~~~~~
+          |                   SetWindowFontScale
+    |
+181 |     return ImGui::GetWindowDpiScale();
+    |                   ^
+vendor/cimgui.cpp: In function ‘ImGuiViewport* igGetWindowViewport()’:
+
+vendor/cimgui.cpp:201:19: error:
+     error: ‘GetWindowViewport’ is not a member of ‘ImGui’; did you mean ‘SetWindowViewport’?
+      201 |     return ImGui::GetWindowViewport();
+          |                   ^~~~~~~~~~~~~~~~~
+          |                   SetWindowViewport
+    |
+201 |     return ImGui::GetWindowViewport();
+    |                   ^
+vendor/cimgui.cpp: In function ‘void igSetNextWindowViewport(ImGuiID)’:
+
+vendor/cimgui.cpp:237:19: error:
+     error: ‘SetNextWindowViewport’ is not a member of ‘ImGui’; did you mean ‘SetWindowViewport’?
+      237 |     return ImGui::SetNextWindowViewport(viewport_id);
+          |                   ^~~~~~~~~~~~~~~~~~~~~
+          |                   SetWindowViewport
+    |
+237 |     return ImGui::SetNextWindowViewport(viewport_id);
+    |                   ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:1259:61: error:
+     error: ‘ImGuiDockNodeFlags’ has not been declared
+     1259 | CIMGUI_API ImGuiID igDockSpace(ImGuiID id,const ImVec2 size,ImGuiDockNodeFlags flags,const ImGuiWindowClass* window_class)
+          |                                                             ^~~~~~~~~~~~~~~~~~
+     |
+1259 | CIMGUI_API ImGuiID igDockSpace(ImGuiID id,const ImVec2 size,ImGuiDockNodeFlags flags,const ImGuiWindowClass* window_class)
+     |                                                             ^
+
+vendor/cimgui.cpp:1259:92: error:
+     error: ‘ImGuiWindowClass’ does not name a type; did you mean ‘ImGuiWindowFlags’?
+     1259 | CIMGUI_API ImGuiID igDockSpace(ImGuiID id,const ImVec2 size,ImGuiDockNodeFlags flags,const ImGuiWindowClass* window_class)
+          |                                                                                            ^~~~~~~~~~~~~~~~
+          |                                                                                            ImGuiWindowFlags
+     |
+1259 | CIMGUI_API ImGuiID igDockSpace(ImGuiID id,const ImVec2 size,ImGuiDockNodeFlags flags,const ImGuiWindowClass* window_class)
+     |                                                                                            ^
+vendor/cimgui.cpp: In function ‘ImGuiID igDockSpace(ImGuiID, ImVec2, int, const int*)’:
+
+vendor/cimgui.cpp:1261:19: error:
+     error: ‘DockSpace’ is not a member of ‘ImGui’
+     1261 |     return ImGui::DockSpace(id,size,flags,window_class);
+          |                   ^~~~~~~~~
+     |
+1261 |     return ImGui::DockSpace(id,size,flags,window_class);
+     |                   ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:1263:74: error:
+     error: ‘ImGuiDockNodeFlags’ has not been declared
+     1263 | CIMGUI_API ImGuiID igDockSpaceOverViewport(const ImGuiViewport* viewport,ImGuiDockNodeFlags flags,const ImGuiWindowClass* window_class)
+          |                                                                          ^~~~~~~~~~~~~~~~~~
+     |
+1263 | CIMGUI_API ImGuiID igDockSpaceOverViewport(const ImGuiViewport* viewport,ImGuiDockNodeFlags flags,const ImGuiWindowClass* window_class)
+     |                                                                          ^
+
+vendor/cimgui.cpp:1263:105: error:
+     error: ‘ImGuiWindowClass’ does not name a type; did you mean ‘ImGuiWindowFlags’?
+     1263 | CIMGUI_API ImGuiID igDockSpaceOverViewport(const ImGuiViewport* viewport,ImGuiDockNodeFlags flags,const ImGuiWindowClass* window_class)
+          |                                                                                                         ^~~~~~~~~~~~~~~~
+          |                                                                                                         ImGuiWindowFlags
+     |
+1263 | CIMGUI_API ImGuiID igDockSpaceOverViewport(const ImGuiViewport* viewport,ImGuiDockNodeFlags flags,const ImGuiWindowClass* window_class)
+     |                                                                                                         ^
+vendor/cimgui.cpp: In function ‘ImGuiID igDockSpaceOverViewport(const ImGuiViewport*, int, const int*)’:
+
+vendor/cimgui.cpp:1265:19: error:
+     error: ‘DockSpaceOverViewport’ is not a member of ‘ImGui’
+     1265 |     return ImGui::DockSpaceOverViewport(viewport,flags,window_class);
+          |                   ^~~~~~~~~~~~~~~~~~~~~
+     |
+1265 |     return ImGui::DockSpaceOverViewport(viewport,flags,window_class);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igSetNextWindowDockID(ImGuiID, ImGuiCond)’:
+
+vendor/cimgui.cpp:1269:19: error:
+     error: ‘SetNextWindowDockID’ is not a member of ‘ImGui’; did you mean ‘SetNextWindowFocus’?
+     1269 |     return ImGui::SetNextWindowDockID(dock_id,cond);
+          |                   ^~~~~~~~~~~~~~~~~~~
+          |                   SetNextWindowFocus
+     |
+1269 |     return ImGui::SetNextWindowDockID(dock_id,cond);
+     |                   ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:1271:44: error:
+     error: ‘ImGuiWindowClass’ does not name a type; did you mean ‘ImGuiWindowFlags’?
+     1271 | CIMGUI_API void igSetNextWindowClass(const ImGuiWindowClass* window_class)
+          |                                            ^~~~~~~~~~~~~~~~
+          |                                            ImGuiWindowFlags
+     |
+1271 | CIMGUI_API void igSetNextWindowClass(const ImGuiWindowClass* window_class)
+     |                                            ^
+vendor/cimgui.cpp: In function ‘void igSetNextWindowClass(const int*)’:
+
+vendor/cimgui.cpp:1273:19: error:
+     error: ‘SetNextWindowClass’ is not a member of ‘ImGui’; did you mean ‘SetNextWindowPos’?
+     1273 |     return ImGui::SetNextWindowClass(window_class);
+          |                   ^~~~~~~~~~~~~~~~~~
+          |                   SetNextWindowPos
+     |
+1273 |     return ImGui::SetNextWindowClass(window_class);
+     |                   ^
+vendor/cimgui.cpp: In function ‘ImGuiID igGetWindowDockID()’:
+
+vendor/cimgui.cpp:1277:19: error:
+     error: ‘GetWindowDockID’ is not a member of ‘ImGui’; did you mean ‘SetWindowFocus’?
+     1277 |     return ImGui::GetWindowDockID();
+          |                   ^~~~~~~~~~~~~~~
+          |                   SetWindowFocus
+     |
+1277 |     return ImGui::GetWindowDockID();
+     |                   ^
+vendor/cimgui.cpp: In function ‘bool igIsWindowDocked()’:
+
+vendor/cimgui.cpp:1281:19: error:
+     error: ‘IsWindowDocked’ is not a member of ‘ImGui’; did you mean ‘IsWindowFocused’?
+     1281 |     return ImGui::IsWindowDocked();
+          |                   ^~~~~~~~~~~~~~
+          |                   IsWindowFocused
+     |
+1281 |     return ImGui::IsWindowDocked();
+     |                   ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:1647:12: error:
+     error: ‘ImGuiPlatformIO’ does not name a type; did you mean ‘ImGuiPlatformImeData’?
+     1647 | CIMGUI_API ImGuiPlatformIO* igGetPlatformIO()
+          |            ^~~~~~~~~~~~~~~
+          |            ImGuiPlatformImeData
+     |
+1647 | CIMGUI_API ImGuiPlatformIO* igGetPlatformIO()
+     |            ^
+vendor/cimgui.cpp: In function ‘void igUpdatePlatformWindows()’:
+
+vendor/cimgui.cpp:1653:19: error:
+     error: ‘UpdatePlatformWindows’ is not a member of ‘ImGui’
+     1653 |     return ImGui::UpdatePlatformWindows();
+          |                   ^~~~~~~~~~~~~~~~~~~~~
+     |
+1653 |     return ImGui::UpdatePlatformWindows();
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igRenderPlatformWindowsDefault(void*, void*)’:
+
+vendor/cimgui.cpp:1657:19: error:
+     error: ‘RenderPlatformWindowsDefault’ is not a member of ‘ImGui’
+     1657 |     return ImGui::RenderPlatformWindowsDefault(platform_render_arg,renderer_render_arg);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+1657 |     return ImGui::RenderPlatformWindowsDefault(platform_render_arg,renderer_render_arg);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDestroyPlatformWindows()’:
+
+vendor/cimgui.cpp:1661:19: error:
+     error: ‘DestroyPlatformWindows’ is not a member of ‘ImGui’
+     1661 |     return ImGui::DestroyPlatformWindows();
+          |                   ^~~~~~~~~~~~~~~~~~~~~~
+     |
+1661 |     return ImGui::DestroyPlatformWindows();
+     |                   ^
+vendor/cimgui.cpp: In function ‘ImGuiViewport* igFindViewportByID(ImGuiID)’:
+
+vendor/cimgui.cpp:1665:19: error:
+     error: ‘FindViewportByID’ is not a member of ‘ImGui’; did you mean ‘FindWindowByID’?
+     1665 |     return ImGui::FindViewportByID(id);
+          |                   ^~~~~~~~~~~~~~~~
+          |                   FindWindowByID
+     |
+1665 |     return ImGui::FindViewportByID(id);
+     |                   ^
+vendor/cimgui.cpp: In function ‘ImGuiViewport* igFindViewportByPlatformHandle(void*)’:
+
+vendor/cimgui.cpp:1669:19: error:
+     error: ‘FindViewportByPlatformHandle’ is not a member of ‘ImGui’
+     1669 |     return ImGui::FindViewportByPlatformHandle(platform_handle);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+1669 |     return ImGui::FindViewportByPlatformHandle(platform_handle);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void ImGuiIO_AddMouseViewportEvent(ImGuiIO*, ImGuiID)’:
+
+vendor/cimgui.cpp:1709:18: error:
+     error: ‘struct ImGuiIO’ has no member named ‘AddMouseViewportEvent’; did you mean ‘AddMousePosEvent’?
+     1709 |     return self->AddMouseViewportEvent(id);
+          |                  ^~~~~~~~~~~~~~~~~~~~~
+          |                  AddMousePosEvent
+     |
+1709 |     return self->AddMouseViewportEvent(id);
+     |                  ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:1779:12: error:
+     error: ‘ImGuiWindowClass’ does not name a type; did you mean ‘ImGuiWindowFlags’?
+     1779 | CIMGUI_API ImGuiWindowClass* ImGuiWindowClass_ImGuiWindowClass(void)
+          |            ^~~~~~~~~~~~~~~~
+          |            ImGuiWindowFlags
+     |
+1779 | CIMGUI_API ImGuiWindowClass* ImGuiWindowClass_ImGuiWindowClass(void)
+     |            ^
+
+vendor/cimgui.cpp:1783:17: error:
+     error: variable or field ‘ImGuiWindowClass_destroy’ declared void
+     1783 | CIMGUI_API void ImGuiWindowClass_destroy(ImGuiWindowClass* self)
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~
+     |
+1783 | CIMGUI_API void ImGuiWindowClass_destroy(ImGuiWindowClass* self)
+     |                 ^
+
+vendor/cimgui.cpp:1783:42: error:
+     error: ‘ImGuiWindowClass’ was not declared in this scope; did you mean ‘ImGuiWindowFlags’?
+     1783 | CIMGUI_API void ImGuiWindowClass_destroy(ImGuiWindowClass* self)
+          |                                          ^~~~~~~~~~~~~~~~
+          |                                          ImGuiWindowFlags
+     |
+1783 | CIMGUI_API void ImGuiWindowClass_destroy(ImGuiWindowClass* self)
+     |                                          ^
+
+vendor/cimgui.cpp:1783:60: error:
+     error: ‘self’ was not declared in this scope
+     1783 | CIMGUI_API void ImGuiWindowClass_destroy(ImGuiWindowClass* self)
+          |                                                            ^~~~
+     |
+1783 | CIMGUI_API void ImGuiWindowClass_destroy(ImGuiWindowClass* self)
+     |                                                            ^
+
+vendor/cimgui.cpp:2647:12: error:
+     error: ‘ImGuiPlatformIO’ does not name a type; did you mean ‘ImGuiPlatformImeData’?
+     2647 | CIMGUI_API ImGuiPlatformIO* ImGuiPlatformIO_ImGuiPlatformIO(void)
+          |            ^~~~~~~~~~~~~~~
+          |            ImGuiPlatformImeData
+     |
+2647 | CIMGUI_API ImGuiPlatformIO* ImGuiPlatformIO_ImGuiPlatformIO(void)
+     |            ^
+
+vendor/cimgui.cpp:2651:17: error:
+     error: variable or field ‘ImGuiPlatformIO_destroy’ declared void
+     2651 | CIMGUI_API void ImGuiPlatformIO_destroy(ImGuiPlatformIO* self)
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~
+     |
+2651 | CIMGUI_API void ImGuiPlatformIO_destroy(ImGuiPlatformIO* self)
+     |                 ^
+
+vendor/cimgui.cpp:2651:41: error:
+     error: ‘ImGuiPlatformIO’ was not declared in this scope; did you mean ‘ImGuiPlatformImeData’?
+     2651 | CIMGUI_API void ImGuiPlatformIO_destroy(ImGuiPlatformIO* self)
+          |                                         ^~~~~~~~~~~~~~~
+          |                                         ImGuiPlatformImeData
+     |
+2651 | CIMGUI_API void ImGuiPlatformIO_destroy(ImGuiPlatformIO* self)
+     |                                         ^
+
+vendor/cimgui.cpp:2651:58: error:
+     error: ‘self’ was not declared in this scope
+     2651 | CIMGUI_API void ImGuiPlatformIO_destroy(ImGuiPlatformIO* self)
+          |                                                          ^~~~
+     |
+2651 | CIMGUI_API void ImGuiPlatformIO_destroy(ImGuiPlatformIO* self)
+     |                                                          ^
+
+vendor/cimgui.cpp:2655:12: error:
+     error: ‘ImGuiPlatformMonitor’ does not name a type
+     2655 | CIMGUI_API ImGuiPlatformMonitor* ImGuiPlatformMonitor_ImGuiPlatformMonitor(void)
+          |            ^~~~~~~~~~~~~~~~~~~~
+     |
+2655 | CIMGUI_API ImGuiPlatformMonitor* ImGuiPlatformMonitor_ImGuiPlatformMonitor(void)
+     |            ^
+
+vendor/cimgui.cpp:2659:17: error:
+     error: variable or field ‘ImGuiPlatformMonitor_destroy’ declared void
+     2659 | CIMGUI_API void ImGuiPlatformMonitor_destroy(ImGuiPlatformMonitor* self)
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+2659 | CIMGUI_API void ImGuiPlatformMonitor_destroy(ImGuiPlatformMonitor* self)
+     |                 ^
+
+vendor/cimgui.cpp:2659:46: error:
+     error: ‘ImGuiPlatformMonitor’ was not declared in this scope
+     2659 | CIMGUI_API void ImGuiPlatformMonitor_destroy(ImGuiPlatformMonitor* self)
+          |                                              ^~~~~~~~~~~~~~~~~~~~
+     |
+2659 | CIMGUI_API void ImGuiPlatformMonitor_destroy(ImGuiPlatformMonitor* self)
+     |                                              ^
+
+vendor/cimgui.cpp:2659:68: error:
+     error: ‘self’ was not declared in this scope
+     2659 | CIMGUI_API void ImGuiPlatformMonitor_destroy(ImGuiPlatformMonitor* self)
+          |                                                                    ^~~~
+     |
+2659 | CIMGUI_API void ImGuiPlatformMonitor_destroy(ImGuiPlatformMonitor* self)
+     |                                                                    ^
+
+vendor/cimgui.cpp:3526:12: error:
+     error: ‘ImGuiDockNode’ does not name a type
+     3526 | CIMGUI_API ImGuiDockNode* ImGuiDockNode_ImGuiDockNode(ImGuiID id)
+          |            ^~~~~~~~~~~~~
+     |
+3526 | CIMGUI_API ImGuiDockNode* ImGuiDockNode_ImGuiDockNode(ImGuiID id)
+     |            ^
+
+vendor/cimgui.cpp:3530:17: error:
+     error: variable or field ‘ImGuiDockNode_destroy’ declared void
+     3530 | CIMGUI_API void ImGuiDockNode_destroy(ImGuiDockNode* self)
+          |                 ^~~~~~~~~~~~~~~~~~~~~
+     |
+3530 | CIMGUI_API void ImGuiDockNode_destroy(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.cpp:3530:39: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     3530 | CIMGUI_API void ImGuiDockNode_destroy(ImGuiDockNode* self)
+          |                                       ^~~~~~~~~~~~~
+          |                                       ImGuiMod_None
+     |
+3530 | CIMGUI_API void ImGuiDockNode_destroy(ImGuiDockNode* self)
+     |                                       ^
+
+vendor/cimgui.cpp:3530:54: error:
+     error: ‘self’ was not declared in this scope
+     3530 | CIMGUI_API void ImGuiDockNode_destroy(ImGuiDockNode* self)
+          |                                                      ^~~~
+     |
+3530 | CIMGUI_API void ImGuiDockNode_destroy(ImGuiDockNode* self)
+     |                                                      ^
+
+vendor/cimgui.cpp:3534:17: error:
+     warning: ‘ImGuiDockNode_IsRootNode’ initialized and declared ‘extern’
+     3534 | CIMGUI_API bool ImGuiDockNode_IsRootNode(ImGuiDockNode* self)
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~
+     |
+3534 | CIMGUI_API bool ImGuiDockNode_IsRootNode(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.cpp:3534:17: error:
+     error: redefinition of ‘bool ImGuiDockNode_IsRootNode’
+     |
+3534 | CIMGUI_API bool ImGuiDockNode_IsRootNode(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.h:4049:17: error:
+     note: ‘bool ImGuiDockNode_IsRootNode’ previously defined here
+     4049 | CIMGUI_API bool ImGuiDockNode_IsRootNode(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4049 | CIMGUI_API bool ImGuiDockNode_IsRootNode(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.cpp:3534:42: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     3534 | CIMGUI_API bool ImGuiDockNode_IsRootNode(ImGuiDockNode* self)
+          |                                          ^~~~~~~~~~~~~
+          |                                          ImGuiMod_None
+     |
+3534 | CIMGUI_API bool ImGuiDockNode_IsRootNode(ImGuiDockNode* self)
+     |                                          ^
+
+vendor/cimgui.cpp:3534:57: error:
+     error: ‘self’ was not declared in this scope
+     3534 | CIMGUI_API bool ImGuiDockNode_IsRootNode(ImGuiDockNode* self)
+          |                                                         ^~~~
+     |
+3534 | CIMGUI_API bool ImGuiDockNode_IsRootNode(ImGuiDockNode* self)
+     |                                                         ^
+
+vendor/cimgui.cpp:3538:17: error:
+     warning: ‘ImGuiDockNode_IsDockSpace’ initialized and declared ‘extern’
+     3538 | CIMGUI_API bool ImGuiDockNode_IsDockSpace(ImGuiDockNode* self)
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+3538 | CIMGUI_API bool ImGuiDockNode_IsDockSpace(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.cpp:3538:17: error:
+     error: redefinition of ‘bool ImGuiDockNode_IsDockSpace’
+     |
+3538 | CIMGUI_API bool ImGuiDockNode_IsDockSpace(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.h:4050:17: error:
+     note: ‘bool ImGuiDockNode_IsDockSpace’ previously defined here
+     4050 | CIMGUI_API bool ImGuiDockNode_IsDockSpace(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4050 | CIMGUI_API bool ImGuiDockNode_IsDockSpace(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.cpp:3538:43: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     3538 | CIMGUI_API bool ImGuiDockNode_IsDockSpace(ImGuiDockNode* self)
+          |                                           ^~~~~~~~~~~~~
+          |                                           ImGuiMod_None
+     |
+3538 | CIMGUI_API bool ImGuiDockNode_IsDockSpace(ImGuiDockNode* self)
+     |                                           ^
+
+vendor/cimgui.cpp:3538:58: error:
+     error: ‘self’ was not declared in this scope
+     3538 | CIMGUI_API bool ImGuiDockNode_IsDockSpace(ImGuiDockNode* self)
+          |                                                          ^~~~
+     |
+3538 | CIMGUI_API bool ImGuiDockNode_IsDockSpace(ImGuiDockNode* self)
+     |                                                          ^
+
+vendor/cimgui.cpp:3542:17: error:
+     warning: ‘ImGuiDockNode_IsFloatingNode’ initialized and declared ‘extern’
+     3542 | CIMGUI_API bool ImGuiDockNode_IsFloatingNode(ImGuiDockNode* self)
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+3542 | CIMGUI_API bool ImGuiDockNode_IsFloatingNode(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.cpp:3542:17: error:
+     error: redefinition of ‘bool ImGuiDockNode_IsFloatingNode’
+     |
+3542 | CIMGUI_API bool ImGuiDockNode_IsFloatingNode(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.h:4051:17: error:
+     note: ‘bool ImGuiDockNode_IsFloatingNode’ previously defined here
+     4051 | CIMGUI_API bool ImGuiDockNode_IsFloatingNode(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4051 | CIMGUI_API bool ImGuiDockNode_IsFloatingNode(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.cpp:3542:46: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     3542 | CIMGUI_API bool ImGuiDockNode_IsFloatingNode(ImGuiDockNode* self)
+          |                                              ^~~~~~~~~~~~~
+          |                                              ImGuiMod_None
+     |
+3542 | CIMGUI_API bool ImGuiDockNode_IsFloatingNode(ImGuiDockNode* self)
+     |                                              ^
+
+vendor/cimgui.cpp:3542:61: error:
+     error: ‘self’ was not declared in this scope
+     3542 | CIMGUI_API bool ImGuiDockNode_IsFloatingNode(ImGuiDockNode* self)
+          |                                                             ^~~~
+     |
+3542 | CIMGUI_API bool ImGuiDockNode_IsFloatingNode(ImGuiDockNode* self)
+     |                                                             ^
+
+vendor/cimgui.cpp:3546:17: error:
+     warning: ‘ImGuiDockNode_IsCentralNode’ initialized and declared ‘extern’
+     3546 | CIMGUI_API bool ImGuiDockNode_IsCentralNode(ImGuiDockNode* self)
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+3546 | CIMGUI_API bool ImGuiDockNode_IsCentralNode(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.cpp:3546:17: error:
+     error: redefinition of ‘bool ImGuiDockNode_IsCentralNode’
+     |
+3546 | CIMGUI_API bool ImGuiDockNode_IsCentralNode(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.h:4052:17: error:
+     note: ‘bool ImGuiDockNode_IsCentralNode’ previously defined here
+     4052 | CIMGUI_API bool ImGuiDockNode_IsCentralNode(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4052 | CIMGUI_API bool ImGuiDockNode_IsCentralNode(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.cpp:3546:45: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     3546 | CIMGUI_API bool ImGuiDockNode_IsCentralNode(ImGuiDockNode* self)
+          |                                             ^~~~~~~~~~~~~
+          |                                             ImGuiMod_None
+     |
+3546 | CIMGUI_API bool ImGuiDockNode_IsCentralNode(ImGuiDockNode* self)
+     |                                             ^
+
+vendor/cimgui.cpp:3546:60: error:
+     error: ‘self’ was not declared in this scope
+     3546 | CIMGUI_API bool ImGuiDockNode_IsCentralNode(ImGuiDockNode* self)
+          |                                                            ^~~~
+     |
+3546 | CIMGUI_API bool ImGuiDockNode_IsCentralNode(ImGuiDockNode* self)
+     |                                                            ^
+
+vendor/cimgui.cpp:3550:17: error:
+     warning: ‘ImGuiDockNode_IsHiddenTabBar’ initialized and declared ‘extern’
+     3550 | CIMGUI_API bool ImGuiDockNode_IsHiddenTabBar(ImGuiDockNode* self)
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+3550 | CIMGUI_API bool ImGuiDockNode_IsHiddenTabBar(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.cpp:3550:17: error:
+     error: redefinition of ‘bool ImGuiDockNode_IsHiddenTabBar’
+     |
+3550 | CIMGUI_API bool ImGuiDockNode_IsHiddenTabBar(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.h:4053:17: error:
+     note: ‘bool ImGuiDockNode_IsHiddenTabBar’ previously defined here
+     4053 | CIMGUI_API bool ImGuiDockNode_IsHiddenTabBar(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4053 | CIMGUI_API bool ImGuiDockNode_IsHiddenTabBar(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.cpp:3550:46: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     3550 | CIMGUI_API bool ImGuiDockNode_IsHiddenTabBar(ImGuiDockNode* self)
+          |                                              ^~~~~~~~~~~~~
+          |                                              ImGuiMod_None
+     |
+3550 | CIMGUI_API bool ImGuiDockNode_IsHiddenTabBar(ImGuiDockNode* self)
+     |                                              ^
+
+vendor/cimgui.cpp:3550:61: error:
+     error: ‘self’ was not declared in this scope
+     3550 | CIMGUI_API bool ImGuiDockNode_IsHiddenTabBar(ImGuiDockNode* self)
+          |                                                             ^~~~
+     |
+3550 | CIMGUI_API bool ImGuiDockNode_IsHiddenTabBar(ImGuiDockNode* self)
+     |                                                             ^
+
+vendor/cimgui.cpp:3554:17: error:
+     warning: ‘ImGuiDockNode_IsNoTabBar’ initialized and declared ‘extern’
+     3554 | CIMGUI_API bool ImGuiDockNode_IsNoTabBar(ImGuiDockNode* self)
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~
+     |
+3554 | CIMGUI_API bool ImGuiDockNode_IsNoTabBar(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.cpp:3554:17: error:
+     error: redefinition of ‘bool ImGuiDockNode_IsNoTabBar’
+     |
+3554 | CIMGUI_API bool ImGuiDockNode_IsNoTabBar(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.h:4054:17: error:
+     note: ‘bool ImGuiDockNode_IsNoTabBar’ previously defined here
+     4054 | CIMGUI_API bool ImGuiDockNode_IsNoTabBar(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4054 | CIMGUI_API bool ImGuiDockNode_IsNoTabBar(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.cpp:3554:42: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     3554 | CIMGUI_API bool ImGuiDockNode_IsNoTabBar(ImGuiDockNode* self)
+          |                                          ^~~~~~~~~~~~~
+          |                                          ImGuiMod_None
+     |
+3554 | CIMGUI_API bool ImGuiDockNode_IsNoTabBar(ImGuiDockNode* self)
+     |                                          ^
+
+vendor/cimgui.cpp:3554:57: error:
+     error: ‘self’ was not declared in this scope
+     3554 | CIMGUI_API bool ImGuiDockNode_IsNoTabBar(ImGuiDockNode* self)
+          |                                                         ^~~~
+     |
+3554 | CIMGUI_API bool ImGuiDockNode_IsNoTabBar(ImGuiDockNode* self)
+     |                                                         ^
+
+vendor/cimgui.cpp:3558:17: error:
+     warning: ‘ImGuiDockNode_IsSplitNode’ initialized and declared ‘extern’
+     3558 | CIMGUI_API bool ImGuiDockNode_IsSplitNode(ImGuiDockNode* self)
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+3558 | CIMGUI_API bool ImGuiDockNode_IsSplitNode(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.cpp:3558:17: error:
+     error: redefinition of ‘bool ImGuiDockNode_IsSplitNode’
+     |
+3558 | CIMGUI_API bool ImGuiDockNode_IsSplitNode(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.h:4055:17: error:
+     note: ‘bool ImGuiDockNode_IsSplitNode’ previously defined here
+     4055 | CIMGUI_API bool ImGuiDockNode_IsSplitNode(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4055 | CIMGUI_API bool ImGuiDockNode_IsSplitNode(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.cpp:3558:43: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     3558 | CIMGUI_API bool ImGuiDockNode_IsSplitNode(ImGuiDockNode* self)
+          |                                           ^~~~~~~~~~~~~
+          |                                           ImGuiMod_None
+     |
+3558 | CIMGUI_API bool ImGuiDockNode_IsSplitNode(ImGuiDockNode* self)
+     |                                           ^
+
+vendor/cimgui.cpp:3558:58: error:
+     error: ‘self’ was not declared in this scope
+     3558 | CIMGUI_API bool ImGuiDockNode_IsSplitNode(ImGuiDockNode* self)
+          |                                                          ^~~~
+     |
+3558 | CIMGUI_API bool ImGuiDockNode_IsSplitNode(ImGuiDockNode* self)
+     |                                                          ^
+
+vendor/cimgui.cpp:3562:17: error:
+     warning: ‘ImGuiDockNode_IsLeafNode’ initialized and declared ‘extern’
+     3562 | CIMGUI_API bool ImGuiDockNode_IsLeafNode(ImGuiDockNode* self)
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~
+     |
+3562 | CIMGUI_API bool ImGuiDockNode_IsLeafNode(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.cpp:3562:17: error:
+     error: redefinition of ‘bool ImGuiDockNode_IsLeafNode’
+     |
+3562 | CIMGUI_API bool ImGuiDockNode_IsLeafNode(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.h:4056:17: error:
+     note: ‘bool ImGuiDockNode_IsLeafNode’ previously defined here
+     4056 | CIMGUI_API bool ImGuiDockNode_IsLeafNode(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4056 | CIMGUI_API bool ImGuiDockNode_IsLeafNode(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.cpp:3562:42: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     3562 | CIMGUI_API bool ImGuiDockNode_IsLeafNode(ImGuiDockNode* self)
+          |                                          ^~~~~~~~~~~~~
+          |                                          ImGuiMod_None
+     |
+3562 | CIMGUI_API bool ImGuiDockNode_IsLeafNode(ImGuiDockNode* self)
+     |                                          ^
+
+vendor/cimgui.cpp:3562:57: error:
+     error: ‘self’ was not declared in this scope
+     3562 | CIMGUI_API bool ImGuiDockNode_IsLeafNode(ImGuiDockNode* self)
+          |                                                         ^~~~
+     |
+3562 | CIMGUI_API bool ImGuiDockNode_IsLeafNode(ImGuiDockNode* self)
+     |                                                         ^
+
+vendor/cimgui.cpp:3566:17: error:
+     warning: ‘ImGuiDockNode_IsEmpty’ initialized and declared ‘extern’
+     3566 | CIMGUI_API bool ImGuiDockNode_IsEmpty(ImGuiDockNode* self)
+          |                 ^~~~~~~~~~~~~~~~~~~~~
+     |
+3566 | CIMGUI_API bool ImGuiDockNode_IsEmpty(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.cpp:3566:17: error:
+     error: redefinition of ‘bool ImGuiDockNode_IsEmpty’
+     |
+3566 | CIMGUI_API bool ImGuiDockNode_IsEmpty(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.h:4057:17: error:
+     note: ‘bool ImGuiDockNode_IsEmpty’ previously defined here
+     4057 | CIMGUI_API bool ImGuiDockNode_IsEmpty(ImGuiDockNode* self);
+          |                 ^~~~~~~~~~~~~~~~~~~~~
+     |
+4057 | CIMGUI_API bool ImGuiDockNode_IsEmpty(ImGuiDockNode* self);
+     |                 ^
+
+vendor/cimgui.cpp:3566:39: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     3566 | CIMGUI_API bool ImGuiDockNode_IsEmpty(ImGuiDockNode* self)
+          |                                       ^~~~~~~~~~~~~
+          |                                       ImGuiMod_None
+     |
+3566 | CIMGUI_API bool ImGuiDockNode_IsEmpty(ImGuiDockNode* self)
+     |                                       ^
+
+vendor/cimgui.cpp:3566:54: error:
+     error: ‘self’ was not declared in this scope
+     3566 | CIMGUI_API bool ImGuiDockNode_IsEmpty(ImGuiDockNode* self)
+          |                                                      ^~~~
+     |
+3566 | CIMGUI_API bool ImGuiDockNode_IsEmpty(ImGuiDockNode* self)
+     |                                                      ^
+
+vendor/cimgui.cpp:3570:49: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     3570 | CIMGUI_API void ImGuiDockNode_Rect(ImRect *pOut,ImGuiDockNode* self)
+          |                                                 ^~~~~~~~~~~~~
+     |
+3570 | CIMGUI_API void ImGuiDockNode_Rect(ImRect *pOut,ImGuiDockNode* self)
+     |                                                 ^
+vendor/cimgui.cpp: In function ‘void ImGuiDockNode_Rect(ImRect*, int*)’:
+
+vendor/cimgui.cpp:3572:19: error:
+     error: request for member ‘Rect’ in ‘* self’, which is of non-class type ‘int’
+     3572 |     *pOut = self->Rect();
+          |                   ^~~~
+     |
+3572 |     *pOut = self->Rect();
+     |                   ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:3574:17: error:
+     error: variable or field ‘ImGuiDockNode_SetLocalFlags’ declared void
+     3574 | CIMGUI_API void ImGuiDockNode_SetLocalFlags(ImGuiDockNode* self,ImGuiDockNodeFlags flags)
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+3574 | CIMGUI_API void ImGuiDockNode_SetLocalFlags(ImGuiDockNode* self,ImGuiDockNodeFlags flags)
+     |                 ^
+
+vendor/cimgui.cpp:3574:45: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     3574 | CIMGUI_API void ImGuiDockNode_SetLocalFlags(ImGuiDockNode* self,ImGuiDockNodeFlags flags)
+          |                                             ^~~~~~~~~~~~~
+          |                                             ImGuiMod_None
+     |
+3574 | CIMGUI_API void ImGuiDockNode_SetLocalFlags(ImGuiDockNode* self,ImGuiDockNodeFlags flags)
+     |                                             ^
+
+vendor/cimgui.cpp:3574:60: error:
+     error: ‘self’ was not declared in this scope
+     3574 | CIMGUI_API void ImGuiDockNode_SetLocalFlags(ImGuiDockNode* self,ImGuiDockNodeFlags flags)
+          |                                                            ^~~~
+     |
+3574 | CIMGUI_API void ImGuiDockNode_SetLocalFlags(ImGuiDockNode* self,ImGuiDockNodeFlags flags)
+     |                                                            ^
+
+vendor/cimgui.cpp:3574:65: error:
+     error: ‘ImGuiDockNodeFlags’ was not declared in this scope; did you mean ‘ImGuiTreeNodeFlags’?
+     3574 | CIMGUI_API void ImGuiDockNode_SetLocalFlags(ImGuiDockNode* self,ImGuiDockNodeFlags flags)
+          |                                                                 ^~~~~~~~~~~~~~~~~~
+          |                                                                 ImGuiTreeNodeFlags
+     |
+3574 | CIMGUI_API void ImGuiDockNode_SetLocalFlags(ImGuiDockNode* self,ImGuiDockNodeFlags flags)
+     |                                                                 ^
+
+vendor/cimgui.cpp:3578:17: error:
+     error: variable or field ‘ImGuiDockNode_UpdateMergedFlags’ declared void
+     3578 | CIMGUI_API void ImGuiDockNode_UpdateMergedFlags(ImGuiDockNode* self)
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+3578 | CIMGUI_API void ImGuiDockNode_UpdateMergedFlags(ImGuiDockNode* self)
+     |                 ^
+
+vendor/cimgui.cpp:3578:49: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     3578 | CIMGUI_API void ImGuiDockNode_UpdateMergedFlags(ImGuiDockNode* self)
+          |                                                 ^~~~~~~~~~~~~
+          |                                                 ImGuiMod_None
+     |
+3578 | CIMGUI_API void ImGuiDockNode_UpdateMergedFlags(ImGuiDockNode* self)
+     |                                                 ^
+
+vendor/cimgui.cpp:3578:64: error:
+     error: ‘self’ was not declared in this scope
+     3578 | CIMGUI_API void ImGuiDockNode_UpdateMergedFlags(ImGuiDockNode* self)
+          |                                                                ^~~~
+     |
+3578 | CIMGUI_API void ImGuiDockNode_UpdateMergedFlags(ImGuiDockNode* self)
+     |                                                                ^
+
+vendor/cimgui.cpp:3582:12: error:
+     error: ‘ImGuiDockContext’ does not name a type; did you mean ‘ImGuiContext’?
+     3582 | CIMGUI_API ImGuiDockContext* ImGuiDockContext_ImGuiDockContext(void)
+          |            ^~~~~~~~~~~~~~~~
+          |            ImGuiContext
+     |
+3582 | CIMGUI_API ImGuiDockContext* ImGuiDockContext_ImGuiDockContext(void)
+     |            ^
+
+vendor/cimgui.cpp:3586:17: error:
+     error: variable or field ‘ImGuiDockContext_destroy’ declared void
+     3586 | CIMGUI_API void ImGuiDockContext_destroy(ImGuiDockContext* self)
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~
+     |
+3586 | CIMGUI_API void ImGuiDockContext_destroy(ImGuiDockContext* self)
+     |                 ^
+
+vendor/cimgui.cpp:3586:42: error:
+     error: ‘ImGuiDockContext’ was not declared in this scope; did you mean ‘ImGuiContext’?
+     3586 | CIMGUI_API void ImGuiDockContext_destroy(ImGuiDockContext* self)
+          |                                          ^~~~~~~~~~~~~~~~
+          |                                          ImGuiContext
+     |
+3586 | CIMGUI_API void ImGuiDockContext_destroy(ImGuiDockContext* self)
+     |                                          ^
+
+vendor/cimgui.cpp:3586:60: error:
+     error: ‘self’ was not declared in this scope
+     3586 | CIMGUI_API void ImGuiDockContext_destroy(ImGuiDockContext* self)
+          |                                                            ^~~~
+     |
+3586 | CIMGUI_API void ImGuiDockContext_destroy(ImGuiDockContext* self)
+     |                                                            ^
+vendor/cimgui.cpp: In function ‘void ImGuiViewportP_ClearRequestFlags(ImGuiViewportP*)’:
+
+vendor/cimgui.cpp:3600:18: error:
+     error: ‘struct ImGuiViewportP’ has no member named ‘ClearRequestFlags’
+     3600 |     return self->ClearRequestFlags();
+          |                  ^~~~~~~~~~~~~~~~~
+     |
+3600 |     return self->ClearRequestFlags();
+     |                  ^
+vendor/cimgui.cpp: In function ‘bool igIsWindowChildOf(ImGuiWindow*, ImGuiWindow*, bool, bool)’:
+
+vendor/cimgui.cpp:3820:34: error:
+     error: too many arguments to function ‘bool ImGui::IsWindowChildOf(ImGuiWindow*, ImGuiWindow*, bool)’
+     3820 |     return ImGui::IsWindowChildOf(window,potential_parent,popup_hierarchy,dock_hierarchy);
+          |            ~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+3820 |     return ImGui::IsWindowChildOf(window,potential_parent,popup_hierarchy,dock_hierarchy);
+     |                                  ^
+
+In file included from vendor/cimgui.cpp:18:0: error: 
+
+vendor/imgui/imgui_internal.h:2776:29: error:
+     note: declared here
+     2776 |     IMGUI_API bool          IsWindowChildOf(ImGuiWindow* window, ImGuiWindow* potential_parent, bool popup_hierarchy);
+          |                             ^~~~~~~~~~~~~~~
+     |
+2776 |     IMGUI_API bool          IsWindowChildOf(ImGuiWindow* window, ImGuiWindow* potential_parent, bool popup_hierarchy);
+     |                             ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:3934:68: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     3934 | CIMGUI_API void igStartMouseMovingWindowOrNode(ImGuiWindow* window,ImGuiDockNode* node,bool undock_floating_node)
+          |                                                                    ^~~~~~~~~~~~~
+     |
+3934 | CIMGUI_API void igStartMouseMovingWindowOrNode(ImGuiWindow* window,ImGuiDockNode* node,bool undock_floating_node)
+     |                                                                    ^
+vendor/cimgui.cpp: In function ‘void igStartMouseMovingWindowOrNode(ImGuiWindow*, int*, bool)’:
+
+vendor/cimgui.cpp:3936:19: error:
+     error: ‘StartMouseMovingWindowOrNode’ is not a member of ‘ImGui’; did you mean ‘StartMouseMovingWindow’?
+     3936 |     return ImGui::StartMouseMovingWindowOrNode(window,node,undock_floating_node);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          |                   StartMouseMovingWindow
+     |
+3936 |     return ImGui::StartMouseMovingWindowOrNode(window,node,undock_floating_node);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igTranslateWindowsInViewport(ImGuiViewportP*, ImVec2, ImVec2)’:
+
+vendor/cimgui.cpp:3960:19: error:
+     error: ‘TranslateWindowsInViewport’ is not a member of ‘ImGui’
+     3960 |     return ImGui::TranslateWindowsInViewport(viewport,old_pos,new_pos);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+3960 |     return ImGui::TranslateWindowsInViewport(viewport,old_pos,new_pos);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igScaleWindowsInViewport(ImGuiViewportP*, float)’:
+
+vendor/cimgui.cpp:3964:19: error:
+     error: ‘ScaleWindowsInViewport’ is not a member of ‘ImGui’; did you mean ‘SetWindowViewport’?
+     3964 |     return ImGui::ScaleWindowsInViewport(viewport,scale);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~
+          |                   SetWindowViewport
+     |
+3964 |     return ImGui::ScaleWindowsInViewport(viewport,scale);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDestroyPlatformWindow(ImGuiViewportP*)’:
+
+vendor/cimgui.cpp:3968:19: error:
+     error: ‘DestroyPlatformWindow’ is not a member of ‘ImGui’
+     3968 |     return ImGui::DestroyPlatformWindow(viewport);
+          |                   ^~~~~~~~~~~~~~~~~~~~~
+     |
+3968 |     return ImGui::DestroyPlatformWindow(viewport);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igSetCurrentViewport(ImGuiWindow*, ImGuiViewportP*)’:
+
+vendor/cimgui.cpp:3976:19: error:
+     error: ‘SetCurrentViewport’ is not a member of ‘ImGui’; did you mean ‘SetCurrentFont’?
+     3976 |     return ImGui::SetCurrentViewport(window,viewport);
+          |                   ^~~~~~~~~~~~~~~~~~
+          |                   SetCurrentFont
+     |
+3976 |     return ImGui::SetCurrentViewport(window,viewport);
+     |                   ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:3978:18: error:
+     error: ‘ImGuiPlatformMonitor’ does not name a type
+     3978 | CIMGUI_API const ImGuiPlatformMonitor* igGetViewportPlatformMonitor(ImGuiViewport* viewport)
+          |                  ^~~~~~~~~~~~~~~~~~~~
+     |
+3978 | CIMGUI_API const ImGuiPlatformMonitor* igGetViewportPlatformMonitor(ImGuiViewport* viewport)
+     |                  ^
+vendor/cimgui.cpp: In function ‘ImGuiViewportP* igFindHoveredViewportFromPlatformWindowStack(ImVec2)’:
+
+vendor/cimgui.cpp:3984:19: error:
+     error: ‘FindHoveredViewportFromPlatformWindowStack’ is not a member of ‘ImGui’
+     3984 |     return ImGui::FindHoveredViewportFromPlatformWindowStack(mouse_platform_pos);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+3984 |     return ImGui::FindHoveredViewportFromPlatformWindowStack(mouse_platform_pos);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDockContextInitialize(ImGuiContext*)’:
+
+vendor/cimgui.cpp:4488:19: error:
+     error: ‘DockContextInitialize’ is not a member of ‘ImGui’
+     4488 |     return ImGui::DockContextInitialize(ctx);
+          |                   ^~~~~~~~~~~~~~~~~~~~~
+     |
+4488 |     return ImGui::DockContextInitialize(ctx);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDockContextShutdown(ImGuiContext*)’:
+
+vendor/cimgui.cpp:4492:19: error:
+     error: ‘DockContextShutdown’ is not a member of ‘ImGui’
+     4492 |     return ImGui::DockContextShutdown(ctx);
+          |                   ^~~~~~~~~~~~~~~~~~~
+     |
+4492 |     return ImGui::DockContextShutdown(ctx);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDockContextClearNodes(ImGuiContext*, ImGuiID, bool)’:
+
+vendor/cimgui.cpp:4496:19: error:
+     error: ‘DockContextClearNodes’ is not a member of ‘ImGui’
+     4496 |     return ImGui::DockContextClearNodes(ctx,root_id,clear_settings_refs);
+          |                   ^~~~~~~~~~~~~~~~~~~~~
+     |
+4496 |     return ImGui::DockContextClearNodes(ctx,root_id,clear_settings_refs);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDockContextRebuildNodes(ImGuiContext*)’:
+
+vendor/cimgui.cpp:4500:19: error:
+     error: ‘DockContextRebuildNodes’ is not a member of ‘ImGui’
+     4500 |     return ImGui::DockContextRebuildNodes(ctx);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~
+     |
+4500 |     return ImGui::DockContextRebuildNodes(ctx);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDockContextNewFrameUpdateUndocking(ImGuiContext*)’:
+
+vendor/cimgui.cpp:4504:19: error:
+     error: ‘DockContextNewFrameUpdateUndocking’ is not a member of ‘ImGui’
+     4504 |     return ImGui::DockContextNewFrameUpdateUndocking(ctx);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4504 |     return ImGui::DockContextNewFrameUpdateUndocking(ctx);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDockContextNewFrameUpdateDocking(ImGuiContext*)’:
+
+vendor/cimgui.cpp:4508:19: error:
+     error: ‘DockContextNewFrameUpdateDocking’ is not a member of ‘ImGui’
+     4508 |     return ImGui::DockContextNewFrameUpdateDocking(ctx);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4508 |     return ImGui::DockContextNewFrameUpdateDocking(ctx);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDockContextEndFrame(ImGuiContext*)’:
+
+vendor/cimgui.cpp:4512:19: error:
+     error: ‘DockContextEndFrame’ is not a member of ‘ImGui’
+     4512 |     return ImGui::DockContextEndFrame(ctx);
+          |                   ^~~~~~~~~~~~~~~~~~~
+     |
+4512 |     return ImGui::DockContextEndFrame(ctx);
+     |                   ^
+vendor/cimgui.cpp: In function ‘ImGuiID igDockContextGenNodeID(ImGuiContext*)’:
+
+vendor/cimgui.cpp:4516:19: error:
+     error: ‘DockContextGenNodeID’ is not a member of ‘ImGui’
+     4516 |     return ImGui::DockContextGenNodeID(ctx);
+          |                   ^~~~~~~~~~~~~~~~~~~~
+     |
+4516 |     return ImGui::DockContextGenNodeID(ctx);
+     |                   ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:4518:78: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     4518 | CIMGUI_API void igDockContextQueueDock(ImGuiContext* ctx,ImGuiWindow* target,ImGuiDockNode* target_node,ImGuiWindow* payload,ImGuiDir split_dir,float split_ratio,bool split_outer)
+          |                                                                              ^~~~~~~~~~~~~
+     |
+4518 | CIMGUI_API void igDockContextQueueDock(ImGuiContext* ctx,ImGuiWindow* target,ImGuiDockNode* target_node,ImGuiWindow* payload,ImGuiDir split_dir,float split_ratio,bool split_outer)
+     |                                                                              ^
+vendor/cimgui.cpp: In function ‘void igDockContextQueueDock(ImGuiContext*, ImGuiWindow*, int*, ImGuiWindow*, ImGuiDir, float, bool)’:
+
+vendor/cimgui.cpp:4520:19: error:
+     error: ‘DockContextQueueDock’ is not a member of ‘ImGui’
+     4520 |     return ImGui::DockContextQueueDock(ctx,target,target_node,payload,split_dir,split_ratio,split_outer);
+          |                   ^~~~~~~~~~~~~~~~~~~~
+     |
+4520 |     return ImGui::DockContextQueueDock(ctx,target,target_node,payload,split_dir,split_ratio,split_outer);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDockContextQueueUndockWindow(ImGuiContext*, ImGuiWindow*)’:
+
+vendor/cimgui.cpp:4524:19: error:
+     error: ‘DockContextQueueUndockWindow’ is not a member of ‘ImGui’
+     4524 |     return ImGui::DockContextQueueUndockWindow(ctx,window);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4524 |     return ImGui::DockContextQueueUndockWindow(ctx,window);
+     |                   ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:4526:64: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     4526 | CIMGUI_API void igDockContextQueueUndockNode(ImGuiContext* ctx,ImGuiDockNode* node)
+          |                                                                ^~~~~~~~~~~~~
+     |
+4526 | CIMGUI_API void igDockContextQueueUndockNode(ImGuiContext* ctx,ImGuiDockNode* node)
+     |                                                                ^
+vendor/cimgui.cpp: In function ‘void igDockContextQueueUndockNode(ImGuiContext*, int*)’:
+
+vendor/cimgui.cpp:4528:19: error:
+     error: ‘DockContextQueueUndockNode’ is not a member of ‘ImGui’
+     4528 |     return ImGui::DockContextQueueUndockNode(ctx,node);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4528 |     return ImGui::DockContextQueueUndockNode(ctx,node);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDockContextProcessUndockWindow(ImGuiContext*, ImGuiWindow*, bool)’:
+
+vendor/cimgui.cpp:4532:19: error:
+     error: ‘DockContextProcessUndockWindow’ is not a member of ‘ImGui’
+     4532 |     return ImGui::DockContextProcessUndockWindow(ctx,window,clear_persistent_docking_ref);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4532 |     return ImGui::DockContextProcessUndockWindow(ctx,window,clear_persistent_docking_ref);
+     |                   ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:4534:66: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     4534 | CIMGUI_API void igDockContextProcessUndockNode(ImGuiContext* ctx,ImGuiDockNode* node)
+          |                                                                  ^~~~~~~~~~~~~
+     |
+4534 | CIMGUI_API void igDockContextProcessUndockNode(ImGuiContext* ctx,ImGuiDockNode* node)
+     |                                                                  ^
+vendor/cimgui.cpp: In function ‘void igDockContextProcessUndockNode(ImGuiContext*, int*)’:
+
+vendor/cimgui.cpp:4536:19: error:
+     error: ‘DockContextProcessUndockNode’ is not a member of ‘ImGui’
+     4536 |     return ImGui::DockContextProcessUndockNode(ctx,node);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4536 |     return ImGui::DockContextProcessUndockNode(ctx,node);
+     |                   ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:4538:72: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     4538 | CIMGUI_API bool igDockContextCalcDropPosForDocking(ImGuiWindow* target,ImGuiDockNode* target_node,ImGuiWindow* payload_window,ImGuiDockNode* payload_node,ImGuiDir split_dir,bool split_outer,ImVec2* out_pos)
+          |                                                                        ^~~~~~~~~~~~~
+     |
+4538 | CIMGUI_API bool igDockContextCalcDropPosForDocking(ImGuiWindow* target,ImGuiDockNode* target_node,ImGuiWindow* payload_window,ImGuiDockNode* payload_node,ImGuiDir split_dir,bool split_outer,ImVec2* out_pos)
+     |                                                                        ^
+
+vendor/cimgui.cpp:4538:127: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     4538 | CIMGUI_API bool igDockContextCalcDropPosForDocking(ImGuiWindow* target,ImGuiDockNode* target_node,ImGuiWindow* payload_window,ImGuiDockNode* payload_node,ImGuiDir split_dir,bool split_outer,ImVec2* out_pos)
+          |                                                                                                                               ^~~~~~~~~~~~~
+     |
+4538 | CIMGUI_API bool igDockContextCalcDropPosForDocking(ImGuiWindow* target,ImGuiDockNode* target_node,ImGuiWindow* payload_window,ImGuiDockNode* payload_node,ImGuiDir split_dir,bool split_outer,ImVec2* out_pos)
+     |                                                                                                                               ^
+vendor/cimgui.cpp: In function ‘bool igDockContextCalcDropPosForDocking(ImGuiWindow*, int*, ImGuiWindow*, int*, ImGuiDir, bool, ImVec2*)’:
+
+vendor/cimgui.cpp:4540:19: error:
+     error: ‘DockContextCalcDropPosForDocking’ is not a member of ‘ImGui’
+     4540 |     return ImGui::DockContextCalcDropPosForDocking(target,target_node,payload_window,payload_node,split_dir,split_outer,out_pos);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4540 |     return ImGui::DockContextCalcDropPosForDocking(target,target_node,payload_window,payload_node,split_dir,split_outer,out_pos);
+     |                   ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:4542:12: error:
+     error: ‘ImGuiDockNode’ does not name a type
+     4542 | CIMGUI_API ImGuiDockNode* igDockContextFindNodeByID(ImGuiContext* ctx,ImGuiID id)
+          |            ^~~~~~~~~~~~~
+     |
+4542 | CIMGUI_API ImGuiDockNode* igDockContextFindNodeByID(ImGuiContext* ctx,ImGuiID id)
+     |            ^
+
+vendor/cimgui.cpp:4546:71: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     4546 | CIMGUI_API void igDockNodeWindowMenuHandler_Default(ImGuiContext* ctx,ImGuiDockNode* node,ImGuiTabBar* tab_bar)
+          |                                                                       ^~~~~~~~~~~~~
+     |
+4546 | CIMGUI_API void igDockNodeWindowMenuHandler_Default(ImGuiContext* ctx,ImGuiDockNode* node,ImGuiTabBar* tab_bar)
+     |                                                                       ^
+vendor/cimgui.cpp: In function ‘void igDockNodeWindowMenuHandler_Default(ImGuiContext*, int*, ImGuiTabBar*)’:
+
+vendor/cimgui.cpp:4548:19: error:
+     error: ‘DockNodeWindowMenuHandler_Default’ is not a member of ‘ImGui’
+     4548 |     return ImGui::DockNodeWindowMenuHandler_Default(ctx,node,tab_bar);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4548 |     return ImGui::DockNodeWindowMenuHandler_Default(ctx,node,tab_bar);
+     |                   ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:4550:17: error:
+     warning: ‘igDockNodeBeginAmendTabBar’ initialized and declared ‘extern’
+     4550 | CIMGUI_API bool igDockNodeBeginAmendTabBar(ImGuiDockNode* node)
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4550 | CIMGUI_API bool igDockNodeBeginAmendTabBar(ImGuiDockNode* node)
+     |                 ^
+
+vendor/cimgui.cpp:4550:17: error:
+     error: redefinition of ‘bool igDockNodeBeginAmendTabBar’
+     |
+4550 | CIMGUI_API bool igDockNodeBeginAmendTabBar(ImGuiDockNode* node)
+     |                 ^
+
+vendor/cimgui.h:4303:17: error:
+     note: ‘bool igDockNodeBeginAmendTabBar’ previously defined here
+     4303 | CIMGUI_API bool igDockNodeBeginAmendTabBar(ImGuiDockNode* node);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4303 | CIMGUI_API bool igDockNodeBeginAmendTabBar(ImGuiDockNode* node);
+     |                 ^
+
+vendor/cimgui.cpp:4550:44: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     4550 | CIMGUI_API bool igDockNodeBeginAmendTabBar(ImGuiDockNode* node)
+          |                                            ^~~~~~~~~~~~~
+          |                                            ImGuiMod_None
+     |
+4550 | CIMGUI_API bool igDockNodeBeginAmendTabBar(ImGuiDockNode* node)
+     |                                            ^
+
+vendor/cimgui.cpp:4550:59: error:
+     error: ‘node’ was not declared in this scope
+     4550 | CIMGUI_API bool igDockNodeBeginAmendTabBar(ImGuiDockNode* node)
+          |                                                           ^~~~
+     |
+4550 | CIMGUI_API bool igDockNodeBeginAmendTabBar(ImGuiDockNode* node)
+     |                                                           ^
+vendor/cimgui.cpp: In function ‘void igDockNodeEndAmendTabBar()’:
+
+vendor/cimgui.cpp:4556:19: error:
+     error: ‘DockNodeEndAmendTabBar’ is not a member of ‘ImGui’
+     4556 |     return ImGui::DockNodeEndAmendTabBar();
+          |                   ^~~~~~~~~~~~~~~~~~~~~~
+     |
+4556 |     return ImGui::DockNodeEndAmendTabBar();
+     |                   ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:4558:12: error:
+     error: ‘ImGuiDockNode’ does not name a type
+     4558 | CIMGUI_API ImGuiDockNode* igDockNodeGetRootNode(ImGuiDockNode* node)
+          |            ^~~~~~~~~~~~~
+     |
+4558 | CIMGUI_API ImGuiDockNode* igDockNodeGetRootNode(ImGuiDockNode* node)
+     |            ^
+
+vendor/cimgui.cpp:4562:17: error:
+     warning: ‘igDockNodeIsInHierarchyOf’ initialized and declared ‘extern’
+     4562 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent)
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4562 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent)
+     |                 ^
+
+vendor/cimgui.cpp:4562:17: error:
+     error: redefinition of ‘bool igDockNodeIsInHierarchyOf’
+     |
+4562 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent)
+     |                 ^
+
+vendor/cimgui.h:4306:17: error:
+     note: ‘bool igDockNodeIsInHierarchyOf’ previously defined here
+     4306 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4306 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent);
+     |                 ^
+
+vendor/cimgui.cpp:4562:43: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     4562 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent)
+          |                                           ^~~~~~~~~~~~~
+          |                                           ImGuiMod_None
+     |
+4562 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent)
+     |                                           ^
+
+vendor/cimgui.cpp:4562:58: error:
+     error: ‘node’ was not declared in this scope
+     4562 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent)
+          |                                                          ^~~~
+     |
+4562 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent)
+     |                                                          ^
+
+vendor/cimgui.cpp:4562:63: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     4562 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent)
+          |                                                               ^~~~~~~~~~~~~
+          |                                                               ImGuiMod_None
+     |
+4562 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent)
+     |                                                               ^
+
+vendor/cimgui.cpp:4562:78: error:
+     error: ‘parent’ was not declared in this scope
+     4562 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent)
+          |                                                                              ^~~~~~
+     |
+4562 | CIMGUI_API bool igDockNodeIsInHierarchyOf(ImGuiDockNode* node,ImGuiDockNode* parent)
+     |                                                                              ^
+
+vendor/cimgui.cpp:4566:41: error:
+     error: ‘ImGuiDockNode’ does not name a type
+     4566 | CIMGUI_API int igDockNodeGetDepth(const ImGuiDockNode* node)
+          |                                         ^~~~~~~~~~~~~
+     |
+4566 | CIMGUI_API int igDockNodeGetDepth(const ImGuiDockNode* node)
+     |                                         ^
+vendor/cimgui.cpp: In function ‘int igDockNodeGetDepth(const int*)’:
+
+vendor/cimgui.cpp:4568:19: error:
+     error: ‘DockNodeGetDepth’ is not a member of ‘ImGui’
+     4568 |     return ImGui::DockNodeGetDepth(node);
+          |                   ^~~~~~~~~~~~~~~~
+     |
+4568 |     return ImGui::DockNodeGetDepth(node);
+     |                   ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:4570:58: error:
+     error: ‘ImGuiDockNode’ does not name a type
+     4570 | CIMGUI_API ImGuiID igDockNodeGetWindowMenuButtonId(const ImGuiDockNode* node)
+          |                                                          ^~~~~~~~~~~~~
+     |
+4570 | CIMGUI_API ImGuiID igDockNodeGetWindowMenuButtonId(const ImGuiDockNode* node)
+     |                                                          ^
+vendor/cimgui.cpp: In function ‘ImGuiID igDockNodeGetWindowMenuButtonId(const int*)’:
+
+vendor/cimgui.cpp:4572:19: error:
+     error: ‘DockNodeGetWindowMenuButtonId’ is not a member of ‘ImGui’
+     4572 |     return ImGui::DockNodeGetWindowMenuButtonId(node);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4572 |     return ImGui::DockNodeGetWindowMenuButtonId(node);
+     |                   ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:4574:12: error:
+     error: ‘ImGuiDockNode’ does not name a type
+     4574 | CIMGUI_API ImGuiDockNode* igGetWindowDockNode()
+          |            ^~~~~~~~~~~~~
+     |
+4574 | CIMGUI_API ImGuiDockNode* igGetWindowDockNode()
+     |            ^
+vendor/cimgui.cpp: In function ‘bool igGetWindowAlwaysWantOwnTabBar(ImGuiWindow*)’:
+
+vendor/cimgui.cpp:4580:19: error:
+     error: ‘GetWindowAlwaysWantOwnTabBar’ is not a member of ‘ImGui’
+     4580 |     return ImGui::GetWindowAlwaysWantOwnTabBar(window);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4580 |     return ImGui::GetWindowAlwaysWantOwnTabBar(window);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igBeginDocked(ImGuiWindow*, bool*)’:
+
+vendor/cimgui.cpp:4584:19: error:
+     error: ‘BeginDocked’ is not a member of ‘ImGui’
+     4584 |     return ImGui::BeginDocked(window,p_open);
+          |                   ^~~~~~~~~~~
+     |
+4584 |     return ImGui::BeginDocked(window,p_open);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igBeginDockableDragDropSource(ImGuiWindow*)’:
+
+vendor/cimgui.cpp:4588:19: error:
+     error: ‘BeginDockableDragDropSource’ is not a member of ‘ImGui’; did you mean ‘BeginDragDropSource’?
+     4588 |     return ImGui::BeginDockableDragDropSource(window);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+          |                   BeginDragDropSource
+     |
+4588 |     return ImGui::BeginDockableDragDropSource(window);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igBeginDockableDragDropTarget(ImGuiWindow*)’:
+
+vendor/cimgui.cpp:4592:19: error:
+     error: ‘BeginDockableDragDropTarget’ is not a member of ‘ImGui’; did you mean ‘BeginDragDropTarget’?
+     4592 |     return ImGui::BeginDockableDragDropTarget(window);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+          |                   BeginDragDropTarget
+     |
+4592 |     return ImGui::BeginDockableDragDropTarget(window);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igSetWindowDock(ImGuiWindow*, ImGuiID, ImGuiCond)’:
+
+vendor/cimgui.cpp:4596:19: error:
+     error: ‘SetWindowDock’ is not a member of ‘ImGui’; did you mean ‘SetWindowPos’?
+     4596 |     return ImGui::SetWindowDock(window,dock_id,cond);
+          |                   ^~~~~~~~~~~~~
+          |                   SetWindowPos
+     |
+4596 |     return ImGui::SetWindowDock(window,dock_id,cond);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDockBuilderDockWindow(const char*, ImGuiID)’:
+
+vendor/cimgui.cpp:4600:19: error:
+     error: ‘DockBuilderDockWindow’ is not a member of ‘ImGui’
+     4600 |     return ImGui::DockBuilderDockWindow(window_name,node_id);
+          |                   ^~~~~~~~~~~~~~~~~~~~~
+     |
+4600 |     return ImGui::DockBuilderDockWindow(window_name,node_id);
+     |                   ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:4602:12: error:
+     error: ‘ImGuiDockNode’ does not name a type
+     4602 | CIMGUI_API ImGuiDockNode* igDockBuilderGetNode(ImGuiID node_id)
+          |            ^~~~~~~~~~~~~
+     |
+4602 | CIMGUI_API ImGuiDockNode* igDockBuilderGetNode(ImGuiID node_id)
+     |            ^
+
+vendor/cimgui.cpp:4606:12: error:
+     error: ‘ImGuiDockNode’ does not name a type
+     4606 | CIMGUI_API ImGuiDockNode* igDockBuilderGetCentralNode(ImGuiID node_id)
+          |            ^~~~~~~~~~~~~
+     |
+4606 | CIMGUI_API ImGuiDockNode* igDockBuilderGetCentralNode(ImGuiID node_id)
+     |            ^
+
+vendor/cimgui.cpp:4610:57: error:
+     error: ‘ImGuiDockNodeFlags’ has not been declared
+     4610 | CIMGUI_API ImGuiID igDockBuilderAddNode(ImGuiID node_id,ImGuiDockNodeFlags flags)
+          |                                                         ^~~~~~~~~~~~~~~~~~
+     |
+4610 | CIMGUI_API ImGuiID igDockBuilderAddNode(ImGuiID node_id,ImGuiDockNodeFlags flags)
+     |                                                         ^
+vendor/cimgui.cpp: In function ‘ImGuiID igDockBuilderAddNode(ImGuiID, int)’:
+
+vendor/cimgui.cpp:4612:19: error:
+     error: ‘DockBuilderAddNode’ is not a member of ‘ImGui’
+     4612 |     return ImGui::DockBuilderAddNode(node_id,flags);
+          |                   ^~~~~~~~~~~~~~~~~~
+     |
+4612 |     return ImGui::DockBuilderAddNode(node_id,flags);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDockBuilderRemoveNode(ImGuiID)’:
+
+vendor/cimgui.cpp:4616:19: error:
+     error: ‘DockBuilderRemoveNode’ is not a member of ‘ImGui’
+     4616 |     return ImGui::DockBuilderRemoveNode(node_id);
+          |                   ^~~~~~~~~~~~~~~~~~~~~
+     |
+4616 |     return ImGui::DockBuilderRemoveNode(node_id);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDockBuilderRemoveNodeDockedWindows(ImGuiID, bool)’:
+
+vendor/cimgui.cpp:4620:19: error:
+     error: ‘DockBuilderRemoveNodeDockedWindows’ is not a member of ‘ImGui’
+     4620 |     return ImGui::DockBuilderRemoveNodeDockedWindows(node_id,clear_settings_refs);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4620 |     return ImGui::DockBuilderRemoveNodeDockedWindows(node_id,clear_settings_refs);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDockBuilderRemoveNodeChildNodes(ImGuiID)’:
+
+vendor/cimgui.cpp:4624:19: error:
+     error: ‘DockBuilderRemoveNodeChildNodes’ is not a member of ‘ImGui’
+     4624 |     return ImGui::DockBuilderRemoveNodeChildNodes(node_id);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4624 |     return ImGui::DockBuilderRemoveNodeChildNodes(node_id);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDockBuilderSetNodePos(ImGuiID, ImVec2)’:
+
+vendor/cimgui.cpp:4628:19: error:
+     error: ‘DockBuilderSetNodePos’ is not a member of ‘ImGui’
+     4628 |     return ImGui::DockBuilderSetNodePos(node_id,pos);
+          |                   ^~~~~~~~~~~~~~~~~~~~~
+     |
+4628 |     return ImGui::DockBuilderSetNodePos(node_id,pos);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDockBuilderSetNodeSize(ImGuiID, ImVec2)’:
+
+vendor/cimgui.cpp:4632:19: error:
+     error: ‘DockBuilderSetNodeSize’ is not a member of ‘ImGui’
+     4632 |     return ImGui::DockBuilderSetNodeSize(node_id,size);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~
+     |
+4632 |     return ImGui::DockBuilderSetNodeSize(node_id,size);
+     |                   ^
+vendor/cimgui.cpp: In function ‘ImGuiID igDockBuilderSplitNode(ImGuiID, ImGuiDir, float, ImGuiID*, ImGuiID*)’:
+
+vendor/cimgui.cpp:4636:19: error:
+     error: ‘DockBuilderSplitNode’ is not a member of ‘ImGui’
+     4636 |     return ImGui::DockBuilderSplitNode(node_id,split_dir,size_ratio_for_node_at_dir,out_id_at_dir,out_id_at_opposite_dir);
+          |                   ^~~~~~~~~~~~~~~~~~~~
+     |
+4636 |     return ImGui::DockBuilderSplitNode(node_id,split_dir,size_ratio_for_node_at_dir,out_id_at_dir,out_id_at_opposite_dir);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDockBuilderCopyDockSpace(ImGuiID, ImGuiID, ImVector_const_charPtr*)’:
+
+vendor/cimgui.cpp:4640:19: error:
+     error: ‘DockBuilderCopyDockSpace’ is not a member of ‘ImGui’
+     4640 |     return ImGui::DockBuilderCopyDockSpace(src_dockspace_id,dst_dockspace_id,in_window_remap_pairs);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4640 |     return ImGui::DockBuilderCopyDockSpace(src_dockspace_id,dst_dockspace_id,in_window_remap_pairs);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDockBuilderCopyNode(ImGuiID, ImGuiID, ImVector_ImGuiID*)’:
+
+vendor/cimgui.cpp:4644:19: error:
+     error: ‘DockBuilderCopyNode’ is not a member of ‘ImGui’
+     4644 |     return ImGui::DockBuilderCopyNode(src_node_id,dst_node_id,out_node_remap_pairs);
+          |                   ^~~~~~~~~~~~~~~~~~~
+     |
+4644 |     return ImGui::DockBuilderCopyNode(src_node_id,dst_node_id,out_node_remap_pairs);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDockBuilderCopyWindowSettings(const char*, const char*)’:
+
+vendor/cimgui.cpp:4648:19: error:
+     error: ‘DockBuilderCopyWindowSettings’ is not a member of ‘ImGui’
+     4648 |     return ImGui::DockBuilderCopyWindowSettings(src_name,dst_name);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4648 |     return ImGui::DockBuilderCopyWindowSettings(src_name,dst_name);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igDockBuilderFinish(ImGuiID)’:
+
+vendor/cimgui.cpp:4652:19: error:
+     error: ‘DockBuilderFinish’ is not a member of ‘ImGui’
+     4652 |     return ImGui::DockBuilderFinish(node_id);
+          |                   ^~~~~~~~~~~~~~~~~
+     |
+4652 |     return ImGui::DockBuilderFinish(node_id);
+     |                   ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:4926:93: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     4926 | CIMGUI_API bool igBeginTabBarEx(ImGuiTabBar* tab_bar,const ImRect bb,ImGuiTabBarFlags flags,ImGuiDockNode* dock_node)
+          |                                                                                             ^~~~~~~~~~~~~
+     |
+4926 | CIMGUI_API bool igBeginTabBarEx(ImGuiTabBar* tab_bar,const ImRect bb,ImGuiTabBarFlags flags,ImGuiDockNode* dock_node)
+     |                                                                                             ^
+vendor/cimgui.cpp: In function ‘bool igBeginTabBarEx(ImGuiTabBar*, ImRect, ImGuiTabBarFlags, int*)’:
+
+vendor/cimgui.cpp:4928:32: error:
+     error: too many arguments to function ‘bool ImGui::BeginTabBarEx(ImGuiTabBar*, const ImRect&, ImGuiTabBarFlags)’
+     4928 |     return ImGui::BeginTabBarEx(tab_bar,bb,flags,dock_node);
+          |            ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4928 |     return ImGui::BeginTabBarEx(tab_bar,bb,flags,dock_node);
+     |                                ^
+
+vendor/imgui/imgui_internal.h:3114:29: error:
+     note: declared here
+     3114 |     IMGUI_API bool          BeginTabBarEx(ImGuiTabBar* tab_bar, const ImRect& bb, ImGuiTabBarFlags flags);
+          |                             ^~~~~~~~~~~~~
+     |
+3114 |     IMGUI_API bool          BeginTabBarEx(ImGuiTabBar* tab_bar, const ImRect& bb, ImGuiTabBarFlags flags);
+     |                             ^
+vendor/cimgui.cpp: In function ‘ImGuiTabItem* igTabBarFindMostRecentlySelectedTabForActiveWindow(ImGuiTabBar*)’:
+
+vendor/cimgui.cpp:4940:19: error:
+     error: ‘TabBarFindMostRecentlySelectedTabForActiveWindow’ is not a member of ‘ImGui’
+     4940 |     return ImGui::TabBarFindMostRecentlySelectedTabForActiveWindow(tab_bar);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+4940 |     return ImGui::TabBarFindMostRecentlySelectedTabForActiveWindow(tab_bar);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igTabBarAddTab(ImGuiTabBar*, ImGuiTabItemFlags, ImGuiWindow*)’:
+
+vendor/cimgui.cpp:4956:19: error:
+     error: ‘TabBarAddTab’ is not a member of ‘ImGui’; did you mean ‘TabBarCloseTab’?
+     4956 |     return ImGui::TabBarAddTab(tab_bar,tab_flags,window);
+          |                   ^~~~~~~~~~~~
+          |                   TabBarCloseTab
+     |
+4956 |     return ImGui::TabBarAddTab(tab_bar,tab_flags,window);
+     |                   ^
+vendor/cimgui.cpp: In function ‘void igRenderArrowDockMenu(ImDrawList*, ImVec2, float, ImU32)’:
+
+vendor/cimgui.cpp:5064:19: error:
+     error: ‘RenderArrowDockMenu’ is not a member of ‘ImGui’
+     5064 |     return ImGui::RenderArrowDockMenu(draw_list,p_min,sz,col);
+          |                   ^~~~~~~~~~~~~~~~~~~
+     |
+5064 |     return ImGui::RenderArrowDockMenu(draw_list,p_min,sz,col);
+     |                   ^
+vendor/cimgui.cpp: In function ‘ImDrawFlags igCalcRoundingFlagsForRectInRect(ImRect, ImRect, float)’:
+
+vendor/cimgui.cpp:5076:19: error:
+     error: ‘CalcRoundingFlagsForRectInRect’ is not a member of ‘ImGui’
+     5076 |     return ImGui::CalcRoundingFlagsForRectInRect(r_in,r_outer,threshold);
+          |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     |
+5076 |     return ImGui::CalcRoundingFlagsForRectInRect(r_in,r_outer,threshold);
+     |                   ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:5114:62: error:
+     error: ‘ImGuiDockNode’ has not been declared
+     5114 | CIMGUI_API bool igCollapseButton(ImGuiID id,const ImVec2 pos,ImGuiDockNode* dock_node)
+          |                                                              ^~~~~~~~~~~~~
+     |
+5114 | CIMGUI_API bool igCollapseButton(ImGuiID id,const ImVec2 pos,ImGuiDockNode* dock_node)
+     |                                                              ^
+vendor/cimgui.cpp: In function ‘bool igCollapseButton(ImGuiID, ImVec2, int*)’:
+
+vendor/cimgui.cpp:5116:33: error:
+     error: too many arguments to function ‘bool ImGui::CollapseButton(ImGuiID, const ImVec2&)’
+     5116 |     return ImGui::CollapseButton(id,pos,dock_node);
+          |            ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~
+     |
+5116 |     return ImGui::CollapseButton(id,pos,dock_node);
+     |                                 ^
+
+vendor/imgui/imgui_internal.h:3167:29: error:
+     note: declared here
+     3167 |     IMGUI_API bool          CollapseButton(ImGuiID id, const ImVec2& pos);
+          |                             ^~~~~~~~~~~~~~
+     |
+3167 |     IMGUI_API bool          CollapseButton(ImGuiID id, const ImVec2& pos);
+     |                             ^
+vendor/cimgui.cpp: At global scope:
+
+vendor/cimgui.cpp:5313:17: error:
+     error: variable or field ‘igDebugNodeDockNode’ declared void
+     5313 | CIMGUI_API void igDebugNodeDockNode(ImGuiDockNode* node,const char* label)
+          |                 ^~~~~~~~~~~~~~~~~~~
+     |
+5313 | CIMGUI_API void igDebugNodeDockNode(ImGuiDockNode* node,const char* label)
+     |                 ^
+
+vendor/cimgui.cpp:5313:37: error:
+     error: ‘ImGuiDockNode’ was not declared in this scope; did you mean ‘ImGuiMod_None’?
+     5313 | CIMGUI_API void igDebugNodeDockNode(ImGuiDockNode* node,const char* label)
+          |                                     ^~~~~~~~~~~~~
+          |                                     ImGuiMod_None
+     |
+5313 | CIMGUI_API void igDebugNodeDockNode(ImGuiDockNode* node,const char* label)
+     |                                     ^
+
+vendor/cimgui.cpp:5313:52: error:
+     error: ‘node’ was not declared in this scope
+     5313 | CIMGUI_API void igDebugNodeDockNode(ImGuiDockNode* node,const char* label)
+          |                                                    ^~~~
+     |
+5313 | CIMGUI_API void igDebugNodeDockNode(ImGuiDockNode* node,const char* label)
+     |                                                    ^
+
+vendor/cimgui.cpp:5313:57: error:
+     error: expected primary-expression before ‘const’
+     5313 | CIMGUI_API void igDebugNodeDockNode(ImGuiDockNode* node,const char* label)
+          |                                                         ^~~~~
+     |
+5313 | CIMGUI_API void igDebugNodeDockNode(ImGuiDockNode* node,const char* label)
+     |                                                         ^
+vendor/cimgui.cpp: In function ‘bool igIsKeyPressedMap(ImGuiKey, bool)’:
+
+vendor/cimgui.cpp:5383:19: error:
+     error: ‘IsKeyPressedMap’ is not a member of ‘ImGui’; did you mean ‘IsKeyPressed’?
+     5383 |     return ImGui::IsKeyPressedMap(key,repeat);
+          |                   ^~~~~~~~~~~~~~~
+          |                   IsKeyPressed
+     |
+5383 |     return ImGui::IsKeyPressedMap(key,repeat);
+     |                   ^
+`g++' failed in phase `C++ Compiler'. (Exit code: 1)
+Error: cabal: Failed to build lib:imgui from mviz-0.1.0.0 (which is required
+by exe:mviz from mviz-0.1.0.0).
+

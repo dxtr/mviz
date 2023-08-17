@@ -12,20 +12,63 @@ category:           audio
 build-type:         Simple
 extra-doc-files:    README.md, CHANGELOG.md
 
+extra-source-files:
+    vendor/*.h
+    vendor/imgui/*.h
+
 common warnings
     ghc-options: -Wall
 
 common threaded
     ghc-options: -threaded -rtsopts -with-rtsopts=-N 
 
+library imgui
+    import: warnings
+    exposed-modules: ImGui
+    other-modules:
+        ImGui.Types,
+        ImGui.Raw,
+        ImGui.Raw.Structs,
+        ImGui.Raw.Types
+    autogen-modules:
+        ImGui.Raw
+        ImGui.Raw.Structs
+        ImGui.Raw.Types
+
+    cc-options: -std=c11 -O2
+    cxx-options: -std=c++11 -O2
+    cxx-sources:
+        vendor/imgui/imgui.cpp
+        vendor/imgui/imgui_demo.cpp
+        vendor/imgui/imgui_draw.cpp
+        vendor/imgui/imgui_tables.cpp
+        vendor/imgui/imgui_widgets.cpp
+        vendor/imgui/backends/imgui_impl_opengl3.cpp
+        vendor/imgui/backends/imgui_impl_sdl2.cpp
+        vendor/cimgui.cpp
+--    c-sources: vendor/cimgui.cpp
+
+    extra-libraries: stdc++
+    include-dirs: vendor vendor/imgui lib/imgui/include
+    other-extensions: Strict
+--    build-tool-depends: hsc2hs:hsc2hs
+    build-tool-depends: c2hs:c2hs
+    build-depends:
+        base ^>=4.18.0.0,
+        text,
+        sdl2,
+        StateVar,
+        inline-c,
+        unliftio,
+        unliftio-core
+    pkgconfig-depends: glew
+
+    hs-source-dirs:   lib/imgui
+    default-language: GHC2021
+        
 library
-    -- Import common warning flags.
     import:           warnings
-
-    -- Modules exported by the library.
     exposed-modules:  Mviz
-
-    -- Modules included in this library but not exported.
     other-modules:
         Mviz.Audio,
         Mviz.Audio.Client,
@@ -37,6 +80,8 @@ library
         Mviz.Types,
         Mviz.UI,
         Mviz.UI.Types,
+        Mviz.UI.UIWindow,
+        Mviz.UI.LogWindow,
         Mviz.Utils,
         Mviz.Utils.Ringbuffer,
         Mviz.Utils.TSRingbuffer,
@@ -44,16 +89,13 @@ library
         Mviz.Window.Types,
         Mviz.Window.Events
 
-    -- LANGUAGE extensions used by modules in this package.
     other-extensions: Strict
-
-    -- Other library packages from which modules are imported.
     build-depends:
         base ^>=4.18.0.0,
+        imgui,
         async,
         bytestring,
         containers,
-        dear-imgui,
         explicit-exception,
         hashable,
         jack,
@@ -61,17 +103,16 @@ library
         mtl,
         OpenGL,
         sdl2,
+        StateVar,
         stm,
         template-haskell,
         text,
         time,
         transformers,
+        unliftio,
         unordered-containers
 
-    -- Directories containing source files.
-    hs-source-dirs:   lib
-
-    -- Base language which the package is written in.
+    hs-source-dirs:   lib/mviz
     default-language: GHC2021
 
 executable mviz

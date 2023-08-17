@@ -19,13 +19,17 @@ module Mviz.SDL (
   makeContextCurrent,
   sdlWindow,
   glContext,
+  getError
 ) where
 
-import Control.Exception (bracket)
-import Data.Text qualified as T
-import Graphics.Rendering.OpenGL qualified as SDL
-import Mviz.Window.Types (Size (..), WindowMode (..))
-import SDL qualified
+import           Control.Exception         (bracket)
+import qualified Data.Text                 as T
+import qualified Data.Text.IO              as TIO
+import           Foreign.C.String          (peekCString)
+import qualified Graphics.Rendering.OpenGL as SDL
+import           Mviz.Window.Types         (Size (..), WindowMode (..))
+import qualified SDL
+import qualified SDL.Raw.Error
 
 type SDLWindow = SDL.Window
 
@@ -40,17 +44,17 @@ data Window = Window
 
 data SDLErrorKind
   = CallFailed
-      { sdlErrorCaller :: !T.Text
+      { sdlErrorCaller   :: !T.Text
       , sdlErrorFunction :: !T.Text
-      , sdlErrorMessage :: !T.Text
+      , sdlErrorMessage  :: !T.Text
       }
   | UnexpectedArgument
-      { sdlErrorCaller :: !T.Text
+      { sdlErrorCaller   :: !T.Text
       , sdlErrorFunction :: !T.Text
-      , sdlErrorValue :: !String
+      , sdlErrorValue    :: !String
       }
   | UnknownHintValue
-      { sdlErrorHint :: !String
+      { sdlErrorHint  :: !String
       , sdlErrorValue :: !String
       }
   deriving (Show)
@@ -76,7 +80,13 @@ windowFlags =
 
 createWindow :: T.Text -> Bool -> IO Window
 createWindow title vsync = do
+  putStrLn "Creating window..."
   wnd <- SDL.createWindow title windowFlags
+  err <- getError
+  case err of
+    Nothing -> putStrLn "Window was created"
+    Just e  -> TIO.putStrLn e
+  putStrLn "Created window!"
   glCtx <- createGlContext wnd vsync
   SDL.glMakeCurrent wnd glCtx
   return $ Window{windowSdlHandle = wnd, windowGlContext = glCtx}
@@ -88,7 +98,7 @@ destroyWindow Window{windowSdlHandle = wndHandle, windowGlContext = glCtx} = do
 
 createGlContext :: SDL.Window -> Bool -> IO (SDL.GLContext)
 createGlContext window False = createGlContext_ window SDL.ImmediateUpdates
-createGlContext window True = createGlContext_ window SDL.SynchronizedUpdates
+createGlContext window True  = createGlContext_ window SDL.SynchronizedUpdates
 
 createGlContext_ :: SDL.Window -> SDL.SwapInterval -> IO (SDL.GLContext)
 createGlContext_ window swapInterval = do
@@ -149,3 +159,11 @@ sdlWindow Window{windowSdlHandle = window} = window
 
 glContext :: Window -> GLContext
 glContext Window{windowGlContext = glCtx} = glCtx
+
+getError :: IO (Maybe T.Text)
+getError = do
+  errMsg <- SDL.Raw.Error.getError
+  errMsgStr <- peekCString errMsg
+  return $ case length errMsgStr of
+    0 -> Nothing
+    _ -> Just $ T.pack errMsgStr

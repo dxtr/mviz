@@ -15,26 +15,27 @@ module Mviz.UI (
   version
 ) where
 
-import           Control.Monad.IO.Class    (liftIO)
-import           Control.Monad.Trans.Maybe (MaybeT (..), runMaybeT)
-import qualified Data.Text                 as T
-import qualified DearImGui                 as ImGUI
-import qualified DearImGui.OpenGL3         as ImGUI.GL
-import qualified DearImGui.SDL             as ImGUI.SDL
-import qualified DearImGui.SDL.OpenGL      as ImGUI.SDL.OpenGL
-import           Mviz.GL                   (GLMakeCurrent, glMakeCurrent)
-import           Mviz.SDL                  (Window, glContext, sdlWindow)
-import           Mviz.Types                (MvizM)
+import           Control.Monad              (when)
+import           Control.Monad.IO.Class     (liftIO)
+import           Control.Monad.State.Strict (get, put)
+import           Control.Monad.Trans.Maybe  (MaybeT (..), runMaybeT)
+import qualified Data.Text                  as T
+import qualified ImGui
+import           Mviz.GL                    (GLMakeCurrent, glMakeCurrent)
+import           Mviz.SDL                   (Window, glContext, sdlWindow)
+import           Mviz.Types                 (MvizM, MvizState (..))
+import           Mviz.UI.LogWindow          (renderLogWindow)
 import           Mviz.UI.Types
-import           Mviz.Utils                ((<&&>))
-import           Mviz.Window.Events        (Event (IgnoredEvent, Quit, WindowResized))
-import qualified SDL                       (EventPayload (KeyboardEvent, QuitEvent, WindowResizedEvent),
-                                            KeyboardEventData (..), V2 (..),
-                                            WindowResizedEventData (..),
-                                            eventPayload)
+import           Mviz.UI.UIWindow           (LogWindow (..))
+import           Mviz.Utils                 ((<&&>))
+import           Mviz.Window.Events         (Event (IgnoredEvent, Quit, WindowResized))
+import qualified SDL                        (EventPayload (KeyboardEvent, QuitEvent, WindowResizedEvent),
+                                             KeyboardEventData (..), V2 (..),
+                                             WindowResizedEventData (..),
+                                             eventPayload)
 
 version :: IO T.Text
-version = ImGUI.getVersion
+version = ImGui.getVersion
 
 initialize :: Window -> IO (Either () ())
 initialize window = do
@@ -56,13 +57,13 @@ shutdown = do
 createUIContext :: (GLMakeCurrent c) => c -> IO UIContext
 createUIContext glCtx = do
   _ <- glMakeCurrent glCtx
-  ImGUI.createContext
+  ImGui.createContext
 
 destroyUIContext :: UIContext -> IO ()
-destroyUIContext = ImGUI.destroyContext
+destroyUIContext = ImGui.destroyContext
 
 getCurrentContext :: IO UIContext
-getCurrentContext = ImGUI.getCurrentContext
+getCurrentContext = ImGui.getCurrentContext
 
 showDemoWindow :: IO ()
 showDemoWindow = ImGUI.showDemoWindow
@@ -77,18 +78,23 @@ newFrame :: IO ()
 newFrame = do
   ImGUI.GL.openGL3NewFrame
   ImGUI.SDL.sdl2NewFrame
-  ImGUI.newFrame
+  ImGui.newFrame
 
 endFrame :: IO ()
-endFrame = ImGUI.endFrame
+endFrame = ImGui.endFrame
 
 render :: MvizM ()
 render = do
+  state <- get
+  let logWindow = mvizLogWindow state
   liftIO $ do
     newFrame
     showDemoWindow
-  ImGUI.render
-  ImGUI.GL.openGL3RenderDrawData =<< ImGUI.getDrawData
+
+  (when $ logWindowShow logWindow) renderLogWindow
+
+  ImGui.render
+  ImGui.GL.openGL3RenderDrawData =<< ImGui.getDrawData
 
 translateEvent :: SDL.EventPayload -> Mviz.Window.Events.Event
 translateEvent SDL.QuitEvent = Mviz.Window.Events.Quit

@@ -1,6 +1,6 @@
-packages: ./mviz.cabal
-optimization: 0
+packages: ./*.cabal
 
-package dear-imgui
-    flags: +sdl +opengl3
+package mviz
+    optimization: 1
+
 

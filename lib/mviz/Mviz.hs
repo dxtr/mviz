@@ -20,6 +20,7 @@ import           Mviz.Types                 (MvizEnvironment (..), MvizM (..),
 import qualified Mviz.UI
 import           Mviz.Window                (showWindow, swapWindowBuffers)
 import qualified Mviz.Window.Events
+import           System.Exit                (exitFailure)
 
 mainLoop :: MvizM ()
 mainLoop = do
@@ -56,13 +57,14 @@ startup :: IO (MvizEnvironment)
 startup = do
   Mviz.SDL.initialize
   wnd <- Mviz.SDL.createWindow "mviz" True
+  err <- Mviz.SDL.getError
+  putStrLn $ show err
   uiContext <- Mviz.UI.createUIContext wnd
   -- TODO: Deal with errors here
   _res <- runExceptT $ ExceptT $ Mviz.UI.initialize wnd
   audioSendChannel <- newTChanIO
   audioRecvChannel <- newTChanIO
-  audioThread <-
-    asyncBound $ Mviz.Audio.runAudioSystem audioRecvChannel audioSendChannel
+  audioThread <- asyncBound $ Mviz.Audio.runAudioSystem audioRecvChannel audioSendChannel
   return $ MvizEnvironment { mvizWindow = wnd
                            , mvizUIContext = uiContext
                            , mvizAudioThread = audioThread
