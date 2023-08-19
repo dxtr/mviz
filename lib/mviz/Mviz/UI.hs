@@ -21,6 +21,7 @@ import           Control.Monad.State.Strict (get, put)
 import           Control.Monad.Trans.Maybe  (MaybeT (..), runMaybeT)
 import qualified Data.Text                  as T
 import qualified ImGui
+import qualified ImGui.GL
 import           Mviz.GL                    (GLMakeCurrent, glMakeCurrent)
 import           Mviz.SDL                   (Window, glContext, sdlWindow)
 import           Mviz.Types                 (MvizM, MvizState (..))
@@ -39,9 +40,9 @@ version = ImGui.getVersion
 
 initialize :: Window -> IO (Either () ())
 initialize window = do
-  ImGUI.checkVersion
-  ImGUI.styleColorsDark
-  success <- ImGUI.SDL.OpenGL.sdl2InitForOpenGL wnd ctx <&&> ImGUI.GL.openGL3Init
+  ImGui.checkVersion
+  ImGui.styleColorsDark
+  success <- ImGui.SDL.sdlInit wnd ctx <&&> ImGui.GL.glInit
   -- TODO: Actually get a proper error message here
   return $ case success of
     True  -> Right ()
@@ -52,7 +53,7 @@ initialize window = do
 
 shutdown :: IO ()
 shutdown = do
-  ImGUI.GL.openGL3Shutdown
+  ImGui.GL.glShutdown
 
 createUIContext :: (GLMakeCurrent c) => c -> IO UIContext
 createUIContext glCtx = do
@@ -66,18 +67,18 @@ getCurrentContext :: IO UIContext
 getCurrentContext = ImGui.getCurrentContext
 
 showDemoWindow :: IO ()
-showDemoWindow = ImGUI.showDemoWindow
+showDemoWindow = ImGui.showDemoWindow
 
 showMetricsWindow :: IO ()
-showMetricsWindow = ImGUI.showMetricsWindow
+showMetricsWindow = ImGui.showMetricsWindow
 
 showUserGuide :: IO ()
-showUserGuide = ImGUI.showUserGuide
+showUserGuide = ImGui.showUserGuide
 
 newFrame :: IO ()
 newFrame = do
-  ImGUI.GL.openGL3NewFrame
-  ImGUI.SDL.sdl2NewFrame
+  ImGui.GL.glNewFrame
+  ImGui.SDL.sdlNewFrame
   ImGui.newFrame
 
 endFrame :: IO ()
@@ -87,14 +88,14 @@ render :: MvizM ()
 render = do
   state <- get
   let logWindow = mvizLogWindow state
-  liftIO $ do
+  _ <- liftIO $ do
     newFrame
-    showDemoWindow
+    ImGui.showDemoWindow
 
   (when $ logWindowShow logWindow) renderLogWindow
 
   ImGui.render
-  ImGui.GL.openGL3RenderDrawData =<< ImGui.getDrawData
+  ImGui.GL.glRenderDrawData =<< ImGui.getDrawData
 
 translateEvent :: SDL.EventPayload -> Mviz.Window.Events.Event
 translateEvent SDL.QuitEvent = Mviz.Window.Events.Quit

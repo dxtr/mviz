@@ -6,23 +6,27 @@ module ImGui.Raw.Types
   , SelectableFlag(..)
   , Context(..)
   , GuiIO(..)
-  , FontAtlas(..)
+  , FontAtlas
+  , FontAtlasPtr
   , DrawData(..)
+  , Style
+  , StylePtr
   , combineWindowFlags
   , combineSelectableFlags
   ) where
 
 import           Foreign
-import Foreign.C.Types (CInt)
 
-#define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include "cimgui.h"
 
--- type ImGuiContext = Ptr ()
+data FontAtlas
+data Style
+
 {#pointer *ImGuiContext as Context newtype #}
-{#pointer *ImFontAtlas as FontAtlas newtype #}
+{#pointer *ImFontAtlas as FontAtlasPtr -> FontAtlas #}
 {#pointer *ImGuiIO as GuiIO newtype #}
 {#pointer *ImDrawData as DrawData newtype #}
+{#pointer *ImGuiStyle as StylePtr -> Style #}
 
 {#enum ImGuiWindowFlags_ as WindowFlag {underscoreToCase} deriving (Show, Eq) #}
 {#enum ImGuiSelectableFlags_ as SelectableFlag {underscoreToCase} deriving (Show, Eq) #}

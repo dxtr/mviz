@@ -1,6 +1,6 @@
-module ImGui ( Raw.Context
-             , module ImGui.Types
+module ImGui ( module ImGui.Types
              , getVersion
+             , checkVersion
              , getDrawData
              , begin
              , beginDefault
@@ -19,11 +19,16 @@ module ImGui ( Raw.Context
              , newFrame
              , endFrame
              , createContext
-             , createContextDefault
              , destroyContext
+             , getCurrentContext
+             , render
+             , showMetricsWindow
+             , showUserGuide
+             , showDemoWindow
+             , styleColorsDark
              ) where
 
-import           Control.Exception       (bracket)
+import           Control.Exception       (bracket_)
 import           Control.Monad.IO.Class  (MonadIO, liftIO)
 import           Control.Monad.IO.Unlift (MonadUnliftIO, withRunInIO)
 import qualified Data.Text               as T
@@ -34,18 +39,39 @@ import           ImGui.Types
 getVersion :: MonadIO m => m T.Text
 getVersion = liftIO $ T.pack <$> Raw.getVersion
 
+checkVersion :: MonadIO m => m ()
+checkVersion = liftIO $ Raw.checkVersion
+
 getDrawData :: MonadIO m => m DrawData
 getDrawData = liftIO $ Raw.getDrawData
 
--- Context
-createContext :: MonadIO m => m Context
-createContext = liftIO $ Raw.createContext
+render :: MonadIO m => m ()
+render = liftIO $ Raw.render
 
-createContextDefault :: MonadIO m => m Context
-createContextDefault = liftIO $ Raw.createContext nulLptr
+showUserGuide :: MonadIO m => m ()
+showUserGuide = liftIO $ Raw.showUserGuide
+
+showDemoWindow :: MonadIO m => m Bool
+showDemoWindow = liftIO $ Raw.showDemoWindow
+
+showMetricsWindow :: MonadIO m => m Bool
+showMetricsWindow = liftIO $ Raw.showMetricsWindow
+
+-- Style
+styleColorsDark :: MonadIO m => Maybe StylePtr -> m ()
+styleColorsDark Nothing    = liftIO $ Raw.styleColorsDark nullPtr
+styleColorsDark (Just ptr) = liftIO $ Raw.styleColorsDark ptr
+
+-- Context
+createContext :: MonadIO m => Maybe FontAtlasPtr -> m Context
+createContext Nothing    = liftIO $ Raw.createContext nullPtr
+createContext (Just ptr) = liftIO $ Raw.createContext ptr
 
 destroyContext :: MonadIO m => Context -> m ()
 destroyContext context = liftIO $ Raw.destroyContext context
+
+getCurrentContext :: MonadIO m => m Context
+getCurrentContext = liftIO $ Raw.getCurrentContext
 
 -- Frames
 newFrame :: MonadIO m => m ()
@@ -65,12 +91,12 @@ beginDefault name = begin name flags
 end :: MonadIO m => m ()
 end = liftIO $ Raw.end
 
-withWindow :: MonadUnliftIO m => T.Text -> [WindowFlag] -> (Bool -> m a) -> m a
+withWindow :: MonadUnliftIO m => T.Text -> [WindowFlag] -> m a -> m a
 withWindow label flags func =
   withRunInIO $ \runInIO ->
-                  bracket (begin label flags) (\_ -> end) (\b -> runInIO (func b))
+                  bracket_ (begin label flags) end (runInIO func)
 
-withDefaultWindow :: MonadUnliftIO m => T.Text -> (Bool -> m a) -> m a
+withDefaultWindow :: MonadUnliftIO m => T.Text -> m a -> m a
 withDefaultWindow label func = withWindow label flags func
   where flags = []
 
@@ -105,7 +131,7 @@ beginListBox label size = liftIO $ Raw.beginListBox label size
 endListBox :: MonadIO m => m ()
 endListBox = liftIO $ Raw.endListBox
 
-withListBox :: MonadUnliftIO m => T.Text -> Vec2 -> (Bool -> m a) -> m a
+withListBox :: MonadUnliftIO m => T.Text -> Vec2 -> m a -> m a
 withListBox label size func =
   withRunInIO $ \runInIO ->
-                  bracket (beginListBox label size) (\_ -> endListBox) (\b -> runInIO (func b))
+                  bracket_ (beginListBox label size) endListBox (runInIO func)

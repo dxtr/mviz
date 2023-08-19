@@ -1,8 +1,8 @@
 cabal-version:      3.0
 name:               mviz
 version:            0.1.0.0
-synopsis: Audio visualizer
-description: Audio visualizer utilizing JACK to visualize the system audio
+synopsis:           Audio visualizer
+description:        Audio visualizer utilizing JACK to visualize the system audio
 license:            ISC
 license-file:       LICENSE
 author:             dxtr
@@ -24,19 +24,21 @@ common threaded
 
 library imgui
     import: warnings
-    exposed-modules: ImGui
+    exposed-modules:
+        ImGui,
+        ImGui.GL,
+        ImGui.SDL
     other-modules:
-        ImGui.Types,
-        ImGui.Raw,
         ImGui.Raw.Structs,
-        ImGui.Raw.Types
-    autogen-modules:
-        ImGui.Raw
-        ImGui.Raw.Structs
-        ImGui.Raw.Types
+        ImGui.Raw.Types,
+        ImGui.Raw.GL,
+        ImGui.Raw.SDL,
+        ImGui.Raw,
+        ImGui.Raw.Utils,
+        ImGui.Types
 
-    cc-options: -std=c11 -O2
-    cxx-options: -std=c++11 -O2
+    cc-options: -std=c11 -O2 -DCIMGUI_DEFINE_ENUMS_AND_STRUCTS -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_SDL2
+    cxx-options: -std=c++11 -O2 -DCIMGUI_DEFINE_ENUMS_AND_STRUCTS -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_SDL2
     cxx-sources:
         vendor/imgui/imgui.cpp
         vendor/imgui/imgui_demo.cpp
@@ -45,13 +47,12 @@ library imgui
         vendor/imgui/imgui_widgets.cpp
         vendor/imgui/backends/imgui_impl_opengl3.cpp
         vendor/imgui/backends/imgui_impl_sdl2.cpp
-        vendor/cimgui.cpp
---    c-sources: vendor/cimgui.cpp
+--        vendor/cimgui.cpp
+    c-sources: vendor/cimgui.cpp
 
-    extra-libraries: stdc++
+    extra-libraries: stdc++, SDL2
     include-dirs: vendor vendor/imgui lib/imgui/include
     other-extensions: Strict
---    build-tool-depends: hsc2hs:hsc2hs
     build-tool-depends: c2hs:c2hs
     build-depends:
         base ^>=4.18.0.0,
@@ -61,7 +62,7 @@ library imgui
         inline-c,
         unliftio,
         unliftio-core
-    pkgconfig-depends: glew
+    pkgconfig-depends: gl, glew, sdl2
 
     hs-source-dirs:   lib/imgui
     default-language: GHC2021

@@ -4,13 +4,11 @@ module ImGui.Types ( RStructs.Vec2(..)
                    , RTypes.WindowFlag(..)
                    , RTypes.Context(..)
                    , RTypes.DrawData(..)
-                   , RTypes.FontAtlas(..)
+                   , RTypes.FontAtlas
+                   , RTypes.FontAtlasPtr
+                   , RTypes.Style
+                   , RTypes.StylePtr
                    ) where
 
 import qualified ImGui.Raw.Structs as RStructs
 import qualified ImGui.Raw.Types   as RTypes
-
--- data Vec2 = Vec2 Float Float
---   deriving (Show, Eq)
--- data Vec4 = Vec4 Float Float Float Float
---   deriving (Show, Eq)

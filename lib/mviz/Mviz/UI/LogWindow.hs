@@ -31,7 +31,7 @@ clearButtonClicked = return ()
 -- selectable :: MonadIO m => Text -> m Bool
 renderListBox :: IO ()
 renderListBox = do
-  ImGui.withListBox listBoxTitle listBoxSize $ \_theBool -> do
+  ImGui.withListBox listBoxTitle listBoxSize $ do
     _ <- ImGui.selectableDefault "Test" False
     return ()
   where
@@ -41,7 +41,7 @@ renderListBox = do
 renderLogWindow :: MvizM ()
 renderLogWindow = do
   state <- State.get
-  liftIO $ ImGui.withDefaultWindow windowTitle $ \theBool -> do
+  liftIO $ ImGui.withDefaultWindow windowTitle $ do
     _ <- ImGui.defaultButton clearButtonTitle
     _ <- renderListBox
     return ()

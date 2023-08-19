@@ -1,5 +1,7 @@
 {-# LANGUAGE CApiFFI                    #-}
 {-# LANGUAGE ForeignFunctionInterface   #-}
+{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module ImGui.Raw
   ( getVersion
@@ -17,23 +19,27 @@ module ImGui.Raw
   , endGroup
   , newFrame
   , endFrame
+  , newline
+  , spacing
+  , separator
+  , render
+  , showUserGuide
+  , showDemoWindow
+  , showMetricsWindow
+  , styleColorsDark
+  , checkVersion
   , module ImGui.Raw.Structs
   , module ImGui.Raw.Types) where
 
 import           Data.Text (Text)
-import           Data.Text.Foreign (withCString)
 import           Foreign
-import           Foreign.C.String
 import           Foreign.C.Types
-import           Foreign.Marshal.Utils (with)
+import qualified Language.C.Inline as C
+import Control.Monad.IO.Class (MonadIO, liftIO)
 
-import ImGui.Raw.Structs
-import ImGui.Raw.Types
+import ImGui.Raw.Utils
 
-#define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include "cimgui.h"
-#include "cimgui_impl.h"
-#include <float.h>
 
 {#import ImGui.Raw.Structs #}
 {#import ImGui.Raw.Types #}
@@ -41,9 +47,19 @@ import ImGui.Raw.Types
 -- System
 {#fun unsafe igGetVersion as getVersion {} -> `String' #}
 {#fun unsafe igGetDrawData as getDrawData {} -> `DrawData' id #}
+{#fun unsafe igRender as render {} -> `()' #}
+{#fun unsafe igShowUserGuide as showUserGuide {} -> `()' #}
+{#fun unsafe igShowDemoWindow as showDemoWindow {alloca- `Bool' outmarshalBool*} -> `()' #}
+{#fun unsafe igShowMetricsWindow as showMetricsWindow {alloca- `Bool' outmarshalBool*} -> `()' #}
+
+checkVersion :: (MonadIO m) => m ()
+checkVersion = liftIO $ [C.exp| void { IMGUI_CHECKVERSION(); } |]
+
+--- Style
+{#fun unsafe igStyleColorsDark as styleColorsDark {id `Ptr Style'} -> `()' #}
 
 --- Context
-{#fun unsafe igCreateContext as createContext {id `FontAtlas'} -> `Context' id #}
+{#fun unsafe igCreateContext as createContext {id `Ptr FontAtlas'} -> `Context' id #}
 {#fun unsafe igDestroyContext as destroyContext {id `Context'} -> `()' #}
 {#fun unsafe igGetCurrentContext as getCurrentContext {} -> `Context' id #}
 
@@ -52,10 +68,6 @@ import ImGui.Raw.Types
 {#fun unsafe igEndFrame as endFrame {} -> `()' #}
 
 --- Window
-tWithCString = Data.Text.Foreign.withCString
-outmarshalBool :: Ptr CUChar -> IO Bool
-outmarshalBool ptr = toBool <$> peek ptr
-
 {#fun unsafe igBegin as begin
   { tWithCString* `Text'
   , alloca- `Bool' outmarshalBool*

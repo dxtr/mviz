@@ -8,12 +8,10 @@ module ImGui.Raw.Structs
   , ImVec4Ptr
   ) where
 
-import Foreign.Ptr
+import Foreign
 import Foreign.C.Types
-import Foreign.Storable
 import Control.Monad (liftM)
 
-#define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include "cimgui.h"
 
 data Vec2 = Vec2 !CFloat !CFloat deriving (Show, Eq, Read, Ord)
