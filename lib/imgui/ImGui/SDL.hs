@@ -1,54 +1,50 @@
-{-# LANGUAGE BlockArguments           #-}
-{-# LANGUAGE FlexibleContexts         #-}
-{-# LANGUAGE ForeignFunctionInterface #-}
-{-# LANGUAGE NamedFieldPuns           #-}
-{-# LANGUAGE OverloadedStrings        #-}
-{-# LANGUAGE PatternSynonyms          #-}
-{-# LANGUAGE QuasiQuotes              #-}
-{-# LANGUAGE TemplateHaskell          #-}
+{-# LANGUAGE QuasiQuotes     #-}
+{-# LANGUAGE TemplateHaskell #-}
 
-module ImGui.SDL
-  ( sdlShutdown
-  , sdlNewFrame
-  , sdlPollEvent
-  , sdlPollEvents
-  ) where
+module ImGui.SDL ( sdlNewFrame
+                 , sdlShutdown
+                 , sdlPollEvent
+                 , sdlPollEvents
+                ) where
 
-import           Control.Monad          (void)
-import           Control.Monad.IO.Class (MonadIO)
-import           Foreign.C.Types
-import           Foreign.Ptr            (Ptr, castPtr)
-import           ImGui.Raw.SDL          as Raw
+import           Control.Monad          (when)
+import           Control.Monad.IO.Class (MonadIO, liftIO)
+import           Foreign                (Ptr, alloca, castPtr)
 import qualified Language.C.Inline      as C
+import qualified Language.C.Inline.Cpp  as Cpp
 import qualified SDL
-import           SDL.Event              (Event)
-import qualified SDL.Raw
+import qualified SDL.Raw.Enum
+import qualified SDL.Raw.Event
 
-C.context (C.bsCtx)
+C.context (Cpp.cppCtx <> C.bsCtx)
+C.include "imgui.h"
+C.include "backends/imgui_impl_sdl2.h"
 C.include "SDL.h"
-C.include "cimgui.h"
-C.include "cmigui_impl.h"
-
-sdlShutdown :: MonadIO m => m ()
-sdlShutdown = liftIO $ Raw.sdlShutdown
+Cpp.using "namespace ImGui";
 
 sdlNewFrame :: MonadIO m => m ()
-sdlNewFrame = liftIO $ Raw.sdlNewFrame
+sdlNewFrame = liftIO $ do
+  [C.exp| void { ImGui_ImplSDL2_NewFrame(); } |]
 
-sdlPollEvent :: MonadIO m => m (Maybe Event)
-sdlPollEvent = liftIO do
-  alloca \eventPtr -> do
+sdlShutdown :: MonadIO m => m ()
+sdlShutdown = liftIO $ do
+  [C.exp| void { ImGui_ImplSDL2_Shutdown(); } |]
+
+sdlPollEvent :: MonadIO m => m (Maybe SDL.Event)
+sdlPollEvent = liftIO $ do
+  alloca $ \eventPtr -> do
     SDL.pumpEvents
-    numEvents <- SDL.Raw.peepEvents eventPtr 1 SDL.Raw.SDL_PEEKEVENT SDL.Raw.SDL_FIRSTEVENT SDL.Raw.SDL_LASTEVENT
-    when (numEvents > 0) do
+    numEvents <- SDL.Raw.Event.peepEvents eventPtr 1 SDL.Raw.Enum.SDL_PEEKEVENT SDL.Raw.Enum.SDL_FIRSTEVENT SDL.Raw.Enum.SDL_LASTEVENT
+
+    when (numEvents > 0) $ do
       let eventPtr' = castPtr eventPtr :: Ptr ()
-      [C.exp| void{ ImGui_ImplSDL2_ProcessEvent((SDL_Event*) $(void* eventPtr')) } |]
+      [C.exp| void { ImGui_ImplSDL2_ProcessEvent((SDL_Event*) $(void* eventPtr')) } |]
 
     SDL.pollEvent
 
-sdlPollEvents :: MonadIO m => m [Event]
-sdlPollEvents = do
-  evt <- pollEvent
+sdlPollEvents :: MonadIO m => m [SDL.Event]
+sdlPollEvents = liftIO $ do
+  e <- sdlPollEvent
   case e of
-    Nothing -> return []
-    Just e' -> (e':) <$> pollevents
+    Nothing -> pure []
+    Just e' -> (e':) <$> sdlPollEvents

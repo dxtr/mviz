@@ -31,8 +31,6 @@ data Style
 {#enum ImGuiWindowFlags_ as WindowFlag {underscoreToCase} deriving (Show, Eq) #}
 {#enum ImGuiSelectableFlags_ as SelectableFlag {underscoreToCase} deriving (Show, Eq) #}
 
-combineWindowFlags :: (Integral a) => [WindowFlag] -> a
-combineWindowFlags = fromIntegral . foldr ((.|.) . fromEnum) 0
 
 combineSelectableFlags :: (Integral a) => [SelectableFlag] -> a
 combineSelectableFlags = fromIntegral . foldr ((.|.) . fromEnum) 0
