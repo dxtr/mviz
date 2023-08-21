@@ -47,6 +47,7 @@ data MvizFramerate = MvizFramerate
 data MvizState = MvizState
   { mvizShaders   :: Map.Map T.Text Shader.ProgramObject
   , mvizShowUI    :: Bool
+  , mvizShowLogWindow :: Bool
   , mvizLogWindow :: LogWindow
 
 --  , mvizShowDebugLog :: Bool

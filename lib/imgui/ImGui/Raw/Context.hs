@@ -5,10 +5,10 @@
 module ImGui.Raw.Context where
 
 import qualified Data.Map.Strict           as Map
-import           ImGui.Enums               (ImGuiSelectableFlag)
 import           ImGui.Structs
 import           Language.C.Inline.Context (Context (..))
 import           Language.C.Types          (pattern TypeName)
+import Foreign.C.Types (CInt)
 
 imguiContext :: Context
 imguiContext = mempty
@@ -24,7 +24,8 @@ imguiContext = mempty
       , ( TypeName "ImFont", [t| ImFont |] )
       , ( TypeName "ImFontConfig", [t| ImFontConfig |] )
       , ( TypeName "ImFontGlyphRangesBuilder", [t| ImFontGlyphRangesBuilder |] )
-      , ( TypeName "ImGuiSelectableFlags", [t| ImGuiSelectableFlag |])
+      , ( TypeName "ImGuiSelectableFlags", [t| CInt |])
+      , ( TypeName "ImGuiWindowFlags", [t| CInt |])
 --      , ( TypeName "ImGuiListClipper", [t| ImGuiListClipper |] )
 --      , ( TypeName "ImGuiTableSortSpecs", [t| ImGuiTableSortSpecs |] )
       ]

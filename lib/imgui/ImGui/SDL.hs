@@ -1,8 +1,9 @@
 {-# LANGUAGE QuasiQuotes     #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module ImGui.SDL ( sdlNewFrame
+module ImGui.SDL ( sdlInit
                  , sdlShutdown
+                 , sdlNewFrame
                  , sdlPollEvent
                  , sdlPollEvents
                 ) where
@@ -15,12 +16,21 @@ import qualified Language.C.Inline.Cpp  as Cpp
 import qualified SDL
 import qualified SDL.Raw.Enum
 import qualified SDL.Raw.Event
+import SDL.Internal.Types (Window(..))
+import Unsafe.Coerce (unsafeCoerce)
 
-C.context (Cpp.cppCtx <> C.bsCtx)
+C.context Cpp.cppCtx
 C.include "imgui.h"
 C.include "backends/imgui_impl_sdl2.h"
 C.include "SDL.h"
 Cpp.using "namespace ImGui";
+
+sdlInit :: MonadIO m => Window -> SDL.GLContext -> m Bool
+sdlInit (Window windowPtr) glContext = liftIO $ do
+  (0 /=) <$> [C.exp| bool { ImGui_ImplSDL2_InitForOpenGL((SDL_Window*)$(void* windowPtr), $(void* glContextPtr)) } |]
+  where
+    glContextPtr :: Ptr ()
+    glContextPtr = unsafeCoerce glContext
 
 sdlNewFrame :: MonadIO m => m ()
 sdlNewFrame = liftIO $ do

@@ -24,14 +24,15 @@ common threaded
 library imgui
     import: warnings
     exposed-modules:
-        ImGui
+        ImGui,
+        ImGui.GL,
+        ImGui.SDL
     other-modules:
+        ImGui.Raw.Context,
         ImGui.Enums,
         ImGui.Types,
         ImGui.Structs,
         ImGui.Raw,
-        ImGui.GL,
-        ImGui.SDL
 
     cc-options: -std=c11 -O2 -DCIMGUI_DEFINE_ENUMS_AND_STRUCTS -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_SDL2
     cxx-options: -std=c++11 -O2 -DCIMGUI_DEFINE_ENUMS_AND_STRUCTS -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_SDL2

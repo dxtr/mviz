@@ -2,12 +2,14 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module ImGui.Raw
-  ( getVersion
+  ( Context
+  , getVersion
   , getDrawData
   , createContext
   , destroyContext
   , getCurrentContext
   , begin
+  , beginCloseable
   , end
   , button
   , smallButton
@@ -39,17 +41,18 @@ module ImGui.Raw
   ) where
 
 import           Control.Monad.IO.Class (MonadIO, liftIO)
+import           Data.Maybe             (fromMaybe)
 import           Foreign
 import           Foreign.C              (CString)
 import           Foreign.C.Types
 import           ImGui.Enums
-import           ImGui.Raw.Context
+import           ImGui.Raw.Context      as CTX
 import           ImGui.Structs
 import           ImGui.Types
 import qualified Language.C.Inline      as C
 import qualified Language.C.Inline.Cpp  as Cpp
 
-C.context (Cpp.cppCtx <> C.bsCtx <> imguiContext)
+C.context (Cpp.cppCtx <> C.bsCtx <> CTX.imguiContext)
 C.include "imgui.h"
 Cpp.using "namespace ImGui";
 
@@ -69,14 +72,23 @@ getDrawData = liftIO $ do
 render :: (MonadIO m) => m ()
 render = liftIO [C.exp| void { Render(); } |]
 
-showDemoWindow :: (MonadIO m) => m ()
-showDemoWindow = liftIO [C.exp| void { ShowDemoWindow(); } |]
+showDemoWindow :: (MonadIO m) => m Bool
+showDemoWindow = liftIO $
+  alloca $ \boolPtr -> do
+    [C.exp| void { ShowDemoWindow($(bool* boolPtr)); } |]
+    (0 /=) <$> peek boolPtr
 
-showMetricsWindow :: (MonadIO m) => m ()
-showMetricsWindow = liftIO [C.exp| void { ShowMetricsWindow(); } |]
+showMetricsWindow :: (MonadIO m) => m Bool
+showMetricsWindow = liftIO $
+  alloca $ \boolPtr -> do
+    [C.exp| void { ShowMetricsWindow($(bool* boolPtr)); } |]
+    (0 /=) <$> peek boolPtr
 
-showAboutWindow :: (MonadIO m) => m ()
-showAboutWindow = liftIO [C.exp| void { ShowAboutWindow(); } |]
+showAboutWindow :: (MonadIO m) => m Bool
+showAboutWindow = liftIO $
+  alloca $ \boolPtr -> do
+    [C.exp| void { ShowAboutWindow($(bool* boolPtr)); } |]
+    (0 /=) <$> peek boolPtr
 
 showUserGuide :: (MonadIO m) => m ()
 showUserGuide = liftIO [C.exp| void { ShowUserGuide() } |]
@@ -113,10 +125,19 @@ endFrame = liftIO $ do
   [C.exp| void { EndFrame(); } |]
 
 --- Window
-begin :: (MonadIO m) => CString -> [ImGuiWindowFlag] -> m Bool
+beginCloseable :: (MonadIO m) => CString -> [WindowFlag] -> m (Bool, Bool)
+beginCloseable namePtr flags = liftIO $ do
+  with (1 :: CBool) $ \pOpen -> do
+    collapsed <- (0 /=) <$> [C.exp| bool { Begin($(char* namePtr), $(bool* pOpen), $(ImGuiWindowFlags flags')) } |]
+    pOpen' <- (0 /=) <$> peek pOpen
+    return (collapsed, pOpen')
+  where flags' = combineFlags flags
+
+begin :: (MonadIO m) => CString -> [WindowFlag] -> m Bool
 begin namePtr flags = liftIO $ do
-  (0 /=) <$> [C.exp| bool { Begin($(char* namePtr), nullptr, $(int flags')) } |]
-  where flags' = windowFlagValue $ combineWindowFlags flags
+  collapsed <- (0 /=) <$> [C.exp| bool { Begin($(char* namePtr), nullptr, $(ImGuiWindowFlags flags')) } |]
+  return collapsed
+  where flags' = combineFlags flags
 
 end :: (MonadIO m) => m ()
 end = liftIO $ do
@@ -170,10 +191,10 @@ smallButton labelPtr = liftIO $ do
   (0 /=) <$> [C.exp| bool { SmallButton($(char* labelPtr)) } |]
 
 --- Selectable
-selectable :: (MonadIO m) => CString -> CBool -> [ImGuiSelectableFlag] -> Ptr ImVec2 -> m Bool
+selectable :: (MonadIO m) => CString -> CBool -> [SelectableFlag] -> Ptr ImVec2 -> m Bool
 selectable labelPtr selected flags size = liftIO $ do
   (0 /=) <$> [C.exp| bool { Selectable($(char* labelPtr), $(bool selected), $(ImGuiSelectableFlags flags'), *$(ImVec2 *size)) } |]
-  where flags' = combineSelectableFlags flags
+  where flags' = combineFlags flags
 
 --- Listbox
 listBox :: (MonadIO m) => CString -> Ptr CInt -> Ptr CString -> CInt -> m Bool

@@ -1,16 +1,15 @@
-module ImGui ( module ImGui.Types
+module ImGui ( Context
+             , ImVec2(..)
+             , ImVec3 (..)
              , getVersion
              , checkVersion
              , getDrawData
              , begin
-             , beginDefault
              , end
              , withWindow
-             , withDefaultWindow
+             , withCloseableWindow
              , button
-             , defaultButton
              , selectable
-             , selectableDefault
              , beginListBox
              , endListBox
              , withListBox
@@ -28,110 +27,132 @@ module ImGui ( module ImGui.Types
              , styleColorsDark
              ) where
 
-import           Control.Exception       (bracket_)
+import           Control.Exception       (bracket, bracket_)
+import           Control.Monad           (unless, when)
 import           Control.Monad.IO.Class  (MonadIO, liftIO)
 import           Control.Monad.IO.Unlift (MonadUnliftIO, withRunInIO)
 import qualified Data.Text               as T
-import           Foreign.Ptr             (nullPtr)
+import qualified Data.Text.Foreign       as TF
+import           Foreign                 (Ptr, fromBool, with)
+import           Foreign.C.String        (peekCString)
+import           ImGui.Enums
 import qualified ImGui.Raw               as Raw
+import           ImGui.Structs
 import           ImGui.Types
 
+type Context = Raw.Context
+
 getVersion :: MonadIO m => m T.Text
-getVersion = liftIO $ T.pack <$> Raw.getVersion
+getVersion = liftIO $ do
+  ver <- Raw.getVersion
+  verStr <- peekCString ver
+  return $ T.pack verStr
 
 checkVersion :: MonadIO m => m ()
-checkVersion = liftIO $ Raw.checkVersion
+checkVersion = Raw.checkVersion
 
 getDrawData :: MonadIO m => m DrawData
-getDrawData = liftIO $ Raw.getDrawData
+getDrawData = Raw.getDrawData
 
 render :: MonadIO m => m ()
-render = liftIO $ Raw.render
+render = Raw.render
 
 showUserGuide :: MonadIO m => m ()
-showUserGuide = liftIO $ Raw.showUserGuide
+showUserGuide = Raw.showUserGuide
 
 showDemoWindow :: MonadIO m => m Bool
-showDemoWindow = liftIO $ Raw.showDemoWindow
+showDemoWindow = Raw.showDemoWindow
 
 showMetricsWindow :: MonadIO m => m Bool
-showMetricsWindow = liftIO $ Raw.showMetricsWindow
+showMetricsWindow = Raw.showMetricsWindow
 
 -- Style
-styleColorsDark :: MonadIO m => Maybe StylePtr -> m ()
-styleColorsDark Nothing    = liftIO $ Raw.styleColorsDark nullPtr
-styleColorsDark (Just ptr) = liftIO $ Raw.styleColorsDark ptr
+styleColorsDark :: MonadIO m => m ()
+styleColorsDark = Raw.styleColorsDark
 
 -- Context
-createContext :: MonadIO m => Maybe FontAtlasPtr -> m Context
-createContext Nothing    = liftIO $ Raw.createContext nullPtr
-createContext (Just ptr) = liftIO $ Raw.createContext ptr
+createContext :: MonadIO m => m Raw.Context
+createContext = Raw.createContext
 
-destroyContext :: MonadIO m => Context -> m ()
+destroyContext :: MonadIO m => Raw.Context -> m ()
 destroyContext context = liftIO $ Raw.destroyContext context
 
-getCurrentContext :: MonadIO m => m Context
-getCurrentContext = liftIO $ Raw.getCurrentContext
+getCurrentContext :: MonadIO m => m Raw.Context
+getCurrentContext = Raw.getCurrentContext
 
 -- Frames
 newFrame :: MonadIO m => m ()
-newFrame = liftIO $ Raw.newFrame
+newFrame = Raw.newFrame
 
 endFrame :: MonadIO m => m ()
-endFrame = liftIO $ Raw.newFrame
+endFrame = Raw.newFrame
 
 -- Windows
 begin :: MonadIO m => T.Text -> [WindowFlag] -> m Bool
-begin name flags = liftIO $ Raw.begin name flags
+begin label flags = liftIO $
+  TF.withCString label $ \labelPtr ->
+    Raw.begin labelPtr flags
 
-beginDefault :: MonadIO m => T.Text -> m Bool
-beginDefault name = begin name flags
-  where flags = []
+beginCloseable :: MonadIO m => T.Text -> [WindowFlag] -> m (Bool, Bool)
+beginCloseable label flags = liftIO $
+  TF.withCString label $ \labelPtr ->
+    Raw.beginCloseable labelPtr flags
 
 end :: MonadIO m => m ()
-end = liftIO $ Raw.end
+end = Raw.end
 
-withWindow :: MonadUnliftIO m => T.Text -> [WindowFlag] -> m a -> m a
+withWindow :: MonadUnliftIO m => T.Text -> [WindowFlag] -> m () -> m ()
 withWindow label flags func =
   withRunInIO $ \runInIO ->
-                  bracket_ (begin label flags) end (runInIO func)
+                  bracket
+                  (begin label flags)
+                  (const end)
+                  (`when` runInIO func)
 
-withDefaultWindow :: MonadUnliftIO m => T.Text -> m a -> m a
-withDefaultWindow label func = withWindow label flags func
-  where flags = []
+withCloseableWindow :: MonadUnliftIO m => T.Text -> [WindowFlag] -> m () -> m Bool
+withCloseableWindow label flags func =
+  withRunInIO $ \runInIO ->
+                  bracket
+                  (beginCloseable label flags)
+                  (const end)
+                  (\(notCollapsed, pOpen) -> do
+                      when notCollapsed $ runInIO func
+                      return pOpen)
 
 -- Misc
 beginGroup :: MonadIO m => m ()
-beginGroup = liftIO $ Raw.beginGroup
+beginGroup = Raw.beginGroup
 
 endGroup :: MonadIO m => m ()
-endGroup = liftIO $ Raw.endGroup
+endGroup = Raw.endGroup
 
 -- Buttons
-button :: MonadIO m => T.Text -> Vec2 -> m Bool
-button label size = liftIO $ Raw.button label size
-
-defaultButton :: MonadIO m => T.Text -> m Bool
-defaultButton label = button label size
-  where size = Vec2 0.0 0.0
+button :: MonadIO m => T.Text -> m Bool
+button label = liftIO $
+  TF.withCString label $ \labelPtr ->
+      Raw.button labelPtr
 
 -- Selectable
-selectable :: MonadIO m => T.Text -> Bool -> [SelectableFlag] -> Vec2 -> m Bool
-selectable label selected flags size = liftIO $ Raw.selectable label selected flags size
-
-selectableDefault :: MonadIO m => T.Text -> Bool -> m Bool
-selectableDefault label selected = selectable label selected flags size
-  where flags = []
-        size = Vec2 0.0 0.0
+selectable :: MonadIO m => T.Text -> Bool -> [SelectableFlag] -> ImVec2 -> m Bool
+selectable label selected flags size = liftIO $
+  TF.withCString label $ \labelPtr ->
+    with size $ \sizePtr ->
+      Raw.selectable labelPtr (fromBool selected) flags sizePtr
 
 -- Listbox
-beginListBox :: MonadIO m => T.Text -> Vec2 -> m Bool
-beginListBox label size = liftIO $ Raw.beginListBox label size
+beginListBox :: MonadIO m => T.Text -> ImVec2 -> m Bool
+beginListBox label size = liftIO $
+  TF.withCString label $ \labelPtr ->
+    with size $ \sizePtr ->
+      Raw.beginListBox labelPtr sizePtr
 
 endListBox :: MonadIO m => m ()
-endListBox = liftIO $ Raw.endListBox
+endListBox = Raw.endListBox
 
-withListBox :: MonadUnliftIO m => T.Text -> Vec2 -> m a -> m a
+withListBox :: MonadUnliftIO m => T.Text -> ImVec2 -> m () -> m ()
 withListBox label size func =
   withRunInIO $ \runInIO ->
-                  bracket_ (beginListBox label size) endListBox (runInIO func)
+                  bracket
+                  (beginListBox label size)
+                  (`when` endListBox)
+                  (`when` runInIO func)
