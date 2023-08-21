@@ -12,6 +12,7 @@ import           Control.Monad.State.Strict (get)
 import           Control.Monad.Trans.Except (ExceptT (..), runExceptT)
 import qualified Data.Text.IO               as TIO (putStrLn)
 import qualified Graphics.Rendering.OpenGL  as OpenGL
+import           ImGui                      (checkVersion)
 import qualified Mviz.Audio
 import qualified Mviz.GL                    (vendor, version)
 import qualified Mviz.SDL
@@ -55,6 +56,7 @@ run = do
 
 startup :: IO (MvizEnvironment)
 startup = do
+  ImGui.checkVersion
   Mviz.SDL.initialize
   wnd <- Mviz.SDL.createWindow "mviz" True
   err <- Mviz.SDL.getError

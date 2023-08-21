@@ -11,10 +11,11 @@ import qualified Control.Monad.State.Strict as State
 import           Control.Monad.Trans.Maybe
 import           Data.StateVar              (get)
 import qualified Data.Text                  as T
+import           Foreign.Ptr                (Ptr)
 import qualified ImGui
 import           Mviz.Logger                (LogMessage)
-import           Mviz.Types                 (MvizM)
-import           Mviz.UI.UIWindow           (LogWindow)
+import           Mviz.Types                 (MvizM (..), mvizLogWindow)
+import           Mviz.UI.UIWindow           (LogWindow (..))
 
 windowId :: T.Text
 windowId = "logwindow"
@@ -32,28 +33,20 @@ clearButtonClicked = return ()
 renderListBox :: IO ()
 renderListBox = do
   ImGui.withListBox listBoxTitle listBoxSize $ do
-    _ <- ImGui.selectableDefault "Test" False
+    _ <- ImGui.selectable "Test" False [] (ImGui.ImVec2 0.0 0.0)
     return ()
   where
     listBoxTitle = "Log"
-    listBoxSize = ImGui.Vec2 1.0 1.0
+    listBoxSize = ImGui.ImVec2 1.0 1.0
 
 renderLogWindow :: MvizM ()
 renderLogWindow = do
   state <- State.get
-  liftIO $ ImGui.withDefaultWindow windowTitle $ do
-    _ <- ImGui.defaultButton clearButtonTitle
-    _ <- renderListBox
-    return ()
-  State.put state
-  -- liftIO $ do
-  --   begin <- ImGUI.begin windowTitle
-  --   when begin $ do
-  --     -- TODO: Handle the clear button
-  --     return ()
-
-
-  --   ImGUI.end
-  -- put startTextInput
---    State.put state
+  let logWindow = mvizLogWindow state
+  let isOpen = logWindowOpen logWindow
+  when isOpen $ do
+    closed <- liftIO $ ImGui.withCloseableWindow windowTitle [] $ do
+      _ <- ImGui.button clearButtonTitle
+      renderListBox
+    State.put state{mvizLogWindow = logWindow{logWindowOpen = closed}}
   where clearButtonTitle = "Clear" :: T.Text

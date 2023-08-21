@@ -16,12 +16,13 @@ module Mviz.UI (
 ) where
 
 import           Control.Monad              (when)
-import           Control.Monad.IO.Class     (liftIO)
+import           Control.Monad.IO.Class     (MonadIO, liftIO)
 import           Control.Monad.State.Strict (get, put)
 import           Control.Monad.Trans.Maybe  (MaybeT (..), runMaybeT)
 import qualified Data.Text                  as T
 import qualified ImGui
 import qualified ImGui.GL
+import qualified ImGui.SDL
 import           Mviz.GL                    (GLMakeCurrent, glMakeCurrent)
 import           Mviz.SDL                   (Window, glContext, sdlWindow)
 import           Mviz.Types                 (MvizM, MvizState (..))
@@ -55,24 +56,24 @@ shutdown :: IO ()
 shutdown = do
   ImGui.GL.glShutdown
 
-createUIContext :: (GLMakeCurrent c) => c -> IO UIContext
+createUIContext :: (GLMakeCurrent c) => c -> IO ImGui.Context
 createUIContext glCtx = do
   _ <- glMakeCurrent glCtx
   ImGui.createContext
 
-destroyUIContext :: UIContext -> IO ()
+destroyUIContext :: (MonadIO m) => UIContext -> m ()
 destroyUIContext = ImGui.destroyContext
 
-getCurrentContext :: IO UIContext
+getCurrentContext :: (MonadIO m) => m UIContext
 getCurrentContext = ImGui.getCurrentContext
 
-showDemoWindow :: IO ()
+showDemoWindow :: (MonadIO m) => m Bool
 showDemoWindow = ImGui.showDemoWindow
 
-showMetricsWindow :: IO ()
+showMetricsWindow :: (MonadIO m) => m Bool
 showMetricsWindow = ImGui.showMetricsWindow
 
-showUserGuide :: IO ()
+showUserGuide :: (MonadIO m) => m ()
 showUserGuide = ImGui.showUserGuide
 
 newFrame :: IO ()
@@ -112,7 +113,7 @@ translateEvent (SDL.WindowResizedEvent SDL.WindowResizedEventData{SDL.windowResi
 translateEvent ignoredEvent = IgnoredEvent ignoredEvent
 
 pollEvent :: IO (Maybe Mviz.Window.Events.Event)
-pollEvent = runMaybeT $ (MaybeT $ ImGUI.SDL.pollEventWithImGui) >>= return . translateEvent . SDL.eventPayload
+pollEvent = runMaybeT $ (MaybeT $ ImGui.SDL.sdlPollEvent) >>= return . translateEvent . SDL.eventPayload
 
 collectEvents :: IO [Mviz.Window.Events.Event]
 collectEvents = pollEvent >>= f

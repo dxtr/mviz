@@ -14,4 +14,4 @@ endFrame :: IO ()
 endFrame = Raw.endFrame
 
 withFrame :: (a -> IO b) -> IO b
-withFrame = bracket newFrame (\_ -> endFrame)
+withFrame = bracket newFrame (const endFrame)
