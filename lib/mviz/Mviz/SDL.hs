@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Mviz.SDL (
   Window,
   SDLWindow,
@@ -22,14 +24,15 @@ module Mviz.SDL (
   getError
 ) where
 
-import           Control.Exception         (bracket)
+import           Control.Monad.IO.Unlift
+import           Control.Monad.Logger
 import qualified Data.Text                 as T
-import qualified Data.Text.IO              as TIO
 import           Foreign.C.String          (peekCString)
 import qualified Graphics.Rendering.OpenGL as SDL
 import           Mviz.Window.Types         (Size (..), WindowMode (..))
 import qualified SDL
 import qualified SDL.Raw.Error
+import           UnliftIO.Exception        (Exception, bracket, throwIO)
 
 type SDLWindow = SDL.Window
 
@@ -59,7 +62,12 @@ data SDLErrorKind
       }
   deriving (Show)
 
-data SDLError = CreateWindow SDLErrorKind
+data SDLError
+  = CreateWindow SDLErrorKind
+  | SDLMessage T.Text
+  deriving Show
+
+instance Exception SDLError
 
 initFlags :: [SDL.InitFlag]
 initFlags = [SDL.InitVideo, SDL.InitEvents]
@@ -78,20 +86,18 @@ windowFlags =
     , SDL.windowInitialSize = SDL.V2 1024 768
     }
 
-createWindow :: T.Text -> Bool -> IO Window
+createWindow :: (MonadUnliftIO m) => T.Text -> Bool -> m Window
 createWindow title vsync = do
-  putStrLn "Creating window..."
   wnd <- SDL.createWindow title windowFlags
-  err <- getError
+  err <- liftIO $ getError
   case err of
-    Nothing -> putStrLn "Window was created"
-    Just e  -> TIO.putStrLn e
-  putStrLn "Created window!"
-  glCtx <- createGlContext wnd vsync
-  SDL.glMakeCurrent wnd glCtx
-  return $ Window{windowSdlHandle = wnd, windowGlContext = glCtx}
+    Nothing -> do
+      glCtx <- liftIO $ createGlContext wnd vsync
+      SDL.glMakeCurrent wnd glCtx
+      return $ Window{windowSdlHandle = wnd, windowGlContext = glCtx}
+    Just e  -> liftIO $ throwIO $ SDLMessage e
 
-destroyWindow :: Window -> IO ()
+destroyWindow :: (MonadUnliftIO m) => Window -> m ()
 destroyWindow Window{windowSdlHandle = wndHandle, windowGlContext = glCtx} = do
   SDL.glDeleteContext glCtx
   SDL.destroyWindow wndHandle
@@ -106,12 +112,11 @@ createGlContext_ window swapInterval = do
   SDL.swapInterval SDL.$= swapInterval
   return context
 
-withWindow :: T.Text -> Bool -> (Window -> IO c) -> IO c
-withWindow title vsync body =
-  bracket
-    (createWindow title vsync)
-    destroyWindow
-    body
+withWindow :: (MonadUnliftIO m, MonadLogger m) => T.Text -> Bool -> (Window -> m c) -> m c
+withWindow title vsync body = bracket
+                              (createWindow title vsync)
+                              destroyWindow
+                              (\window -> body window)
 
 showWindow :: Window -> IO ()
 showWindow Window{windowSdlHandle = window} = SDL.showWindow window
