@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell   #-}
 
 module Mviz where
 
@@ -7,10 +8,11 @@ import           Control.Concurrent.STM     (newTChanIO)
 import           Control.Exception          (bracket)
 import           Control.Monad              (unless, when)
 import           Control.Monad.IO.Class     (liftIO)
+import           Control.Monad.Logger
 import           Control.Monad.Reader       (ask)
 import           Control.Monad.State.Strict (get)
 import           Control.Monad.Trans.Except (ExceptT (..), runExceptT)
-import qualified Data.Text.IO               as TIO (putStrLn)
+import qualified Data.Text                  as T
 import qualified Graphics.Rendering.OpenGL  as OpenGL
 import           ImGui                      (checkVersion)
 import qualified Mviz.Audio
@@ -21,7 +23,6 @@ import           Mviz.Types                 (MvizEnvironment (..), MvizM (..),
 import qualified Mviz.UI
 import           Mviz.Window                (showWindow, swapWindowBuffers)
 import qualified Mviz.Window.Events
-import           System.Exit                (exitFailure)
 
 mainLoop :: MvizM ()
 mainLoop = do
@@ -45,13 +46,13 @@ mainLoop = do
 run :: MvizM ()
 run = do
   environment <- ask
-  liftIO $ do
-    imguiVersion <- Mviz.UI.version
-    glVendor <- Mviz.GL.vendor
-    glVersion <- Mviz.GL.version
-    putStrLn $ "OpenGL vendor: " <> glVendor <> ", version: " <> glVersion
-    TIO.putStrLn $ "Dear ImGUI version: " <> imguiVersion
-    showWindow $ mvizWindow environment
+  imguiVersion <- liftIO $ Mviz.UI.version
+  glVendor <- liftIO $ T.pack <$> Mviz.GL.vendor
+  glVersion <- liftIO $ T.pack <$> Mviz.GL.version
+  $(logInfo) $ "OpenGL vendor: " <> glVendor <> ", version: " <> glVersion
+  $(logInfo) $ "Dear ImGUI version: " <> imguiVersion
+
+  liftIO $ showWindow $ mvizWindow environment
   mainLoop
 
 startup :: IO (MvizEnvironment)

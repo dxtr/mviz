@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell   #-}
 
 module Mviz.UI.LogWindow (LogWindow, renderLogWindow) where
 
@@ -11,11 +12,15 @@ import qualified Control.Monad.State.Strict as State
 import           Control.Monad.Trans.Maybe
 import           Data.StateVar              (get)
 import qualified Data.Text                  as T
+import qualified Data.Vector                as V
 import           Foreign.Ptr                (Ptr)
 import qualified ImGui
-import           Mviz.Logger                (LogMessage)
-import           Mviz.Types                 (MvizM (..), mvizLogWindow)
+import           Language.Haskell.TH
+import           Language.Haskell.TH.Syntax
+import           Mviz.Logger                (LogMessage (..), logMessage)
+import           Mviz.Types                 (MvizM (..), mvizLog, mvizLogWindow)
 import           Mviz.UI.UIWindow           (LogWindow (..))
+import           Mviz.Utils.Ringbuffer      (toVector)
 
 windowId :: T.Text
 windowId = "logwindow"
@@ -27,26 +32,40 @@ windowTitle = "Log##" <> windowId
 clearButtonClicked :: MvizM ()
 clearButtonClicked = return ()
 
--- TODO: This should take the log messages as input
--- withListBox :: MonadUnliftIO m => Text -> ImVec2 -> (Bool -> m a) -> m a
--- selectable :: MonadIO m => Text -> m Bool
-renderListBox :: IO ()
-renderListBox = do
+renderLogLine :: LogMessage -> IO ()
+renderLogLine msg@(LogMessage _ loc _ _ _) = do
+  _ <- ImGui.selectable (logMessage msg) False []
+  renderTooltip loc
+
+renderTooltip :: Loc -> IO ()
+renderTooltip (Loc locFilename _ locModule (sLine,_) _) = do
+  tooltip <- ImGui.beginItemTooltip
+  when tooltip $ do
+    ImGui.textUnformatted $ "File: " <> (T.pack locFilename) <> ":" <> (T.pack $ show sLine)
+    ImGui.textUnformatted $ "Module: " <> (T.pack locModule)
+    ImGui.endTooltip
+
+renderListBox :: V.Vector LogMessage -> IO ()
+renderListBox logMessages = do
+--  listBoxSize <- ImGui.defaultSize
   ImGui.withListBox listBoxTitle listBoxSize $ do
-    _ <- ImGui.selectable "Test" False [] (ImGui.ImVec2 0.0 0.0)
+    _ <- mapM_ renderLogLine logMessages
+    -- _ <- ImGui.selectable "Test" False []
     return ()
   where
-    listBoxTitle = "Log"
-    listBoxSize = ImGui.ImVec2 1.0 1.0
+    listBoxTitle = "##log"
+    listBoxSize = ImGui.ImVec2 (-1.0) (-1.0)
 
 renderLogWindow :: MvizM ()
 renderLogWindow = do
   state <- State.get
   let logWindow = mvizLogWindow state
   let isOpen = logWindowOpen logWindow
+  let logBuffer = mvizLog state
+  logBufferVec <- toVector logBuffer
   when isOpen $ do
     closed <- liftIO $ ImGui.withCloseableWindow windowTitle [] $ do
       _ <- ImGui.button clearButtonTitle
-      renderListBox
+      renderListBox logBufferVec
     State.put state{mvizLogWindow = logWindow{logWindowOpen = closed}}
   where clearButtonTitle = "Clear" :: T.Text

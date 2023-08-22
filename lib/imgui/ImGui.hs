@@ -1,9 +1,11 @@
 module ImGui ( Context
              , ImVec2(..)
              , ImVec3 (..)
+             , fltMin
+             , defaultSize
              , getVersion
-             , checkVersion
-             , getDrawData
+             , Raw.checkVersion
+             , Raw.getDrawData
              , begin
              , end
              , withWindow
@@ -20,11 +22,15 @@ module ImGui ( Context
              , createContext
              , destroyContext
              , getCurrentContext
-             , render
-             , showMetricsWindow
-             , showUserGuide
-             , showDemoWindow
+             , Raw.render
+             , Raw.showMetricsWindow
+             , Raw.showUserGuide
+             , Raw.showDemoWindow
              , styleColorsDark
+             , textUnformatted
+             , Raw.beginTooltip
+             , Raw.beginItemTooltip
+             , Raw.endTooltip
              ) where
 
 import           Control.Exception       (bracket, bracket_)
@@ -48,23 +54,11 @@ getVersion = liftIO $ do
   verStr <- peekCString ver
   return $ T.pack verStr
 
-checkVersion :: MonadIO m => m ()
-checkVersion = Raw.checkVersion
+fltMin :: MonadIO m => m Float
+fltMin = realToFrac <$> Raw.fltMin
 
-getDrawData :: MonadIO m => m DrawData
-getDrawData = Raw.getDrawData
-
-render :: MonadIO m => m ()
-render = Raw.render
-
-showUserGuide :: MonadIO m => m ()
-showUserGuide = Raw.showUserGuide
-
-showDemoWindow :: MonadIO m => m Bool
-showDemoWindow = Raw.showDemoWindow
-
-showMetricsWindow :: MonadIO m => m Bool
-showMetricsWindow = Raw.showMetricsWindow
+defaultSize :: (MonadIO m) => m ImVec2
+defaultSize = ImVec2 <$> fltMin <*> fltMin
 
 -- Style
 styleColorsDark :: MonadIO m => m ()
@@ -133,18 +127,16 @@ button label = liftIO $
       Raw.button labelPtr
 
 -- Selectable
-selectable :: MonadIO m => T.Text -> Bool -> [SelectableFlag] -> ImVec2 -> m Bool
-selectable label selected flags size = liftIO $
-  TF.withCString label $ \labelPtr ->
-    with size $ \sizePtr ->
-      Raw.selectable labelPtr (fromBool selected) flags sizePtr
+selectable :: MonadIO m => T.Text -> Bool -> [SelectableFlag] -> m Bool
+selectable label selected flags = liftIO $
+                                  TF.withCString label $ \labelPtr ->
+                                                           Raw.selectable labelPtr (fromBool selected) flags
 
 -- Listbox
 beginListBox :: MonadIO m => T.Text -> ImVec2 -> m Bool
 beginListBox label size = liftIO $
   TF.withCString label $ \labelPtr ->
-    with size $ \sizePtr ->
-      Raw.beginListBox labelPtr sizePtr
+                           Raw.beginListBox labelPtr size
 
 endListBox :: MonadIO m => m ()
 endListBox = Raw.endListBox
@@ -156,3 +148,9 @@ withListBox label size func =
                   (beginListBox label size)
                   (`when` endListBox)
                   (`when` runInIO func)
+
+-- Text
+textUnformatted :: MonadIO m => T.Text -> m ()
+textUnformatted text = liftIO $ TF.withCString text $ \textPtr -> Raw.textUnformatted textPtr
+
+-- Tooltip

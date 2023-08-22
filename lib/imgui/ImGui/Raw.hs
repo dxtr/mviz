@@ -3,6 +3,7 @@
 
 module ImGui.Raw
   ( Context
+  , fltMin
   , getVersion
   , getDrawData
   , createContext
@@ -14,7 +15,6 @@ module ImGui.Raw
   , button
   , smallButton
   , selectable
-  , listBox
   , beginListBox
   , endListBox
   , beginGroup
@@ -37,7 +37,10 @@ module ImGui.Raw
   , dummy
   , indent
   , unindent
-  , module ImGui.Types
+  , textUnformatted
+  , beginTooltip
+  , beginItemTooltip
+  , endTooltip
   ) where
 
 import           Control.Monad.IO.Class (MonadIO, liftIO)
@@ -52,7 +55,7 @@ import           ImGui.Types
 import qualified Language.C.Inline      as C
 import qualified Language.C.Inline.Cpp  as Cpp
 
-C.context (Cpp.cppCtx <> C.bsCtx <> CTX.imguiContext)
+C.context (C.baseCtx <> Cpp.cppCtx <> C.bsCtx <> CTX.imguiContext)
 C.include "imgui.h"
 Cpp.using "namespace ImGui";
 
@@ -92,6 +95,9 @@ showAboutWindow = liftIO $
 
 showUserGuide :: (MonadIO m) => m ()
 showUserGuide = liftIO [C.exp| void { ShowUserGuide() } |]
+
+fltMin :: (MonadIO m) => m CFloat
+fltMin = liftIO [C.exp| float { -FLT_MIN } |]
 
 --- Style
 styleColorsDark :: (MonadIO m) => m ()
@@ -191,22 +197,32 @@ smallButton labelPtr = liftIO $ do
   (0 /=) <$> [C.exp| bool { SmallButton($(char* labelPtr)) } |]
 
 --- Selectable
-selectable :: (MonadIO m) => CString -> CBool -> [SelectableFlag] -> Ptr ImVec2 -> m Bool
-selectable labelPtr selected flags size = liftIO $ do
-  (0 /=) <$> [C.exp| bool { Selectable($(char* labelPtr), $(bool selected), $(ImGuiSelectableFlags flags'), *$(ImVec2 *size)) } |]
+selectable :: (MonadIO m) => CString -> CBool -> [SelectableFlag] -> m Bool
+selectable labelPtr selected flags = liftIO $ do
+  (0 /=) <$> [C.exp| bool { Selectable($(char* labelPtr), $(bool selected), $(ImGuiSelectableFlags flags')) } |]
   where flags' = combineFlags flags
 
 --- Listbox
-listBox :: (MonadIO m) => CString -> Ptr CInt -> Ptr CString -> CInt -> m Bool
-listBox labelPtr iPtr itemsPtr itemsLen = liftIO $ do
-  (0 /=) <$> [C.exp| bool { ListBox($(char* labelPtr), $(int* iPtr), $(char** itemsPtr), $(int itemsLen)) }|]
-
-beginListBox :: (MonadIO m) => CString -> Ptr ImVec2 -> m Bool
+beginListBox :: (MonadIO m) => CString -> ImVec2 -> m Bool
 beginListBox label size = liftIO $ do
-  (0 /=) <$> [C.exp| bool { BeginListBox($(char* label), *$(ImVec2* size)) } |]
+  with size $ \sizePtr ->
+    (0 /=) <$> [C.exp| bool { BeginListBox($(char* label), *$(ImVec2* sizePtr)) } |]
 
 endListBox :: (MonadIO m) => m ()
 endListBox = liftIO [C.exp| void { EndListBox(); } |]
 
--- {#fun igBeginListBox as beginListBox { tWithCString* `Text', with* %`Vec2'} -> `Bool' #}
--- {#fun unsafe igEndListBox as endListBox {} -> `()' #}
+-- Text
+textUnformatted :: (MonadIO m) => CString -> m ()
+textUnformatted text = liftIO [C.exp| void { TextUnformatted($(char* text)) } |]
+
+-- Tooltip
+beginTooltip :: (MonadIO m) => m Bool
+beginTooltip = liftIO $ (0 /=) <$> [C.exp| bool { BeginTooltip() } |]
+
+beginItemTooltip :: (MonadIO m) => m Bool
+beginItemTooltip = liftIO $ (0 /=) <$> [C.exp| bool { BeginItemTooltip() } |]
+
+-- TODO: BeginTooltipEx
+
+endTooltip :: (MonadIO m) => m ()
+endTooltip = liftIO [C.exp| void { EndTooltip() } |]

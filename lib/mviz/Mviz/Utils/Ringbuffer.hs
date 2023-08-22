@@ -1,11 +1,20 @@
-module Mviz.Utils.Ringbuffer (Ringbuffer, make, empty, put, next, toList) where
+module Mviz.Utils.Ringbuffer
+  ( Ringbuffer
+  , make
+  , empty
+  , put
+  , next
+  , toList
+  , toVector) where
 
-import           Data.Foldable (foldl')
-import qualified Data.Foldable as F
-import           Data.IORef    (IORef, atomicModifyIORef', atomicWriteIORef,
-                                newIORef, readIORef)
-import           Data.Maybe    (catMaybes)
-import qualified Data.Sequence as S
+import           Control.Monad.IO.Class (MonadIO, liftIO)
+import           Data.Foldable          (foldl')
+import qualified Data.Foldable          as F
+import           Data.IORef             (IORef, atomicModifyIORef',
+                                         atomicWriteIORef, newIORef, readIORef)
+import           Data.Maybe             (catMaybes, isJust)
+import qualified Data.Sequence          as S
+import qualified Data.Vector            as V
 
 data Ringbuffer a = Ringbuffer
   { ringWriterIndex :: IORef Word
@@ -46,5 +55,8 @@ next ringBuffer@Ringbuffer{ringBuffer = buffer, ringReaderIndex = rIndex} =
  where
   updateIndexFunc idx = (nextIndex ringBuffer idx, fromIntegral idx)
 
-toList :: Ringbuffer a -> IO [a]
-toList Ringbuffer{ringBuffer = buffer} = catMaybes . F.toList <$> traverse readIORef buffer
+toList :: (MonadIO m) => Ringbuffer a -> m [a]
+toList Ringbuffer{ringBuffer = buffer} = liftIO $ catMaybes . F.toList <$> traverse readIORef buffer
+
+toVector :: (MonadIO m) => Ringbuffer a -> m (V.Vector a)
+toVector rb = V.fromList <$> toList rb

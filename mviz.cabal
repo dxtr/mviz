@@ -88,25 +88,28 @@ library
     other-extensions: Strict
     build-depends:
         base ^>=4.18.0.0,
-        imgui,
+        OpenGL,
+        StateVar,
         async,
         bytestring,
         containers,
         explicit-exception,
         hashable,
+        imgui,
         jack,
         monad-logger,
         mtl,
-        OpenGL,
         sdl2,
-        StateVar,
         stm,
         template-haskell,
         text,
         time,
+        timerep,
         transformers,
         unliftio,
-        unordered-containers
+        unliftio-core,
+        unordered-containers,
+        vector
 
     hs-source-dirs:   lib/mviz
     default-language: GHC2021
