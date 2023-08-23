@@ -13,14 +13,14 @@ import qualified Data.Foldable          as F
 import           Data.IORef             (IORef, atomicModifyIORef',
                                          atomicWriteIORef, newIORef, readIORef)
 import           Data.Maybe             (catMaybes, isJust)
-import qualified Data.Sequence          as S
 import qualified Data.Vector            as V
+import qualified Data.Vector.Mutable    as MV
 
 data Ringbuffer a = Ringbuffer
   { ringWriterIndex :: IORef Word
   , ringReaderIndex :: IORef Word
   , ringSize        :: Word -- This is static so doesn't have to be a TVar
-  , ringBuffer      :: S.Seq (IORef (Maybe a)) -- Only the items are mutable, not the buffer
+  , ringBuffer      :: V.Vector (IORef (Maybe a)) -- Only the items are mutable, not the buffer
   }
 
 nextIndex :: Ringbuffer a -> Word -> Word
@@ -31,10 +31,11 @@ make_ items = do
   wIdx <- newIORef 0
   rIdx <- newIORef 0
   buf <- mapM newIORef items
+--  mBuf <- V.thaw $ V.fromList buf
   return $ Ringbuffer { ringWriterIndex = wIdx
                       , ringReaderIndex = rIdx
                       , ringSize = foldl' (\c _ -> c + 1) 0 items
-                      , ringBuffer = S.fromList buf
+                      , ringBuffer = V.fromList buf
                       }
 
 make :: [a] -> IO (Ringbuffer a)
@@ -45,13 +46,22 @@ empty size = make_ $ replicate size Nothing
 
 put :: Ringbuffer a -> a -> IO ()
 put ringBuffer@Ringbuffer{ringBuffer = buffer, ringWriterIndex = wIndex} newItem =
-  S.index buffer <$> atomicModifyIORef' wIndex updateIndexFunc >>= ((flip atomicWriteIORef) $ Just newItem)
+  atomicModifyIORef' wIndex updateIndexFunc
+  >>= \idx -> do putStrLn $ "Inserting new item at " <> show idx
+                 V.indexM buffer idx
+  >>= ((flip atomicWriteIORef) $ Just newItem)
+--  ((flip atomicWriteIORef) $ Just newItem) =<< V.indexM buffer =<< atomicModifyIORef' wIndex updateIndexFunc
+--  S.index buffer <$> atomicModifyIORef' wIndex updateIndexFunc >>= ((flip atomicWriteIORef) $ Just newItem)
  where
   updateIndexFunc idx = (nextIndex ringBuffer idx, fromIntegral idx)
 
 next :: Ringbuffer a -> IO (Maybe a)
 next ringBuffer@Ringbuffer{ringBuffer = buffer, ringReaderIndex = rIndex} =
-  readIORef =<< S.index buffer <$> atomicModifyIORef' rIndex updateIndexFunc
+  atomicModifyIORef' rIndex updateIndexFunc
+  >>= V.indexM buffer
+  >>= readIORef
+--  readIORef =<< V.indexM buffer =<< atomicModifyIORef' rIndex updateIndexFunc
+--  readIORef =<< S.index buffer <$> atomicModifyIORef' rIndex updateIndexFunc
  where
   updateIndexFunc idx = (nextIndex ringBuffer idx, fromIntegral idx)
 
