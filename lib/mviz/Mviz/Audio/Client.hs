@@ -1,10 +1,10 @@
 module Mviz.Audio.Client (createClient) where
 
-import Control.Monad.Exception.Synchronous qualified as Sync
-import Control.Monad.IO.Class (MonadIO, liftIO)
-import Mviz.Audio.Types (AudioError (..))
-import Sound.JACK qualified as JACK
-import Sound.JACK.Exception qualified as JACKE
+import qualified Control.Monad.Exception.Synchronous as Sync
+import           Control.Monad.IO.Class              (MonadIO, liftIO)
+import           Mviz.Audio.Types                    (AudioError (..))
+import qualified Sound.JACK                          as JACK
+import qualified Sound.JACK.Exception                as JACKE
 
 type JackReturnType a = Sync.ExceptionalT JACKE.All IO a
 

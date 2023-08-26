@@ -41,11 +41,16 @@ module ImGui.Raw
   , beginTooltip
   , beginItemTooltip
   , endTooltip
+  , beginChild
+  , endChild
   ) where
 
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 import           Data.Maybe             (fromMaybe)
+import qualified Data.Text              as T
+import           Data.Text.Foreign      (withCString)
 import           Foreign
+import           Foreign                (fromBool)
 import           Foreign.C              (CString)
 import           Foreign.C.Types
 import           ImGui.Enums
@@ -131,23 +136,35 @@ endFrame = liftIO $ do
   [C.exp| void { EndFrame(); } |]
 
 --- Window
-beginCloseable :: (MonadIO m) => CString -> [WindowFlag] -> m (Bool, Bool)
-beginCloseable namePtr flags = liftIO $ do
-  with (1 :: CBool) $ \pOpen -> do
+beginCloseable :: (MonadIO m) => T.Text -> [WindowFlag] -> m (Bool, Bool)
+beginCloseable name flags = liftIO $ do
+  withCString name $ \namePtr ->
+    with (1 :: CBool) $ \pOpen -> do
     collapsed <- (0 /=) <$> [C.exp| bool { Begin($(char* namePtr), $(bool* pOpen), $(ImGuiWindowFlags flags')) } |]
     pOpen' <- (0 /=) <$> peek pOpen
     return (collapsed, pOpen')
   where flags' = combineFlags flags
 
-begin :: (MonadIO m) => CString -> [WindowFlag] -> m Bool
-begin namePtr flags = liftIO $ do
-  collapsed <- (0 /=) <$> [C.exp| bool { Begin($(char* namePtr), nullptr, $(ImGuiWindowFlags flags')) } |]
-  return collapsed
+begin :: (MonadIO m) => T.Text -> [WindowFlag] -> m Bool
+begin label flags = liftIO $ do
+  withCString label $ \labelPtr ->
+    (0 /=) <$> [C.exp| bool { Begin($(char* labelPtr), nullptr, $(ImGuiWindowFlags flags')) } |]
   where flags' = combineFlags flags
 
 end :: (MonadIO m) => m ()
 end = liftIO $ do
   [C.exp| void { End(); } |]
+
+beginChild :: (MonadIO m) => T.Text -> ImVec2 -> Bool -> [WindowFlag] -> m Bool
+beginChild label size border flags = liftIO $ do
+  withCString label $ \labelPtr ->
+    with size $ \sizePtr ->
+                  (0 /=) <$> [C.exp| bool { BeginChild($(char* labelPtr), *$(ImVec2* sizePtr), $(bool border'), $(ImGuiWindowFlags flags')) } |]
+  where flags' = combineFlags flags
+        border' = fromBool border
+
+endChild :: (MonadIO m) => m ()
+endChild = liftIO [C.exp| void { EndChild() } |]
 
 -- Widgets
 --- Misc
@@ -188,19 +205,22 @@ endGroup = liftIO $ do
   [C.exp| void { EndGroup() } |]
 
 --- Button
-button :: (MonadIO m) => CString -> m Bool
-button labelPtr = liftIO $ do
-  (0 /=) <$> [C.exp| bool { Button($(char* labelPtr)) } |]
+button :: (MonadIO m) => T.Text -> m Bool
+button label = liftIO $ do
+  withCString label $ \labelPtr ->
+    (0 /=) <$> [C.exp| bool { Button($(char* labelPtr)) } |]
 
 smallButton :: (MonadIO m) => CString -> m Bool
 smallButton labelPtr = liftIO $ do
   (0 /=) <$> [C.exp| bool { SmallButton($(char* labelPtr)) } |]
 
 --- Selectable
-selectable :: (MonadIO m) => CString -> CBool -> [SelectableFlag] -> m Bool
-selectable labelPtr selected flags = liftIO $ do
-  (0 /=) <$> [C.exp| bool { Selectable($(char* labelPtr), $(bool selected), $(ImGuiSelectableFlags flags')) } |]
+selectable :: (MonadIO m) => T.Text -> Bool -> [SelectableFlag] -> m Bool
+selectable label selected flags = liftIO $ do
+  withCString label $ \labelPtr ->
+    (0 /=) <$> [C.exp| bool { Selectable($(char* labelPtr), $(bool selected'), $(ImGuiSelectableFlags flags')) } |]
   where flags' = combineFlags flags
+        selected' = fromBool selected
 
 --- Listbox
 beginListBox :: (MonadIO m) => CString -> ImVec2 -> m Bool

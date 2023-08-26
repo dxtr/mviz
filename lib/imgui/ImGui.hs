@@ -1,32 +1,35 @@
 module ImGui ( Context
              , ImVec2(..)
              , ImVec3 (..)
+             , WindowFlag (..)
              , fltMin
              , defaultSize
              , getVersion
              , Raw.checkVersion
              , Raw.getDrawData
-             , begin
-             , end
+             , Raw.begin
+             , Raw.beginChild
+             , Raw.end
              , withWindow
              , withCloseableWindow
-             , button
-             , selectable
+             , withChild
+             , Raw.button
+             , Raw.selectable
              , beginListBox
              , endListBox
              , withListBox
-             , beginGroup
-             , endGroup
-             , newFrame
-             , endFrame
-             , createContext
-             , destroyContext
-             , getCurrentContext
+             , Raw.beginGroup
+             , Raw.endGroup
+             , Raw.newFrame
+             , Raw.endFrame
+             , Raw.createContext
+             , Raw.destroyContext
+             , Raw.getCurrentContext
              , Raw.render
              , Raw.showMetricsWindow
              , Raw.showUserGuide
              , Raw.showDemoWindow
-             , styleColorsDark
+             , Raw.styleColorsDark
              , textUnformatted
              , Raw.beginTooltip
              , Raw.beginItemTooltip
@@ -34,17 +37,16 @@ module ImGui ( Context
              ) where
 
 import           Control.Exception       (bracket, bracket_)
-import           Control.Monad           (unless, when)
+import           Control.Monad           (when)
 import           Control.Monad.IO.Class  (MonadIO, liftIO)
 import           Control.Monad.IO.Unlift (MonadUnliftIO, withRunInIO)
 import qualified Data.Text               as T
 import qualified Data.Text.Foreign       as TF
-import           Foreign                 (Ptr, fromBool, with)
+import           Foreign                 (fromBool)
 import           Foreign.C.String        (peekCString)
 import           ImGui.Enums
 import qualified ImGui.Raw               as Raw
 import           ImGui.Structs
-import           ImGui.Types
 
 type Context = Raw.Context
 
@@ -60,77 +62,31 @@ fltMin = realToFrac <$> Raw.fltMin
 defaultSize :: (MonadIO m) => m ImVec2
 defaultSize = ImVec2 <$> fltMin <*> fltMin
 
--- Style
-styleColorsDark :: MonadIO m => m ()
-styleColorsDark = Raw.styleColorsDark
-
--- Context
-createContext :: MonadIO m => m Raw.Context
-createContext = Raw.createContext
-
-destroyContext :: MonadIO m => Raw.Context -> m ()
-destroyContext context = liftIO $ Raw.destroyContext context
-
-getCurrentContext :: MonadIO m => m Raw.Context
-getCurrentContext = Raw.getCurrentContext
-
--- Frames
-newFrame :: MonadIO m => m ()
-newFrame = Raw.newFrame
-
-endFrame :: MonadIO m => m ()
-endFrame = Raw.newFrame
-
--- Windows
-begin :: MonadIO m => T.Text -> [WindowFlag] -> m Bool
-begin label flags = liftIO $
-  TF.withCString label $ \labelPtr ->
-    Raw.begin labelPtr flags
-
-beginCloseable :: MonadIO m => T.Text -> [WindowFlag] -> m (Bool, Bool)
-beginCloseable label flags = liftIO $
-  TF.withCString label $ \labelPtr ->
-    Raw.beginCloseable labelPtr flags
-
-end :: MonadIO m => m ()
-end = Raw.end
-
 withWindow :: MonadUnliftIO m => T.Text -> [WindowFlag] -> m () -> m ()
 withWindow label flags func =
   withRunInIO $ \runInIO ->
                   bracket
-                  (begin label flags)
-                  (const end)
+                  (Raw.begin label flags)
+                  (const Raw.end)
                   (`when` runInIO func)
 
 withCloseableWindow :: MonadUnliftIO m => T.Text -> [WindowFlag] -> m () -> m Bool
 withCloseableWindow label flags func =
   withRunInIO $ \runInIO ->
                   bracket
-                  (beginCloseable label flags)
-                  (const end)
+                  (Raw.beginCloseable label flags)
+                  (const Raw.end)
                   (\(notCollapsed, pOpen) -> do
                       when notCollapsed $ runInIO func
                       return pOpen)
 
--- Misc
-beginGroup :: MonadIO m => m ()
-beginGroup = Raw.beginGroup
-
-endGroup :: MonadIO m => m ()
-endGroup = Raw.endGroup
-
--- Buttons
-button :: MonadIO m => T.Text -> m Bool
-button label = liftIO $
-  TF.withCString label $ \labelPtr ->
-      Raw.button labelPtr
-
--- Selectable
-selectable :: MonadIO m => T.Text -> Bool -> [SelectableFlag] -> m Bool
-selectable label selected flags = liftIO $
-                                  TF.withCString label $ \labelPtr ->
-                                                           Raw.selectable labelPtr (fromBool selected) flags
+withChild :: MonadUnliftIO m => T.Text -> ImVec2 -> Bool -> [WindowFlag] -> m () -> m ()
+withChild label size border flags func =
+  withRunInIO $ \runInIO ->
+                  bracket
+                  (Raw.beginChild label size border flags)
+                  (`when` Raw.endChild)
+                  (`when` runInIO func)
 
 -- Listbox
 beginListBox :: MonadIO m => T.Text -> ImVec2 -> m Bool

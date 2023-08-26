@@ -5,8 +5,8 @@ module Mviz.Audio (
   shutdown,
 ) where
 
-import           Control.Concurrent.STM     (STM, TChan, atomically, readTChan,
-                                             writeTChan)
+import           Control.Concurrent.STM     (TQueue, atomically, tryReadTQueue,
+                                             writeTQueue)
 import           Control.Monad.Except       (MonadError, runExceptT)
 import           Control.Monad.State.Strict (MonadIO, MonadState, StateT,
                                              evalStateT, get, liftIO)
@@ -21,8 +21,8 @@ data AudioMessage
   = Quit
 
 data AudioState = AudioState
-  { audioSendChannel :: TChan AudioMessage
-  , audioRecvChannel :: TChan AudioMessage
+  { audioSendChannel :: TQueue AudioMessage
+  , audioRecvChannel :: TQueue AudioMessage
   , audioClient      :: JACK.Client
   }
 
@@ -38,13 +38,10 @@ newtype AudioM a = AudioM (StateT AudioState (ExceptT AudioError IO) a)
 runAudio :: AudioState -> AudioM a -> IO (Either AudioError a)
 runAudio env (AudioM action) = runExceptT $ evalStateT action env
 
-readChannel :: TChan AudioMessage -> STM (Maybe AudioMessage)
-readChannel channel = Just <$> readTChan channel
-
 audioLoop :: AudioM ()
 audioLoop = do
   state <- get
-  msg <- liftIO $ atomically $ readChannel $ audioRecvChannel state
+  msg <- liftIO $ atomically $ tryReadTQueue $ audioRecvChannel state
   case msg of
     Just _ -> do
       liftIO $ putStrLn "Quitting audio system"
@@ -52,8 +49,8 @@ audioLoop = do
     Nothing -> audioLoop
 
 runAudioSystem
-  :: TChan AudioMessage
-  -> TChan AudioMessage
+  :: TQueue AudioMessage
+  -> TQueue AudioMessage
   -> IO (Either AudioError ())
 runAudioSystem sendChan recvChan = runExceptT $ do
   client <- ExceptT $ Client.createClient "mviz"
@@ -63,7 +60,7 @@ runAudioSystem sendChan recvChan = runExceptT $ do
                          }
   ExceptT $ runAudio state audioLoop
 
-shutdown :: TChan AudioMessage -> IO ()
-shutdown writeChan = atomically $ writeTChan writeChan msg
+shutdown :: TQueue AudioMessage -> IO ()
+shutdown writeChan = atomically $ writeTQueue writeChan msg
  where
   msg = Quit

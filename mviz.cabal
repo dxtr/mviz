@@ -26,9 +26,12 @@ library imgui
     exposed-modules:
         ImGui,
         ImGui.GL,
-        ImGui.SDL
+        ImGui.SDL,
+        ImGui.ListClipper
     other-modules:
+        ImGui.Raw.Types,
         ImGui.Raw.Context,
+        ImGui.Raw.ListClipper,
         ImGui.Enums,
         ImGui.Types,
         ImGui.Structs,
@@ -80,7 +83,6 @@ library
         Mviz.UI.LogWindow,
         Mviz.Utils,
         Mviz.Utils.Ringbuffer,
-        Mviz.Utils.TSRingbuffer,
         Mviz.Window,
         Mviz.Window.Types,
         Mviz.Window.Events

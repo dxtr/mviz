@@ -1,9 +1,11 @@
+{-# LANGUAGE BlockArguments    #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell   #-}
 
 module Mviz.UI.LogWindow (LogWindow, renderLogWindow) where
 
 -- Example: https://github.com/ocornut/imgui/blob/master/imgui_demo.cpp#L7030
+-- Example: https://github.com/ocornut/imgui/blob/master/imgui.cpp#L14630
 -- More useful stuff: https://github.com/ocornut/imgui/blob/master/imgui_demo.cpp#L1305
 
 import           Control.Monad              (when)
@@ -15,6 +17,7 @@ import qualified Data.Text                  as T
 import qualified Data.Vector                as V
 import           Foreign.Ptr                (Ptr)
 import qualified ImGui
+import qualified ImGui.ListClipper
 import           Language.Haskell.TH
 import           Language.Haskell.TH.Syntax
 import           Mviz.Logger                (LogMessage (..), logMessage)
@@ -45,16 +48,29 @@ renderTooltip (Loc locFilename _ locModule (sLine,_) _) = do
     ImGui.textUnformatted $ "Module: " <> (T.pack locModule)
     ImGui.endTooltip
 
+renderLine :: LogMessage -> IO ()
+renderLine msg = do
+  ImGui.textUnformatted $ logMessage msg
+
 renderListBox :: V.Vector LogMessage -> IO ()
 renderListBox logMessages = do
 --  listBoxSize <- ImGui.defaultSize
   ImGui.withListBox listBoxTitle listBoxSize $ do
-    _ <- mapM_ renderLogLine logMessages
-    -- _ <- ImGui.selectable "Test" False []
+    mapM_ renderLogLine logMessages
     return ()
   where
     listBoxTitle = "##log"
     listBoxSize = ImGui.ImVec2 (-1.0) (-1.0)
+
+renderChild :: V.Vector LogMessage -> IO ()
+renderChild logMessages = do
+  ImGui.withChild "##log" size True [ImGui.WindowFlagAlwaysVerticalScrollbar, ImGui.WindowFlagAlwaysHorizontalScrollbar] $ do
+    ImGui.ListClipper.withClipper messageCount itemHeight $ \clipper -> do
+      putStrLn "foo"
+
+  where size = ImGui.ImVec2 0.0 0.0
+        messageCount = V.length logMessages
+        itemHeight = 0.0
 
 renderLogWindow :: MvizM ()
 renderLogWindow = do
@@ -62,7 +78,7 @@ renderLogWindow = do
   let logWindow = mvizLogWindow state
   let isOpen = logWindowOpen logWindow
   let logBuffer = mvizLog state
-  logBufferVec <- toVector logBuffer
+  logBufferVec <- V.reverse <$> toVector logBuffer
   when isOpen $ do
     closed <- liftIO $ ImGui.withCloseableWindow windowTitle [] $ do
       _ <- ImGui.button clearButtonTitle

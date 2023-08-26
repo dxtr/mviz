@@ -7,7 +7,6 @@ module Mviz.SDL (
   Event,
   SDLError (..),
   initialize,
-  quit,
   createWindow,
   destroyWindow,
   withWindow,
@@ -21,11 +20,12 @@ module Mviz.SDL (
   makeContextCurrent,
   sdlWindow,
   glContext,
-  getError
+  getError,
+  SDL.quit,
+  SDL.ticks
 ) where
 
 import           Control.Monad.IO.Unlift
-import           Control.Monad.Logger
 import qualified Data.Text                 as T
 import           Foreign.C.String          (peekCString)
 import qualified Graphics.Rendering.OpenGL as SDL
@@ -72,7 +72,7 @@ instance Exception SDLError
 initFlags :: [SDL.InitFlag]
 initFlags = [SDL.InitVideo, SDL.InitEvents]
 
-initialize :: IO ()
+initialize :: (MonadIO m) => m ()
 initialize = SDL.initialize initFlags
 
 windowFlags :: SDL.WindowConfig
@@ -95,45 +95,43 @@ createWindow title vsync = do
       glCtx <- liftIO $ createGlContext wnd vsync
       SDL.glMakeCurrent wnd glCtx
       return $ Window{windowSdlHandle = wnd, windowGlContext = glCtx}
-    Just e  -> liftIO $ throwIO $ SDLMessage e
+    Just e  -> throwIO $ SDLMessage e
 
 destroyWindow :: (MonadUnliftIO m) => Window -> m ()
 destroyWindow Window{windowSdlHandle = wndHandle, windowGlContext = glCtx} = do
   SDL.glDeleteContext glCtx
   SDL.destroyWindow wndHandle
 
-createGlContext :: SDL.Window -> Bool -> IO (SDL.GLContext)
+createGlContext :: (MonadIO m) => SDL.Window -> Bool -> m (SDL.GLContext)
 createGlContext window False = createGlContext_ window SDL.ImmediateUpdates
 createGlContext window True  = createGlContext_ window SDL.SynchronizedUpdates
 
-createGlContext_ :: SDL.Window -> SDL.SwapInterval -> IO (SDL.GLContext)
+createGlContext_ :: (MonadIO m) => SDL.Window -> SDL.SwapInterval -> m (SDL.GLContext)
 createGlContext_ window swapInterval = do
   context <- SDL.glCreateContext window
   SDL.swapInterval SDL.$= swapInterval
   return context
 
-withWindow :: (MonadUnliftIO m, MonadLogger m) => T.Text -> Bool -> (Window -> m c) -> m c
-withWindow title vsync body = bracket
-                              (createWindow title vsync)
-                              destroyWindow
-                              (\window -> body window)
+withWindow :: (MonadUnliftIO m) => T.Text -> Bool -> (Window -> m c) -> m c
+withWindow title vsync body = do
+  bracket
+    (createWindow title vsync)
+    destroyWindow
+    (\window -> body window)
 
-showWindow :: Window -> IO ()
+showWindow :: (MonadIO m) => Window -> m ()
 showWindow Window{windowSdlHandle = window} = SDL.showWindow window
 
-hideWindow :: Window -> IO ()
+hideWindow :: (MonadIO m) => Window -> m ()
 hideWindow Window{windowSdlHandle = window} = SDL.hideWindow window
 
-setWindowMode :: Window -> WindowMode -> IO ()
+setWindowMode :: (MonadIO m) => Window -> WindowMode -> m ()
 setWindowMode Window{windowSdlHandle = window} Fullscreen = SDL.setWindowMode window SDL.Fullscreen
 setWindowMode Window{windowSdlHandle = window} FullscreenDesktop = SDL.setWindowMode window SDL.FullscreenDesktop
 setWindowMode Window{windowSdlHandle = window} Windowed = SDL.setWindowMode window SDL.Windowed
 
-swapWindow :: Window -> IO ()
+swapWindow :: (MonadIO m) => Window -> m ()
 swapWindow Window{windowSdlHandle = window} = SDL.glSwapWindow window
-
-quit :: IO ()
-quit = SDL.quit
 
 getWindowSize :: Window -> IO (Size)
 getWindowSize Window{windowSdlHandle = window} = do
