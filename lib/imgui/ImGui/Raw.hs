@@ -43,25 +43,29 @@ module ImGui.Raw
   , endTooltip
   , beginChild
   , endChild
+  , lastItemData
+  , isItemHovered
   ) where
 
 import           Control.Monad.IO.Class (MonadIO, liftIO)
-import           Data.Maybe             (fromMaybe)
 import qualified Data.Text              as T
 import           Data.Text.Foreign      (withCString)
-import           Foreign
-import           Foreign                (fromBool)
+import           Foreign                (Ptr, Storable (peek), alloca, fromBool,
+                                         with)
 import           Foreign.C              (CString)
-import           Foreign.C.Types
-import           ImGui.Enums
-import           ImGui.Raw.Context      as CTX
-import           ImGui.Structs
-import           ImGui.Types
+import           Foreign.C.Types        (CBool (..), CFloat (..), CInt (CInt))
+import           ImGui.Enums            (SelectableFlag, WindowFlag,
+                                         combineFlags)
+import           ImGui.Raw.Context      as CTX (imguiContext)
+import           ImGui.Raw.Structs      (ImGuiContext, ImGuiLastItemData,
+                                         ImVec2)
+import           ImGui.Types            (DrawData (..))
 import qualified Language.C.Inline      as C
 import qualified Language.C.Inline.Cpp  as Cpp
 
 C.context (C.baseCtx <> Cpp.cppCtx <> C.bsCtx <> CTX.imguiContext)
 C.include "imgui.h"
+C.include "imgui_internal.h"
 Cpp.using "namespace ImGui";
 
 newtype Context = Context (Ptr ImGuiContext)
@@ -166,6 +170,9 @@ beginChild label size border flags = liftIO $ do
 endChild :: (MonadIO m) => m ()
 endChild = liftIO [C.exp| void { EndChild() } |]
 
+isItemHovered :: (MonadIO m) => m Bool
+isItemHovered = liftIO $ (0 /=) <$> [C.exp| bool { IsItemHovered() } |]
+
 -- Widgets
 --- Misc
 separator :: (MonadIO m) => m ()
@@ -246,3 +253,8 @@ beginItemTooltip = liftIO $ (0 /=) <$> [C.exp| bool { BeginItemTooltip() } |]
 
 endTooltip :: (MonadIO m) => m ()
 endTooltip = liftIO [C.exp| void { EndTooltip() } |]
+
+lastItemData :: (MonadIO m) => m ImGuiLastItemData
+lastItemData = liftIO $ do
+  res <- [C.exp| ImGuiLastItemData* { &(GImGui->LastItemData) } |]
+  peek res

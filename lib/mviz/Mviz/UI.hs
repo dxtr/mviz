@@ -1,45 +1,54 @@
-module Mviz.UI (
-  collectEvents,
-  createUIContext,
-  destroyUIContext,
-  endFrame,
-  getCurrentContext,
-  initialize,
-  newFrame,
-  pollEvent,
-  render,
-  showDemoWindow,
-  showMetricsWindow,
-  showUserGuide,
-  shutdown,
-  version
-) where
+{-# LANGUAGE AllowAmbiguousTypes #-}
 
-import           Control.Monad              (when)
-import           Control.Monad.IO.Class     (MonadIO, liftIO)
-import           Control.Monad.State.Strict (get, put)
-import           Control.Monad.Trans.Maybe  (MaybeT (..), runMaybeT)
-import qualified Data.Text                  as T
+module Mviz.UI
+  ( collectEvents
+  , createUIContext
+  , destroyUIContext
+  , endFrame
+  , getCurrentContext
+  , initialize
+  , newFrame
+  , pollEvent
+  , render
+  , showDemoWindow
+  , showMetricsWindow
+  , showUserGuide
+  , shutdown
+  , version
+  ) where
+
+import           Control.Monad             (when)
+import           Control.Monad.IO.Class    (MonadIO, liftIO)
+import           Control.Monad.Reader      (MonadReader, ask)
+import           Control.Monad.Trans.Maybe (MaybeT (..), runMaybeT)
+import           Data.IORef                (readIORef)
+import qualified Data.Text                 as T
 import qualified ImGui
 import qualified ImGui.GL
 import qualified ImGui.SDL
-import           Mviz.GL                    (GLMakeCurrent, glMakeCurrent)
-import           Mviz.SDL                   (Window, glContext, sdlWindow)
-import           Mviz.Types                 (MvizM, MvizState (..))
-import           Mviz.UI.LogWindow          (renderLogWindow)
+import           Mviz.GL                   (GLMakeCurrent (..),
+                                            HasGLContext (..))
+import           Mviz.Logger               (MonadLog (..))
+-- import           Mviz.SDL                  (glContext, sdlWindow)
+import           Mviz.SDL.Types            (SDLWindow)
+-- import           Mviz.Types                (MvizEnvironment (..))
+import           Mviz.UI.LogWindow         (HasLogWindow (..),
+                                            MonadLogWindow (..),
+                                            renderLogWindow)
 import           Mviz.UI.Types
-import           Mviz.UI.UIWindow           (LogWindow (..))
-import           Mviz.Utils                 ((<&&>))
-import           Mviz.Window.Events         (Event (IgnoredEvent, Quit, WindowResized))
-import qualified SDL                        (EventPayload (KeyboardEvent, QuitEvent, WindowResizedEvent),
-                                             KeyboardEventData (..), V2 (..),
-                                             WindowResizedEventData (..),
-                                             eventPayload)
+import           Mviz.UI.UIWindow          (LogWindow (..))
+import           Mviz.Utils                ((<&&>))
+import           Mviz.Window.Events        (Event (IgnoredEvent, Quit, WindowResized))
+import           Mviz.Window.Types
+import qualified SDL                       (EventPayload (KeyboardEvent, QuitEvent, WindowResizedEvent),
+                                            KeyboardEventData (..), V2 (..),
+                                            WindowResizedEventData (..),
+                                            eventPayload)
 
 version :: IO T.Text
 version = ImGui.getVersion
 
-initialize :: Window -> IO (Either () ())
+initialize :: (MonadIO m, HasGLContext a, HasNativeWindow a) => a -> m (Either () ())
 initialize window = do
   ImGui.checkVersion
   ImGui.styleColorsDark
@@ -49,14 +58,14 @@ initialize window = do
     True  -> Right ()
     False -> Left ()
  where
-  wnd = sdlWindow window
-  ctx = glContext window
+  wnd = getNativeWindow window
+  ctx = getGLContext window
 
 shutdown :: IO ()
 shutdown = do
   ImGui.GL.glShutdown
 
-createUIContext :: (GLMakeCurrent c) => c -> IO ImGui.Context
+createUIContext :: (HasGLContext w, GLMakeCurrent m w, MonadIO m) => w -> m ImGui.Context
 createUIContext glCtx = do
   _ <- glMakeCurrent glCtx
   ImGui.createContext
@@ -76,24 +85,26 @@ showMetricsWindow = ImGui.showMetricsWindow
 showUserGuide :: (MonadIO m) => m ()
 showUserGuide = ImGui.showUserGuide
 
-newFrame :: IO ()
+newFrame :: (MonadIO m) => m ()
 newFrame = do
   ImGui.GL.glNewFrame
   ImGui.SDL.sdlNewFrame
   ImGui.newFrame
 
-endFrame :: IO ()
+endFrame :: (MonadIO m) => m ()
 endFrame = ImGui.endFrame
 
-render :: MvizM ()
+render :: (HasUI e, MonadReader e m, MonadLogWindow m, MonadLog m, MonadUI m) => m ()
 render = do
-  state <- get
-  let logWindow = mvizLogWindow state
+--  let logWindow = getLogWindow
+--  logWindowOpen <- liftIO $ readIORef $ logWindowOpen logWindow
   _ <- liftIO $ do
     newFrame
     ImGui.showDemoWindow
 
-  (when $ logWindowShow logWindow) renderLogWindow
+  renderLogWindow
+  -- when <$> isLogWindowOpen <*> renderLogWindow
+  --  when logWindowOpen renderLogWindow
 
   ImGui.render
   ImGui.GL.glRenderDrawData =<< ImGui.getDrawData

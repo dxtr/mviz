@@ -29,6 +29,7 @@ library imgui
         ImGui.SDL,
         ImGui.ListClipper
     other-modules:
+        ImGui.Raw.Structs,
         ImGui.Raw.Types,
         ImGui.Raw.Context,
         ImGui.Raw.ListClipper,
@@ -37,8 +38,8 @@ library imgui
         ImGui.Structs,
         ImGui.Raw,
 
-    cc-options: -std=c11 -O2 -DCIMGUI_DEFINE_ENUMS_AND_STRUCTS -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_SDL2
-    cxx-options: -std=c++11 -O2 -DCIMGUI_DEFINE_ENUMS_AND_STRUCTS -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_SDL2
+    cc-options: -std=c11 -O2 -DCIMGUI_DEFINE_ENUMS_AND_STRUCTS -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_SDL2 -DIMGUI_DISABLE_OBSOLETE_KEYIO
+    cxx-options: -std=c++11 -O2 -DCIMGUI_DEFINE_ENUMS_AND_STRUCTS -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_SDL2 -DIMGUI_DISABLE_OBSOLETE_KEYIO
     cxx-sources:
         vendor/imgui/imgui.cpp
         vendor/imgui/imgui_demo.cpp
@@ -69,13 +70,16 @@ library
     import:           warnings
     exposed-modules:  Mviz
     other-modules:
+        Mviz.Core,
         Mviz.Audio,
         Mviz.Audio.Client,
         Mviz.Audio.Types,
         Mviz.GL,
+        Mviz.GL.Types,
         Mviz.Graphics.Shader,
         Mviz.Logger,
         Mviz.SDL,
+        Mviz.SDL.Types,
         Mviz.Types,
         Mviz.UI,
         Mviz.UI.Types,

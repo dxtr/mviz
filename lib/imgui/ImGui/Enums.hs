@@ -4,11 +4,13 @@
 module ImGui.Enums
     ( WindowFlag(..)
     , SelectableFlag(..)
+    , ItemFlag(..)
+    , ItemStatusFlag(..)
     , fromFlag
     , combineFlags
     , hasFlag
     ) where
-import           Data.Bits             (shiftL, (.|.), (.&.))
+import           Data.Bits             (shiftL, (.&.), (.|.))
 import           Foreign.C             (CInt)
 import qualified Language.C.Inline     as C
 import qualified Language.C.Inline.Cpp as Cpp
@@ -60,5 +62,38 @@ data SelectableFlag
     | SelectableFlagDisabled
     deriving (Eq, Enum)
 
+data ItemFlag
+  = ItemFlagNoTabStop
+  | ItemFlagButtonRepeat
+  | ItemFlagDisabled
+  | ItemFlagNoNav
+  | ItemFlagNoNavDefaultFocus
+  | ItemFlagSelectableDontClosePopup
+  | ItemFlagMixedValue
+  | ItamFlagReadOnly
+  | ItemFlagNoWindowHoverableCheck
+  | ItemFlagAllowOverlap
+  | ItamFlagInputable
+  deriving (Eq, Enum)
+
+data ItemStatusFlag
+  = ItemStatusFlagHoveredRect
+  | ItemStatusFlagHasDisplayRect
+  | ItemStatusFlagEdited
+  | ItemStatusFlagToggledSelection
+  | ItemStatusFlagToggledOpen
+  | ItemStatusFlagHasDeactivated
+  | ItemStatusFlagDeactivated
+  | ItemStatusFlagHoveredWindow
+  | ItemStatusFlagFocusedByTabbing
+  | ItemStatusFlagVisible
+  | ItemStatusFlagOpenable
+  | ItemStatusFlagOpened
+  | ItemStatusFlagCheckable
+  | ItemStatusFlagInputable
+  deriving (Eq, Enum)
+
 instance ImguiFlag WindowFlag
 instance ImguiFlag SelectableFlag
+instance ImguiFlag ItemFlag
+instance ImguiFlag ItemStatusFlag

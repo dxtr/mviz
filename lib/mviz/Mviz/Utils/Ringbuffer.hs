@@ -11,14 +11,15 @@ import           Data.Foldable          (foldl')
 import qualified Data.Foldable          as F
 import           Data.IORef             (IORef, atomicModifyIORef',
                                          atomicWriteIORef, newIORef, readIORef)
+import           Data.List              (genericReplicate)
 import           Data.Maybe             (catMaybes, isJust)
 import qualified Data.Vector            as V
 import qualified Data.Vector.Mutable    as MV
 
 data Ringbuffer a = Ringbuffer
-  { ringIndex       :: IORef Int
-  , ringSize        :: Word
-  , ringBuffer      :: MV.MVector (MV.PrimState IO) (Maybe a)
+  { ringIndex  :: IORef Int
+  , ringSize   :: Word
+  , ringBuffer :: MV.MVector (MV.PrimState IO) (Maybe a)
   }
 
 currentIndex :: (MonadIO m) => Ringbuffer a -> m Int
@@ -57,8 +58,8 @@ make_ items = do
 make :: (MonadIO m) => [a] -> m (Ringbuffer a)
 make items = make_ $ map Just items
 
-empty :: (MonadIO m) => Int -> m (Ringbuffer a)
-empty size = make_ $ replicate size Nothing
+empty :: (MonadIO m) => Word -> m (Ringbuffer a)
+empty size = make_ $ genericReplicate size Nothing
 
 put :: (MonadIO m) => Ringbuffer a -> a -> m ()
 put ringBuffer@Ringbuffer{ringBuffer = buffer} newItem =

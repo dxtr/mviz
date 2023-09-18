@@ -34,6 +34,7 @@ module ImGui ( Context
              , Raw.beginTooltip
              , Raw.beginItemTooltip
              , Raw.endTooltip
+             , Raw.isItemHovered
              ) where
 
 import           Control.Exception       (bracket, bracket_)

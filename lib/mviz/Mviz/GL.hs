@@ -1,11 +1,22 @@
-module Mviz.GL (vendor,
-                renderer,
-                version,
-                GLMakeCurrent,
-                glMakeCurrent) where
+{-# LANGUAGE AllowAmbiguousTypes #-}
 
+module Mviz.GL
+  ( HasGLContext (..)
+  , GLMakeCurrent (..)
+  , GLSwapBuffers (..)
+  , vendor
+  , renderer
+  , version
+  ) where
+
+import           Control.Monad.IO.Class    (MonadIO)
 import qualified Graphics.Rendering.OpenGL as GL
-import qualified Mviz.SDL                  as SDL
+import qualified Mviz.SDL.Types            as Mviz.SDL (GLContext)
+-- import           Mviz.Window               (IsNativeWindow)
+-- import           Mviz.GL.Types
+import           Mviz.Window.Types         (HasNativeWindow (..),
+                                            Window (windowGlContext))
+import qualified SDL
 
 vendor :: IO String
 vendor = GL.get GL.vendor
@@ -16,15 +27,24 @@ renderer = GL.get GL.renderer
 version :: IO String
 version = GL.get GL.glVersion
 
-class GLMakeCurrent a where
-  glMakeCurrent :: a -> IO ()
+class HasGLContext a where
+  getGLContext :: a -> Mviz.SDL.GLContext
 
-class GLSwapBuffers a where
-  glSwapBuffers :: a -> IO ()
+class Monad m => GLMakeCurrent m a where
+  glMakeCurrent :: a -> m ()
 
-instance GLMakeCurrent SDL.Window where
-  glMakeCurrent = SDL.makeContextCurrent
+class Monad m => GLSwapBuffers m a where
+  glSwapBuffers :: a -> m ()
 
-instance GLSwapBuffers SDL.Window where
-  glSwapBuffers = SDL.swapWindow
+instance HasGLContext Mviz.Window.Types.Window where
+  getGLContext = windowGlContext
+
+instance (MonadIO m, HasNativeWindow a, HasGLContext a) => GLMakeCurrent m a where
+  glMakeCurrent win = do
+    let nativeWindow = getNativeWindow win
+    let glContext = getGLContext win
+    SDL.glMakeCurrent nativeWindow glContext
+
+instance MonadIO m => GLSwapBuffers m SDL.Window where
+  glSwapBuffers = SDL.glSwapWindow
 

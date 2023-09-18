@@ -8,15 +8,14 @@ module ImGui.ListClipper
   , withClipper
   ) where
 
-import           Control.Monad.IO.Unlift (MonadUnliftIO, withRunInIO)
+import           Control.Monad.IO.Unlift (MonadUnliftIO)
 import qualified ImGui.Raw.ListClipper   as Raw
-import           UnliftIO.Exception      (bracket, bracket_)
+import           UnliftIO.Exception      (bracket)
 
 withClipper :: (MonadUnliftIO m) => Int -> Float -> (Raw.ListClipper -> m ()) -> m ()
-withClipper itemsCount itemsHeight func = bracket
+withClipper itemsCount itemsHeight = bracket
                    (initFunc itemsCount itemsHeight)
                    Raw.delete
-                   func
   where
     initFunc :: (MonadUnliftIO m1) => Int -> Float -> m1 Raw.ListClipper
     initFunc count height = do

@@ -28,6 +28,9 @@ imguiContext = mempty
       , ( TypeName "ImGuiSelectableFlags", [t| CInt |])
       , ( TypeName "ImGuiWindowFlags", [t| CInt |])
       , ( TypeName "ImGuiListClipper", [t| ImGuiListClipper |] )
+      , ( TypeName "ImRect", [t| ImRect |] )
+      , ( TypeName "ImGuiLastItemData", [t| ImGuiLastItemData |] )
+
 --      , ( TypeName "ImGuiTableSortSpecs", [t| ImGuiTableSortSpecs |] )
       ]
   }

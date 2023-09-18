@@ -1,15 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Mviz.SDL (
-  Window,
-  SDLWindow,
-  GLContext,
-  Event,
   SDLError (..),
   initialize,
   createWindow,
   destroyWindow,
-  withWindow,
   swapWindow,
   showWindow,
   hideWindow,
@@ -17,33 +12,22 @@ module Mviz.SDL (
   getWindowSize,
   getDrawableSize,
   getScalingFactor,
-  makeContextCurrent,
-  sdlWindow,
-  glContext,
   getError,
   SDL.quit,
-  SDL.ticks
+  SDL.ticks,
+  createGlContext
 ) where
 
 import           Control.Monad.IO.Unlift
-import qualified Data.Text                 as T
-import           Foreign.C.String          (peekCString)
-import qualified Graphics.Rendering.OpenGL as SDL
-import           Mviz.Window.Types         (Size (..), WindowMode (..))
+import qualified Data.Text               as T
+import           Foreign.C.String        (peekCString)
+-- import qualified Graphics.Rendering.OpenGL as SDLGL
+-- import qualified Mviz.GL.Types             as GL (GLContext)
+import           Mviz.SDL.Types
+import           Mviz.Window.Types       (Size (..), WindowMode (..))
 import qualified SDL
 import qualified SDL.Raw.Error
-import           UnliftIO.Exception        (Exception, bracket, throwIO)
-
-type SDLWindow = SDL.Window
-
-type GLContext = SDL.GLContext
-
-type Event = SDL.Event
-
-data Window = Window
-  { windowSdlHandle :: SDL.Window
-  , windowGlContext :: GLContext
-  }
+import           UnliftIO.Exception      (Exception, bracket, throwIO)
 
 data SDLErrorKind
   = CallFailed
@@ -86,64 +70,55 @@ windowFlags =
     , SDL.windowInitialSize = SDL.V2 1024 768
     }
 
-createWindow :: (MonadUnliftIO m) => T.Text -> Bool -> m Window
-createWindow title vsync = do
+createWindow :: (MonadUnliftIO m) => T.Text -> m SDLWindow
+createWindow title = do
   wnd <- SDL.createWindow title windowFlags
   err <- liftIO $ getError
   case err of
     Nothing -> do
-      glCtx <- liftIO $ createGlContext wnd vsync
-      SDL.glMakeCurrent wnd glCtx
-      return $ Window{windowSdlHandle = wnd, windowGlContext = glCtx}
+--      glCtx <- liftIO $ createGlContext wnd vsync
+--      SDL.glMakeCurrent wnd glCtx
+      return wnd
     Just e  -> throwIO $ SDLMessage e
 
-destroyWindow :: (MonadUnliftIO m) => Window -> m ()
-destroyWindow Window{windowSdlHandle = wndHandle, windowGlContext = glCtx} = do
-  SDL.glDeleteContext glCtx
-  SDL.destroyWindow wndHandle
+destroyWindow :: (MonadIO m) => SDLWindow -> m ()
+destroyWindow = SDL.destroyWindow
 
-createGlContext :: (MonadIO m) => SDL.Window -> Bool -> m (SDL.GLContext)
+createGlContext :: (MonadIO m) => SDLWindow -> Bool -> m (SDL.GLContext)
 createGlContext window False = createGlContext_ window SDL.ImmediateUpdates
 createGlContext window True  = createGlContext_ window SDL.SynchronizedUpdates
 
-createGlContext_ :: (MonadIO m) => SDL.Window -> SDL.SwapInterval -> m (SDL.GLContext)
+createGlContext_ :: (MonadIO m) => SDLWindow -> SDL.SwapInterval -> m (SDL.GLContext)
 createGlContext_ window swapInterval = do
   context <- SDL.glCreateContext window
   SDL.swapInterval SDL.$= swapInterval
   return context
 
-withWindow :: (MonadUnliftIO m) => T.Text -> Bool -> (Window -> m c) -> m c
-withWindow title vsync body = do
-  bracket
-    (createWindow title vsync)
-    destroyWindow
-    (\window -> body window)
+showWindow :: (MonadIO m) => SDLWindow -> m ()
+showWindow window = SDL.showWindow window
 
-showWindow :: (MonadIO m) => Window -> m ()
-showWindow Window{windowSdlHandle = window} = SDL.showWindow window
+hideWindow :: (MonadIO m) => SDLWindow -> m ()
+hideWindow = SDL.hideWindow
 
-hideWindow :: (MonadIO m) => Window -> m ()
-hideWindow Window{windowSdlHandle = window} = SDL.hideWindow window
+setWindowMode :: (MonadIO m) => SDLWindow -> WindowMode -> m ()
+setWindowMode window Fullscreen = SDL.setWindowMode window SDL.Fullscreen
+setWindowMode window FullscreenDesktop = SDL.setWindowMode window SDL.FullscreenDesktop
+setWindowMode window Windowed = SDL.setWindowMode window SDL.Windowed
 
-setWindowMode :: (MonadIO m) => Window -> WindowMode -> m ()
-setWindowMode Window{windowSdlHandle = window} Fullscreen = SDL.setWindowMode window SDL.Fullscreen
-setWindowMode Window{windowSdlHandle = window} FullscreenDesktop = SDL.setWindowMode window SDL.FullscreenDesktop
-setWindowMode Window{windowSdlHandle = window} Windowed = SDL.setWindowMode window SDL.Windowed
+swapWindow :: (MonadIO m) => SDLWindow -> m ()
+swapWindow window = SDL.glSwapWindow window
 
-swapWindow :: (MonadIO m) => Window -> m ()
-swapWindow Window{windowSdlHandle = window} = SDL.glSwapWindow window
-
-getWindowSize :: Window -> IO (Size)
-getWindowSize Window{windowSdlHandle = window} = do
+getWindowSize :: (MonadIO m) => SDLWindow -> m (Size)
+getWindowSize window = do
   SDL.V2 width height <- SDL.get $ SDL.windowSize window
   return $ Size{sizeWidth = fromIntegral width, sizeHeight = fromIntegral height}
 
-getDrawableSize :: Window -> IO (Size)
-getDrawableSize Window{windowSdlHandle = window} = do
+getDrawableSize :: (MonadIO m) => SDLWindow -> m (Size)
+getDrawableSize window = do
   SDL.V2 width height <- SDL.glGetDrawableSize window
   return $ Size{sizeWidth = fromIntegral width, sizeHeight = fromIntegral height}
 
-getScalingFactor :: Window -> IO (Float, Float)
+getScalingFactor :: (MonadIO m) => SDLWindow -> m (Float, Float)
 getScalingFactor window = do
   Size{sizeWidth = windowWidth, sizeHeight = windowHeight} <- getWindowSize window
   Size{sizeWidth = drawableWidth, sizeHeight = drawableHeight} <-
@@ -153,15 +128,15 @@ getScalingFactor window = do
     , (fromIntegral drawableHeight) / (fromIntegral windowHeight)
     )
 
-makeContextCurrent :: Window -> IO ()
-makeContextCurrent Window{windowSdlHandle = window, windowGlContext = glCtx} =
-  SDL.glMakeCurrent window glCtx
+-- makeContextCurrent :: Window -> IO ()
+-- makeContextCurrent Window{windowHandle = window, windowGlContext = glCtx} =
+--   SDL.glMakeCurrent window glCtx
 
-sdlWindow :: Window -> SDLWindow
-sdlWindow Window{windowSdlHandle = window} = window
+-- sdlWindow :: Window -> Mviz.SDL.Types.SDLWindow
+-- sdlWindow Window{windowSdlHandle = window} = window
 
-glContext :: Window -> GLContext
-glContext Window{windowGlContext = glCtx} = glCtx
+-- glContext :: Window -> GLContext
+-- glContext Window{windowGlContext = glCtx} = glCtx
 
 getError :: IO (Maybe T.Text)
 getError = do

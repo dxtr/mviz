@@ -1,6 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mviz.Logger (runRingbufferLoggingT, LogMessage (..), logMessage) where
+module Mviz.Logger
+  ( MonadLog (..)
+  , runRingbufferLoggingT
+  , LogMessage (..)
+  , logMessage
+  ) where
 
 import           Control.Monad.IO.Class   (MonadIO)
 import           Control.Monad.Logger     (Loc, LogLevel (..), LogSource,
@@ -19,7 +24,11 @@ import           Data.Time.LocalTime      (LocalTime (localTimeOfDay),
                                            getZonedTime, utcToLocalTimeOfDay,
                                            utcToLocalZonedTime)
 import           Data.Time.RFC3339
+import qualified Data.Vector              as V
 import qualified Mviz.Utils.Ringbuffer    as RB
+
+class Monad m => MonadLog m where
+  getLogVector :: m (V.Vector LogMessage)
 
 data LogMessage = LogMessage ZonedTime Loc LogSource LogLevel LogStr
   deriving (Show)
