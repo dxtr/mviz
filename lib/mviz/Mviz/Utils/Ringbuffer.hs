@@ -90,4 +90,4 @@ toList rb@Ringbuffer{} = do
   catMaybes <$> toList' rb endIndex currentIndex []
 
 toVector :: (MonadIO m) => Ringbuffer a -> m (V.Vector a)
-toVector rb = V.fromList <$> toList rb
+toVector rb = V.reverse . V.fromList <$> toList rb

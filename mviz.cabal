@@ -15,6 +15,9 @@ extra-doc-files:    README.md, CHANGELOG.md
 extra-source-files:
     vendor/imgui/*
 
+common optimize
+    ghc-options: -O1
+
 common warnings
     ghc-options: -Wall
 
@@ -37,7 +40,8 @@ library imgui
         ImGui.Types,
         ImGui.Structs,
         ImGui.Raw
-    
+
+    ghc-options: -O1
     cc-options: -std=c11 -O1 -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_SDL2 -DIMGUI_DISABLE_OBSOLETE_FUNCTIONS -DIMGUI_DISABLE_OBSOLETE_KEYIO
     cxx-options: -std=c++11 -O1 -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_SDL2 -DIMGUI_DISABLE_OBSOLETE_FUNCTIONS -DIMGUI_DISABLE_OBSOLETE_KEYIO
     cpp-options: -DIMGUI_DISABLE_OBSOLETE_FUNCTIONS -DIMGUI_DISABLE_OBSOLETE_KEYIO
@@ -51,7 +55,7 @@ library imgui
         vendor/imgui/backends/imgui_impl_sdl2.cpp
 
     include-dirs: vendor/imgui
-    other-extensions: Strict
+--    other-extensions: Strict
     build-depends:
         base ^>=4.18.0.0,
         text ^>=2.0.1,
@@ -92,7 +96,7 @@ library
         Mviz.Window.Types,
         Mviz.Window.Events
 
-    other-extensions: Strict
+--    other-extensions: Strict
     build-depends:
         base ^>=4.18.0.0,
         OpenGL,
@@ -145,6 +149,7 @@ executable mviz
 
     -- Base language which the package is written in.
     default-language: GHC2021
+    ghc-options: -O1
 
 test-suite mviz-test
     -- Import common warning flags.
