@@ -37,13 +37,12 @@ module ImGui ( Context
              , Raw.isItemHovered
              ) where
 
-import           Control.Exception       (bracket, bracket_)
+import           Control.Exception       (bracket)
 import           Control.Monad           (when)
 import           Control.Monad.IO.Class  (MonadIO, liftIO)
 import           Control.Monad.IO.Unlift (MonadUnliftIO, withRunInIO)
 import qualified Data.Text               as T
 import qualified Data.Text.Foreign       as TF
-import           Foreign                 (fromBool)
 import           Foreign.C.String        (peekCString)
 import           ImGui.Enums
 import qualified ImGui.Raw               as Raw

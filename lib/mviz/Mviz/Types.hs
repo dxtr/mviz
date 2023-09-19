@@ -7,7 +7,6 @@ module Mviz.Types (
 --  HasWindow (..),
   MonadFramerate (..),
   MonadUI (..),
-  getFramerate,
   runMviz,
 ) where
 
@@ -20,9 +19,7 @@ import           Control.Monad.Reader     (MonadReader, ReaderT, ask,
                                            runReaderT)
 import           Data.IORef               (IORef, atomicWriteIORef, readIORef)
 import qualified Data.Map.Strict          as Map
-import           Data.String              (IsString)
 import qualified Data.Text                as T
-import qualified Data.Vector              as V
 import           Data.Word                (Word16, Word64)
 import qualified ImGui
 import           Mviz.Audio               (AudioMessage (..), AudioReturn)
@@ -30,12 +27,11 @@ import qualified Mviz.Graphics.Shader     as Shader
 import           Mviz.Logger              (LogMessage, MonadLog (..),
                                            runRingbufferLoggingT)
 import qualified Mviz.SDL
-import qualified Mviz.SDL.Types
 import           Mviz.UI
 import           Mviz.UI.LogWindow        (HasLogWindow (..),
                                            MonadLogWindow (..))
 import           Mviz.UI.Types
-import           Mviz.UI.UIWindow         (LogWindow (..), makeLogWindow)
+import           Mviz.UI.UIWindow         (LogWindow (..))
 import qualified Mviz.Utils.Ringbuffer    as RB
 import           Mviz.Window
 import           Mviz.Window.Types
@@ -124,22 +120,13 @@ instance (HasLogWindow env) => MonadLogWindow (MvizM env) where
     liftIO $ atomicWriteIORef (logWindowOpen wnd) newValue
 
 instance (HasNativeWindow env) => MonadShowWindow (MvizM env) where
-  showWindow = do
-    env <- ask
-    let nativeWindow = getNativeWindow env
-    Mviz.SDL.showWindow nativeWindow
+  showWindow = ask >>= Mviz.SDL.showWindow . getNativeWindow
 
 instance (HasNativeWindow env) => MonadHideWindow (MvizM env) where
-  hideWindow = do
-    env <- ask
-    let nativeWindow = getNativeWindow env
-    Mviz.SDL.hideWindow nativeWindow
+  hideWindow = ask >>= Mviz.SDL.hideWindow . getNativeWindow
 
 instance (HasNativeWindow env) => MonadDrawWindow (MvizM env) where
-  swapWindowBuffers = do
-    env <- ask
-    let nativeWindow = getNativeWindow env
-    Mviz.SDL.swapWindow nativeWindow
+  swapWindowBuffers = ask >>= Mviz.SDL.swapWindow . getNativeWindow
 
 instance (HasFramerate env) => MonadFramerate (MvizM env) where
   modifyFramerate newFramerate = ask >>= \env ->

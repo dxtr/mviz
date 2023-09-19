@@ -56,10 +56,6 @@ instance (MonadIO m, HasNativeWindow a) => MonadGetWindowSize m a where
   getDrawableSize = liftIO . Mviz.SDL.getDrawableSize . getNativeWindow
   getScalingFactor = liftIO . Mviz.SDL.getScalingFactor . getNativeWindow
 
-
--- showTheWindow :: (MonadShowWindow m a) => a -> m ()
--- showTheWindow wnd = showWindow wnd
-
 -- Creates a window and a gl context
 createWindow :: (MonadUnliftIO m) => T.Text -> Bool -> m Window
 createWindow title vsync = do

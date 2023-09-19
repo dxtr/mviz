@@ -55,7 +55,8 @@ calculateFramerate = do
     else modifyFramerate $ fps { mvizFramerateCounter = frames + 1 }
 
 mainLoop :: (MonadReader e m,
-             MonadFramerate m, MonadLogger m,
+             MonadFramerate m,
+             MonadLogger m,
              MonadIO m,
              MonadLogWindow m,
              MonadLog m,
