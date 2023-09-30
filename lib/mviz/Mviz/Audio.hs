@@ -37,6 +37,8 @@ data ClientAudioMessage
 -- Messages directed to the server
 data ServerAudioMessage
   = Quit -- Tell the server to quit
+  | GetSampleRate
+  | GetBufferSize
   deriving (Show)
 
 data AudioState = AudioState

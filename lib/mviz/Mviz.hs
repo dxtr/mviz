@@ -22,7 +22,7 @@ import qualified Mviz.GL                    (vendor, version)
 import           Mviz.Logger                (MonadLog (..))
 import qualified Mviz.SDL
 import           Mviz.Types                 (HasFramerate (..),
-                                             MonadFramerate (..), MonadUI (..),
+                                             MonadFramerate (..),
                                              MvizEnvironment (..),
                                              MvizFramerate (..), MvizM (..),
                                              getFramerate, runMviz)
@@ -88,7 +88,6 @@ mainLoop = do
 
 run :: MvizM MvizEnvironment ()
 run = do
-  environment <- ask
   imguiVersion <- liftIO $ Mviz.UI.version
   glVendor <- liftIO $ T.pack <$> Mviz.GL.vendor
   glVersion <- liftIO $ T.pack <$> Mviz.GL.version
