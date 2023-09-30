@@ -1,3 +1,4 @@
+vendor/imgui/examples/*
 dist-newstyle/*
 imgui.ini
 cabal.project.local

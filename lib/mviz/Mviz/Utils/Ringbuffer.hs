@@ -26,8 +26,7 @@ currentIndex :: (MonadIO m) => Ringbuffer a -> m Int
 currentIndex Ringbuffer{ringIndex = idx} = liftIO $ readIORef idx
 
 nextIndex :: (MonadIO m) => Ringbuffer a -> m Int
-nextIndex rb@Ringbuffer{ringSize = rsize} =
-  nextIndex' rb <$> currentIndex rb
+nextIndex rb@Ringbuffer{ringSize = rsize} = nextIndex' rb <$> currentIndex rb
 
 nextIndex' :: Ringbuffer a -> Int -> Int
 nextIndex' rb@Ringbuffer{ringSize = rsize} idx = (idx + 1) `mod` (fromIntegral rsize)
@@ -47,8 +46,7 @@ updateIndex ringbuffer@Ringbuffer{ringSize = size, ringIndex = idx} =
 make_ :: (MonadIO m) => [Maybe a] -> m (Ringbuffer a)
 make_ items = do
   idx <- liftIO $ newIORef 0
-  let buf_ = V.fromList items
-  buf :: MV.MVector MV.RealWorld (Maybe a) <- liftIO $ V.thaw buf_
+  buf <- liftIO . V.thaw $ V.fromList items
   -- buf <- mapM newIORef items
   return $ Ringbuffer { ringIndex = idx
                       , ringSize = foldl' (\c _ -> c + 1) 0 items
@@ -65,7 +63,6 @@ put :: (MonadIO m) => Ringbuffer a -> a -> m ()
 put ringBuffer@Ringbuffer{ringBuffer = buffer} newItem =
   nextIndex ringBuffer
   >>= \idx -> do
-    liftIO $ putStrLn $ "Inserting new item at " <> show idx
     liftIO $ MV.write buffer idx (Just newItem)
     _ <- updateIndex ringBuffer
     return ()

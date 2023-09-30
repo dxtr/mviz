@@ -1,14 +1,13 @@
-module Mviz.Types (
-  MvizError (..),
-  MvizEnvironment (..),
-  MvizFramerate (..),
-  MvizM (..),
-  HasFramerate (..),
---  HasWindow (..),
-  MonadFramerate (..),
-  MonadUI (..),
-  runMviz,
-) where
+module Mviz.Types
+  ( MvizError (..)
+  , MvizEnvironment (..)
+  , MvizFramerate (..)
+  , MvizM (..)
+  , HasFramerate (..)
+  , MonadFramerate (..)
+  , MonadUI (..)
+  , runMviz
+  ) where
 
 import           Control.Concurrent.Async (Async)
 import           Control.Concurrent.STM   (TQueue)
@@ -22,7 +21,8 @@ import qualified Data.Map.Strict          as Map
 import qualified Data.Text                as T
 import           Data.Word                (Word16, Word64)
 import qualified ImGui
-import           Mviz.Audio               (AudioMessage (..), AudioReturn)
+import           Mviz.Audio               (AudioReturn, ClientAudioMessage (..),
+                                           ServerAudioMessage (..))
 import qualified Mviz.Graphics.Shader     as Shader
 import           Mviz.Logger              (LogMessage, MonadLog (..),
                                            runRingbufferLoggingT)
@@ -52,9 +52,9 @@ data MvizFramerate = MvizFramerate
 data MvizEnvironment = MvizEnvironment
   { mvizWindow           :: Window
   , mvizUIContext        :: UIContext
-  , mvizAudioThread      :: Async AudioReturn
-  , mvizAudioSendChannel :: TQueue AudioMessage
-  , mvizAudioRecvChannel :: TQueue AudioMessage
+  , mvizAudioThread      :: Async ()
+  , mvizAudioSendChannel :: TQueue ServerAudioMessage
+  , mvizAudioRecvChannel :: TQueue ClientAudioMessage
   , mvizLog              :: RB.Ringbuffer LogMessage
   , mvizShowUI           :: IORef Bool
   , mvizFPS              :: IORef MvizFramerate
