@@ -1,45 +1,19 @@
 module Mviz.Audio
-  ( AudioReturn
-  , runAudioSystem
+  ( runAudioSystem
   , shutdown
   , ClientAudioMessage (..)
   , ServerAudioMessage (..)
   ) where
 
-import           Control.Concurrent.STM     (TQueue, atomically, tryReadTQueue,
-                                             writeTQueue)
-import           Control.Monad.Except       (MonadError, runExceptT)
-import           Control.Monad.Logger       (LoggingT, MonadLogger)
-import           Control.Monad.Reader       (MonadReader, ReaderT, ask,
-                                             runReaderT)
-import           Control.Monad.State.Strict (MonadIO, MonadState, StateT,
-                                             evalStateT, get, liftIO)
-import           Control.Monad.Trans.Except (ExceptT (..), runExceptT)
-import qualified Mviz.Audio.Client          as Client
-import           Mviz.Audio.Types           (AudioError (..),
-                                             HasAudioClient (..),
-                                             JackReturnType, MonadJack (..))
-import qualified Sound.JACK                 as JACK
-
-type AudioReturn = Either AudioError ()
-
--- data AudioMessage
---   = Quit
---   deriving (Show)
-
--- Messages directed to the client
-data ClientAudioMessage
-  = Port String -- Inform the client about a port
-  | SampleRate Int -- Inform the client about the sample rate
-  | BufferSize Int -- Inform the client about the buffer size
-  deriving (Show)
-
--- Messages directed to the server
-data ServerAudioMessage
-  = Quit -- Tell the server to quit
-  | GetSampleRate
-  | GetBufferSize
-  deriving (Show)
+import           Control.Concurrent.STM (TQueue, atomically, tryReadTQueue,
+                                         writeTQueue)
+import           Control.Monad.IO.Class (MonadIO, liftIO)
+import           Control.Monad.Reader   (MonadReader, ReaderT, ask, runReaderT)
+import qualified Mviz.Audio.Client      as Client
+import           Mviz.Audio.Types       (ClientAudioMessage (..),
+                                         HasAudioClient (..), MonadJack (..),
+                                         ServerAudioMessage (..))
+import qualified Sound.JACK             as JACK
 
 data AudioState = AudioState
   { audioSendChannel :: TQueue ClientAudioMessage

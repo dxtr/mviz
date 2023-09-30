@@ -21,7 +21,7 @@ import qualified Data.Map.Strict          as Map
 import qualified Data.Text                as T
 import           Data.Word                (Word16, Word64)
 import qualified ImGui
-import           Mviz.Audio               (AudioReturn, ClientAudioMessage (..),
+import           Mviz.Audio               (ClientAudioMessage (..),
                                            ServerAudioMessage (..))
 import qualified Mviz.Graphics.Shader     as Shader
 import           Mviz.Logger              (LogMessage, MonadLog (..),
