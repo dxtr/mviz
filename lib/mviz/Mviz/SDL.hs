@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Mviz.SDL (
   SDLError (..),
   initialize,
@@ -27,7 +25,7 @@ import           Mviz.SDL.Types
 import           Mviz.Window.Types       (Size (..), WindowMode (..))
 import qualified SDL
 import qualified SDL.Raw.Error
-import           UnliftIO.Exception      (Exception, bracket, throwIO)
+import           UnliftIO.Exception      (Exception, throwIO)
 
 data SDLErrorKind
   = CallFailed
@@ -73,7 +71,7 @@ windowFlags =
 createWindow :: (MonadUnliftIO m) => T.Text -> m SDLWindow
 createWindow title = do
   wnd <- SDL.createWindow title windowFlags
-  err <- liftIO $ getError
+  err <- liftIO getError
   case err of
     Nothing -> do
 --      glCtx <- liftIO $ createGlContext wnd vsync
@@ -84,18 +82,18 @@ createWindow title = do
 destroyWindow :: (MonadIO m) => SDLWindow -> m ()
 destroyWindow = SDL.destroyWindow
 
-createGlContext :: (MonadIO m) => SDLWindow -> Bool -> m (SDL.GLContext)
+createGlContext :: (MonadIO m) => SDLWindow -> Bool -> m SDL.GLContext
 createGlContext window False = createGlContext_ window SDL.ImmediateUpdates
 createGlContext window True  = createGlContext_ window SDL.SynchronizedUpdates
 
-createGlContext_ :: (MonadIO m) => SDLWindow -> SDL.SwapInterval -> m (SDL.GLContext)
+createGlContext_ :: (MonadIO m) => SDLWindow -> SDL.SwapInterval -> m SDL.GLContext
 createGlContext_ window swapInterval = do
   context <- SDL.glCreateContext window
   SDL.swapInterval SDL.$= swapInterval
   return context
 
 showWindow :: (MonadIO m) => SDLWindow -> m ()
-showWindow window = SDL.showWindow window
+showWindow = SDL.showWindow
 
 hideWindow :: (MonadIO m) => SDLWindow -> m ()
 hideWindow = SDL.hideWindow
@@ -106,14 +104,14 @@ setWindowMode window FullscreenDesktop = SDL.setWindowMode window SDL.Fullscreen
 setWindowMode window Windowed = SDL.setWindowMode window SDL.Windowed
 
 swapWindow :: (MonadIO m) => SDLWindow -> m ()
-swapWindow window = SDL.glSwapWindow window
+swapWindow = SDL.glSwapWindow
 
-getWindowSize :: (MonadIO m) => SDLWindow -> m (Size)
+getWindowSize :: (MonadIO m) => SDLWindow -> m Size
 getWindowSize window = do
   SDL.V2 width height <- SDL.get $ SDL.windowSize window
   return $ Size{sizeWidth = fromIntegral width, sizeHeight = fromIntegral height}
 
-getDrawableSize :: (MonadIO m) => SDLWindow -> m (Size)
+getDrawableSize :: (MonadIO m) => SDLWindow -> m Size
 getDrawableSize window = do
   SDL.V2 width height <- SDL.glGetDrawableSize window
   return $ Size{sizeWidth = fromIntegral width, sizeHeight = fromIntegral height}
@@ -123,9 +121,9 @@ getScalingFactor window = do
   Size{sizeWidth = windowWidth, sizeHeight = windowHeight} <- getWindowSize window
   Size{sizeWidth = drawableWidth, sizeHeight = drawableHeight} <-
     getDrawableSize window
-  return $
-    ( (fromIntegral drawableWidth) / (fromIntegral windowWidth)
-    , (fromIntegral drawableHeight) / (fromIntegral windowHeight)
+  return
+    ( fromIntegral drawableWidth/ fromIntegral windowWidth
+    , fromIntegral drawableHeight / fromIntegral windowHeight
     )
 
 -- makeContextCurrent :: Window -> IO ()

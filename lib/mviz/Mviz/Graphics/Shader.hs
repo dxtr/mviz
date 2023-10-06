@@ -4,10 +4,10 @@ module Mviz.Graphics.Shader (
   activeUniforms,
 ) where
 
-import Control.Monad.Trans.Except (ExceptT (..), runExceptT)
-import Data.ByteString qualified as B
-import Graphics.Rendering.OpenGL (($=!))
-import Graphics.Rendering.OpenGL qualified as GL
+import           Control.Monad.Trans.Except (ExceptT (..), runExceptT)
+import qualified Data.ByteString            as B
+import           Graphics.Rendering.OpenGL  (($=!))
+import qualified Graphics.Rendering.OpenGL  as GL
 
 type Shader = GL.Shader
 
@@ -18,7 +18,7 @@ type Program = GL.Program
 type UniformSpec = (GL.GLint, GL.VariableType, String)
 
 data ShaderSource = ShaderSource
-  { shaderType :: ShaderType
+  { shaderType   :: ShaderType
   , shaderSource :: B.ByteString
   }
   deriving (Show)
@@ -42,9 +42,7 @@ createShader sType sSource = do
   GL.compileShader newShader
   compiled <- compileStatus newShader
   infoLog <- shaderInfoLog newShader
-  return $ case compiled of
-    False -> Left infoLog
-    True -> Right newShader
+  return (if compiled then Right newShader else Left infoLog)
 
 createShader' :: ShaderSource -> IO (Either String Shader)
 createShader' ShaderSource{shaderType = sType, shaderSource = sSource} =
@@ -66,7 +64,7 @@ createProgram shaderSources = do
   shaderResult <- runExceptT $ mapM (ExceptT . createShader') shaderSources
   return $ case attachShaders newProgram <$> shaderResult of
     Left msg -> Left msg
-    Right _ -> Right newProgram
+    Right _  -> Right newProgram
 
 --  return $ Right newProgram
 -- \shaders_ -> fmap $ (do

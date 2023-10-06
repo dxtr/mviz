@@ -10,14 +10,12 @@ module Mviz.Window
   , destroyWindow
   ) where
 
-import           Control.Monad.IO.Class  (MonadIO, liftIO)
 import           Control.Monad.IO.Unlift
 import qualified Data.Text               as T
 import qualified Mviz.SDL                (createGlContext, createWindow,
                                           destroyWindow, getDrawableSize,
                                           getScalingFactor, getWindowSize,
-                                          hideWindow, setWindowMode, showWindow,
-                                          swapWindow)
+                                          setWindowMode)
 import           Mviz.Window.Types       (HasNativeWindow (..), Size,
                                           Window (..), WindowMode)
 import           UnliftIO.Exception
@@ -35,8 +33,8 @@ class Monad m => MonadSetWindowMode m a where
   setWindowMode :: a -> WindowMode -> m ()
 
 class Monad m => MonadGetWindowSize m a where
-  getWindowSize :: a -> m (Size)
-  getDrawableSize :: a -> m (Size)
+  getWindowSize :: a -> m Size
+  getDrawableSize :: a -> m Size
   getScalingFactor :: a -> m (Float, Float)
 
 class Monad m => MonadDrawWindow m where
@@ -68,8 +66,6 @@ destroyWindow win = do
   Mviz.SDL.destroyWindow $ getNativeWindow win
 
 withWindow :: (MonadUnliftIO m) => T.Text -> Bool -> (Window -> m c) -> m c
-withWindow title vsync body =
-  bracket
+withWindow title vsync = bracket
     (createWindow title vsync)
     destroyWindow
-    (\window -> body window)

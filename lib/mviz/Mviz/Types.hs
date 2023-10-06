@@ -12,23 +12,18 @@ module Mviz.Types
 import           Control.Concurrent.Async  (Async)
 import           Control.Concurrent.STM    (TQueue, atomically, tryReadTQueue,
                                             writeTQueue)
-import           Control.Monad             (liftM)
 import           Control.Monad.IO.Class    (MonadIO, liftIO)
 import           Control.Monad.IO.Unlift   (MonadUnliftIO)
 import           Control.Monad.Logger      (LoggingT, MonadLogger)
-import           Control.Monad.Reader      (MonadReader, ReaderT, ask,
+import           Control.Monad.Reader      (MonadReader, ReaderT, ask, asks,
                                             runReaderT)
 import           Control.Monad.Trans.Class (lift)
-import           Control.Monad.Trans.Maybe (MaybeT (MaybeT), runMaybeT)
+import           Control.Monad.Trans.Maybe (MaybeT)
 import           Data.IORef                (IORef, atomicWriteIORef, readIORef)
 import qualified Data.Map.Strict           as Map
 import qualified Data.Text                 as T
 import           Data.Word                 (Word16, Word64)
 import qualified ImGui
-import           Mviz.Audio                (ClientAudioMessage (..),
-                                            HasClientChannel (..),
-                                            HasServerChannel (..),
-                                            ServerAudioMessage (..))
 import           Mviz.Audio.Types
 import qualified Mviz.Graphics.Shader      as Shader
 import           Mviz.Logger               (LogMessage, MonadLog (..),
@@ -116,9 +111,7 @@ instance HasServerChannel MvizEnvironment where
   getServerChannel = mvizAudioSendChannel
 
 instance (HasWindow env) => MonadWindow (MvizM env) where
-  getWindowM = do
-    env <- ask
-    return $ getWindow env
+  getWindowM = asks getWindow
 
 instance (HasLogWindow env) => MonadLogWindow (MvizM env) where
   openLogWindow label func = do
@@ -153,8 +146,8 @@ instance (HasUI env, HasLogWindow env, HasLog env) => MonadUI (MvizM env) where
   renderUI = Mviz.UI.render
 
 instance (HasServerChannel env, HasClientChannel env) => MonadAudioClient (MvizM env) where
-  clientRecvChannel = ask >>= return . getClientChannel
-  clientSendChannel = ask >>= return . getServerChannel
+  clientRecvChannel = asks getClientChannel
+  clientSendChannel = asks getServerChannel
   clientRecvMessage = liftIO . atomically . tryReadTQueue =<< clientRecvChannel
   clientSendMessage msg = clientSendChannel >>= \c -> liftIO . atomically $ writeTQueue c msg
 
@@ -172,4 +165,4 @@ runMviz
 runMviz environment (MvizM action) = runLogger environment
  where
   runReader = runReaderT action environment
-  runLogger env = runRingbufferLoggingT (mvizLog env) $ runReader
+  runLogger env = runRingbufferLoggingT (mvizLog env) runReader

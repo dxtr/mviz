@@ -26,22 +26,22 @@ currentIndex :: (MonadIO m) => Ringbuffer a -> m Int
 currentIndex Ringbuffer{ringIndex = idx} = liftIO $ readIORef idx
 
 nextIndex :: (MonadIO m) => Ringbuffer a -> m Int
-nextIndex rb@Ringbuffer{ringSize = rsize} = nextIndex' rb <$> currentIndex rb
+nextIndex rb = nextIndex' rb <$> currentIndex rb
 
 nextIndex' :: Ringbuffer a -> Int -> Int
-nextIndex' rb@Ringbuffer{ringSize = rsize} idx = (idx + 1) `mod` (fromIntegral rsize)
+nextIndex' Ringbuffer{ringSize = rsize} idx = (idx + 1) `mod` fromIntegral rsize
 
 previousIndex :: (MonadIO m) => Ringbuffer a -> m Int
-previousIndex rb@Ringbuffer{ringIndex = idx} =
+previousIndex rb =
   previousIndex' rb <$> currentIndex rb
 
 previousIndex' :: Ringbuffer a -> Int -> Int
-previousIndex' Ringbuffer{ringSize = rsize} idx = (idx - 1) `mod` (fromIntegral rsize)
+previousIndex' Ringbuffer{ringSize = rsize} idx = (idx - 1) `mod` fromIntegral rsize
 
 updateIndex :: (MonadIO m) => Ringbuffer a -> m Int
-updateIndex ringbuffer@Ringbuffer{ringSize = size, ringIndex = idx} =
+updateIndex ringbuffer@Ringbuffer{ringIndex = idx} =
   nextIndex ringbuffer >>= \nextIdx ->
-    liftIO $ atomicModifyIORef' idx (\i -> (nextIdx, nextIdx))
+    liftIO $ atomicModifyIORef' idx (const (nextIdx, nextIdx))
 
 make_ :: (MonadIO m) => [Maybe a] -> m (Ringbuffer a)
 make_ items = do

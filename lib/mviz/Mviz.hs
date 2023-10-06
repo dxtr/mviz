@@ -10,10 +10,7 @@ import           Control.Monad              (unless, when)
 import           Control.Monad.IO.Class     (MonadIO, liftIO)
 import           Control.Monad.Logger       (MonadLogger, logDebugN, logInfo)
 import           Control.Monad.Reader       (MonadReader, ask)
-import           Control.Monad.Trans.Class  (lift)
 import           Control.Monad.Trans.Except (ExceptT (..), runExceptT)
---import           Control.Monad.Trans.Maybe
---import           Control.Monad.Trans.Maybe  (MaybeT, runMaybeT)
 import           Control.Monad.Trans.Maybe  (MaybeT (MaybeT), runMaybeT)
 import           Data.IORef                 (newIORef, readIORef)
 import qualified Data.Map                   as M
@@ -90,7 +87,7 @@ mainLoop = do
   -- Render the UI
   -- showUI <- liftIO $ readIORef $ mvizShowUI environment
   showUI <- isUIShown
-  when showUI $ Mviz.UI.render
+  when showUI Mviz.UI.render
 
 --  let wnd = getWindow
   swapWindowBuffers
@@ -99,7 +96,7 @@ mainLoop = do
 
 run :: MvizM MvizEnvironment ()
 run = do
-  imguiVersion <- liftIO $ Mviz.UI.version
+  imguiVersion <- liftIO Mviz.UI.version
   glVendor <- liftIO $ T.pack <$> Mviz.GL.vendor
   glVersion <- liftIO $ T.pack <$> Mviz.GL.version
   $(logInfo) $ "OpenGL vendor: " <> glVendor <> ", version: " <> glVersion
@@ -108,13 +105,13 @@ run = do
   showWindow
   mainLoop
 
-startup :: IO (MvizEnvironment)
+startup :: IO MvizEnvironment
 startup = do
   ImGui.checkVersion
   Mviz.SDL.initialize
   wnd <- createWindow "mviz" True
   err <- Mviz.SDL.getError
-  putStrLn $ show err
+  print err
   uiContext <- Mviz.UI.createUIContext wnd
   -- TODO: Deal with errors here
   _res <- runExceptT $ ExceptT $ Mviz.UI.initialize wnd

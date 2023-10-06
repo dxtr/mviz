@@ -6,9 +6,8 @@ module Mviz.UI.Types
   ) where
 
 -- import DearImGui qualified as ImGUI
-import           Control.Monad.IO.Class (MonadIO, liftIO)
+import           Control.Monad.IO.Class (MonadIO)
 import           Data.IORef             (IORef)
-import qualified Data.Text              as T
 import qualified ImGui
 
 type UIContext = ImGui.Context

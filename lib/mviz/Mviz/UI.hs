@@ -17,11 +17,9 @@ module Mviz.UI
   , version
   ) where
 
-import           Control.Monad             (when)
 import           Control.Monad.IO.Class    (MonadIO, liftIO)
-import           Control.Monad.Reader      (MonadReader, ask)
+import           Control.Monad.Reader      (MonadReader)
 import           Control.Monad.Trans.Maybe (MaybeT (..), runMaybeT)
-import           Data.IORef                (readIORef)
 import qualified Data.Text                 as T
 import qualified ImGui
 import qualified ImGui.GL
@@ -30,18 +28,16 @@ import           Mviz.GL                   (GLMakeCurrent (..),
                                             HasGLContext (..))
 import           Mviz.Logger               (MonadLog (..))
 -- import           Mviz.SDL                  (glContext, sdlWindow)
-import           Mviz.SDL.Types            (SDLWindow)
 -- import           Mviz.Types                (MvizEnvironment (..))
-import           Mviz.UI.LogWindow         (HasLogWindow (..),
-                                            MonadLogWindow (..),
+import           Data.Functor              ((<&>))
+import           Mviz.UI.LogWindow         (MonadLogWindow (..),
                                             renderLogWindow)
 import           Mviz.UI.Types
-import           Mviz.UI.UIWindow          (LogWindow (..))
 import           Mviz.Utils                ((<&&>))
 import           Mviz.Window.Events        (Event (IgnoredEvent, Quit, WindowResized))
 import           Mviz.Window.Types
-import qualified SDL                       (EventPayload (KeyboardEvent, QuitEvent, WindowResizedEvent),
-                                            KeyboardEventData (..), V2 (..),
+import qualified SDL                       (EventPayload (QuitEvent, WindowResizedEvent),
+                                            V2 (..),
                                             WindowResizedEventData (..),
                                             eventPayload)
 
@@ -54,9 +50,7 @@ initialize window = do
   ImGui.styleColorsDark
   success <- ImGui.SDL.sdlInit wnd ctx <&&> ImGui.GL.glInit
   -- TODO: Actually get a proper error message here
-  return $ case success of
-    True  -> Right ()
-    False -> Left ()
+  return (if success then Right () else Left ())
  where
   wnd = getNativeWindow window
   ctx = getGLContext window
@@ -124,7 +118,7 @@ translateEvent (SDL.WindowResizedEvent SDL.WindowResizedEventData{SDL.windowResi
 translateEvent ignoredEvent = IgnoredEvent ignoredEvent
 
 pollEvent :: IO (Maybe Mviz.Window.Events.Event)
-pollEvent = runMaybeT $ (MaybeT $ ImGui.SDL.sdlPollEvent) >>= return . translateEvent . SDL.eventPayload
+pollEvent = runMaybeT (MaybeT ImGui.SDL.sdlPollEvent <&> (translateEvent . SDL.eventPayload))
 
 collectEvents :: IO [Mviz.Window.Events.Event]
 collectEvents = pollEvent >>= f

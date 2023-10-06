@@ -8,7 +8,7 @@ module Mviz.Utils
   , untilM_
   ) where
 
-import           Control.Monad (MonadPlus, liftM, liftM2, mplus, mzero)
+import           Control.Monad (MonadPlus, liftM, liftM2, mplus, mzero, when)
 
 (<&&>) :: (Monad m) => m Bool -> m Bool -> m Bool
 (<&&>) = liftM2 (&&)
@@ -31,9 +31,7 @@ whileM_ :: (Monad m) => m Bool -> m a -> m ()
 whileM_ p f = go
     where go = do
             x <- p
-            if x
-                then f >> go
-                else return ()
+            when x $ f >> go
 
 untilM :: Monad m => m a -> m Bool -> m [a]
 untilM = untilM'
@@ -41,8 +39,8 @@ untilM = untilM'
 untilM' :: (Monad m, MonadPlus f) => m a -> m Bool -> m (f a)
 f `untilM'` p = do
         x  <- f
-        xs <- whileM' (liftM not p) f
+        xs <- whileM' (fmap not p) f
         return (return x `mplus` xs)
 
 untilM_ :: (Monad m) => m a -> m Bool -> m ()
-f `untilM_` p = f >> whileM_ (liftM not p) f
+f `untilM_` p = f >> whileM_ (fmap not p) f

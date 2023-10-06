@@ -5,6 +5,7 @@ module Mviz.Core
 import           Control.Monad           (ap)
 import           Control.Monad.IO.Class  (MonadIO, liftIO)
 import           Control.Monad.IO.Unlift (MonadUnliftIO, withRunInIO)
+import           Data.Functor            ((<&>))
 import           Mviz.Types
 
 newtype Mviz a = Mviz
@@ -12,7 +13,7 @@ newtype Mviz a = Mviz
   }
 
 instance Functor Mviz where
-  fmap f a = a >>= (pure . f)
+  fmap f a = a <&> f
 
 instance Applicative Mviz where
   pure = Mviz . const . pure

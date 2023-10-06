@@ -11,6 +11,7 @@ module Mviz.Audio.Client
 import           Control.Exception                   (throwIO)
 import qualified Control.Monad.Exception.Synchronous as Sync
 import           Control.Monad.IO.Class              (MonadIO, liftIO)
+import           Data.Functor                        ((<&>))
 import qualified Data.Text                           as T
 import           Mviz.Audio.Types                    (AudioError (..),
                                                       JackReturnType)
@@ -42,7 +43,7 @@ deactivateClient = jackAction . JACK.deactivate
 -- closeClient = jackAction . JACK.clientClose
 
 getPorts :: (MonadIO m) => JACK.Client -> m [T.Text]
-getPorts client = liftIO $ JACK.getPorts client >>= return . fmap T.pack
+getPorts client = liftIO (JACK.getPorts client <&> fmap T.pack)
 
 getBufferSize :: (MonadIO m) => JACK.Client -> m Int
 getBufferSize = liftIO . JACK.getBufferSize

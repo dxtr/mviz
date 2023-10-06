@@ -11,7 +11,8 @@ import           Control.Concurrent.STM  (TQueue, atomically, tryReadTQueue,
                                           writeTQueue)
 import           Control.Monad.IO.Class  (MonadIO, liftIO)
 import           Control.Monad.IO.Unlift (MonadUnliftIO)
-import           Control.Monad.Reader    (MonadReader, ReaderT, ask, runReaderT)
+import           Control.Monad.Reader    (MonadReader, ReaderT, ask, asks,
+                                          runReaderT)
 import qualified Mviz.Audio.Client       as Client
 import           Mviz.Audio.Types        (ClientAudioMessage (..),
                                           HasAudioClient (..),
@@ -55,8 +56,8 @@ instance (HasAudioClient env) => MonadJack (AudioM env) where
 --  closeClient = ask >>= Client.closeClient . getAudioClient
 
 instance (HasServerChannel env, HasClientChannel env) => MonadAudioServer (AudioM env) where
-  serverRecvChannel = ask >>= return . getServerChannel
-  serverSendChannel = ask >>= return . getClientChannel
+  serverRecvChannel = asks getServerChannel
+  serverSendChannel = asks getClientChannel
   serverRecvMessage = liftIO . atomically . tryReadTQueue =<< serverRecvChannel
   serverSendMessage msg = serverSendChannel >>= \c -> liftIO . atomically $ writeTQueue c msg
 

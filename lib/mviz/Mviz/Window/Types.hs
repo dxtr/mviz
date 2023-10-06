@@ -6,7 +6,6 @@ module Mviz.Window.Types
   , HasNativeWindow (..)
   ) where
 
-import qualified Mviz.GL.Types  as GL
 import qualified Mviz.SDL.Types as Mviz.SDL
 
 data Window = Window

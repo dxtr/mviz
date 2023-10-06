@@ -13,26 +13,16 @@ module Mviz.UI.LogWindow
 -- Example: https://github.com/ocornut/imgui/blob/master/imgui.cpp#L14630
 -- More useful stuff: https://github.com/ocornut/imgui/blob/master/imgui_demo.cpp#L1305
 
-import           Control.Monad              (when)
-import           Control.Monad.IO.Class     (MonadIO, liftIO)
+import           Control.Monad        (when)
 import           Control.Monad.Reader
-import           Control.Monad.Trans.Maybe
-import           Data.IORef                 (atomicWriteIORef, readIORef)
-import           Data.StateVar              (get)
-import           Data.String                (IsString)
-import qualified Data.Text                  as T
-import qualified Data.Vector                as V
-import           Foreign.Ptr                (Ptr)
+import qualified Data.Text            as T
+import qualified Data.Vector          as V
 import qualified ImGui
-import qualified ImGui.ListClipper
 import           Language.Haskell.TH
-import           Language.Haskell.TH.Syntax
-import           Mviz.Logger                (LogMessage (..), MonadLog (..),
-                                             logMessage)
+import           Mviz.Logger          (LogMessage (..), MonadLog (..),
+                                       logMessage)
 import           Mviz.UI.Types
-import           Mviz.UI.UIWindow           (LogWindow (..))
-import           Mviz.Utils
-import           Mviz.Utils.Ringbuffer      (toVector)
+import           Mviz.UI.UIWindow     (LogWindow (..))
 
 class HasLogWindow a where
   getLogWindow :: a -> LogWindow
@@ -61,8 +51,8 @@ renderTooltip :: Loc -> IO ()
 renderTooltip (Loc locFilename _ locModule (sLine,_) _) = do
   tooltip <- ImGui.beginItemTooltip
   when tooltip $ do
-    ImGui.textUnformatted $ "File: " <> (T.pack locFilename) <> ":" <> (T.pack $ show sLine)
-    ImGui.textUnformatted $ "Module: " <> (T.pack locModule)
+    ImGui.textUnformatted $ "File: " <> T.pack locFilename <> ":" <> T.pack (show sLine)
+    ImGui.textUnformatted $ "Module: " <> T.pack locModule
     ImGui.endTooltip
 
 renderLine :: LogMessage -> IO ()
@@ -72,9 +62,7 @@ renderLine msg = do
 renderListBox :: V.Vector LogMessage -> IO ()
 renderListBox logMessages = do
 --  listBoxSize <- ImGui.defaultSize
-  ImGui.withListBox listBoxTitle listBoxSize $ do
-    mapM_ renderLogLine logMessages
-    return ()
+  ImGui.withListBox listBoxTitle listBoxSize $ mapM_ renderLogLine logMessages
   where
     listBoxTitle = "##log"
     listBoxSize = ImGui.ImVec2 (-1.0) (-1.0)
