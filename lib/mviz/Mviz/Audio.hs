@@ -123,7 +123,8 @@ runAudioSystem sendChan recvChan = do
                          }
 --  runAudio state audioLoop
   _ <- runAudio state $ do
-    -- TODO: Fetch all the ports and send on the channel
+    sampleRate >>= serverSendMessage . SampleRate
+    bufferSize >>= serverSendMessage . BufferSize
     ports >>= serverSendMessage . Ports
     audioLoop
   return ()
