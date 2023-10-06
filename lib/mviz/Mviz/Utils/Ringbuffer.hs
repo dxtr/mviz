@@ -8,11 +8,10 @@ module Mviz.Utils.Ringbuffer
 
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 import           Data.Foldable          (foldl')
-import qualified Data.Foldable          as F
-import           Data.IORef             (IORef, atomicModifyIORef',
-                                         atomicWriteIORef, newIORef, readIORef)
+import           Data.IORef             (IORef, atomicModifyIORef', newIORef,
+                                         readIORef)
 import           Data.List              (genericReplicate)
-import           Data.Maybe             (catMaybes, isJust)
+import           Data.Maybe             (catMaybes)
 import qualified Data.Vector            as V
 import qualified Data.Vector.Mutable    as MV
 
@@ -30,10 +29,6 @@ nextIndex rb = nextIndex' rb <$> currentIndex rb
 
 nextIndex' :: Ringbuffer a -> Int -> Int
 nextIndex' Ringbuffer{ringSize = rsize} idx = (idx + 1) `mod` fromIntegral rsize
-
-previousIndex :: (MonadIO m) => Ringbuffer a -> m Int
-previousIndex rb =
-  previousIndex' rb <$> currentIndex rb
 
 previousIndex' :: Ringbuffer a -> Int -> Int
 previousIndex' Ringbuffer{ringSize = rsize} idx = (idx - 1) `mod` fromIntegral rsize
@@ -67,24 +62,20 @@ put ringBuffer@Ringbuffer{ringBuffer = buffer} newItem =
     _ <- updateIndex ringBuffer
     return ()
 
-latest :: (MonadIO m) => Ringbuffer a -> Int -> m (Maybe a)
-latest ringBuffer@Ringbuffer{ringBuffer = buffer} nth =
-  currentIndex ringBuffer >>= \idx -> liftIO $ MV.read buffer (idx - nth)
-
 toList' :: (MonadIO m) => Ringbuffer a -> Int -> Int -> [Maybe a] -> m [Maybe a]
-toList' rb@Ringbuffer{ringBuffer = buffer} endIndex currentIndex acc
-  | endIndex == currentIndex = do
-    currItem <- liftIO $ MV.read buffer currentIndex
+toList' rb@Ringbuffer{ringBuffer = buffer} endIndex cIdx acc
+  | endIndex == cIdx = do
+    currItem <- liftIO $ MV.read buffer cIdx
     return $ acc ++ [currItem]
   | otherwise = do
-    currItem <- liftIO $ MV.read buffer currentIndex
-    toList' rb endIndex (previousIndex' rb currentIndex) (acc ++ [currItem])
+    currItem <- liftIO $ MV.read buffer cIdx
+    toList' rb endIndex (previousIndex' rb cIdx) (acc ++ [currItem])
 
 toList :: (MonadIO m) => Ringbuffer a -> m [a]
 toList rb@Ringbuffer{} = do
   endIndex <- nextIndex rb
-  currentIndex <- currentIndex rb
-  catMaybes <$> toList' rb endIndex currentIndex []
+  cIdx <- currentIndex rb
+  catMaybes <$> toList' rb endIndex cIdx []
 
 toVector :: (MonadIO m) => Ringbuffer a -> m (V.Vector a)
 toVector rb = V.reverse . V.fromList <$> toList rb
