@@ -63,6 +63,7 @@ class Monad m => MonadAudioClient m where
   clientRecvChannel :: m (TQueue ClientAudioMessage)
   clientSendChannel :: m (TQueue ServerAudioMessage)
   clientRecvMessage :: m (Maybe ClientAudioMessage)
+  clientRecvMessages :: m [ClientAudioMessage]
   clientSendMessage :: ServerAudioMessage -> m ()
 
 class HasAudioClient a where
@@ -84,4 +85,5 @@ instance (MonadAudioClient m) => MonadAudioClient (MaybeT m) where
   clientRecvChannel = lift clientRecvChannel
   clientSendChannel = lift clientSendChannel
   clientRecvMessage = lift clientRecvMessage
+  clientRecvMessages = lift clientRecvMessages
   clientSendMessage = lift . clientSendMessage
