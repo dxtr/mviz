@@ -9,35 +9,33 @@ module Mviz.Types
   , runMviz
   ) where
 
-import           Control.Concurrent.Async  (Async)
-import           Control.Concurrent.STM    (TQueue, atomically, tryReadTQueue,
-                                            writeTQueue)
-import           Control.Monad.IO.Class    (MonadIO, liftIO)
-import           Control.Monad.IO.Unlift   (MonadUnliftIO)
-import           Control.Monad.Logger      (LoggingT, MonadLogger)
-import           Control.Monad.Reader      (MonadReader, ReaderT, ask, asks,
-                                            runReaderT)
-import           Control.Monad.Trans.Class (lift)
-import           Control.Monad.Trans.Maybe (MaybeT)
-import           Data.IORef                (IORef, atomicWriteIORef, readIORef)
-import qualified Data.Map.Strict           as Map
-import qualified Data.Text                 as T
-import           Data.Word                 (Word16, Word64)
+import           Control.Concurrent.Async (Async)
+import           Control.Concurrent.STM   (TQueue, atomically, tryReadTQueue,
+                                           writeTQueue)
+import           Control.Monad.IO.Class   (MonadIO, liftIO)
+import           Control.Monad.IO.Unlift  (MonadUnliftIO)
+import           Control.Monad.Logger     (LoggingT, MonadLogger)
+import           Control.Monad.Reader     (MonadReader, ReaderT, ask, asks,
+                                           runReaderT)
+import           Data.IORef               (IORef, atomicWriteIORef, readIORef)
+import qualified Data.Map.Strict          as Map
+import qualified Data.Text                as T
+import           Data.Word                (Word16, Word64)
 import qualified ImGui
 import           Mviz.Audio.Types
-import qualified Mviz.Graphics.Shader      as Shader
-import           Mviz.Logger               (LogMessage, MonadLog (..),
-                                            runRingbufferLoggingT)
+import qualified Mviz.Graphics.Shader     as Shader
+import           Mviz.Logger              (LogMessage, MonadLog (..),
+                                           runRingbufferLoggingT)
 import qualified Mviz.SDL
 import           Mviz.UI
-import           Mviz.UI.LogWindow         (HasLogWindow (..),
-                                            MonadLogWindow (..))
+import           Mviz.UI.LogWindow        (HasLogWindow (..),
+                                           MonadLogWindow (..))
 import           Mviz.UI.Types
-import           Mviz.UI.UIWindow          (LogWindow (..))
-import qualified Mviz.Utils.Ringbuffer     as RB
+import           Mviz.UI.UIWindow         (LogWindow (..))
+import qualified Mviz.Utils.Ringbuffer    as RB
 import           Mviz.Window
 import           Mviz.Window.Types
-import qualified UnliftIO.Exception        as E
+import qualified UnliftIO.Exception       as E
 
 -- Types
 data MvizError
@@ -150,12 +148,6 @@ instance (HasServerChannel env, HasClientChannel env) => MonadAudioClient (MvizM
   clientSendChannel = asks getServerChannel
   clientRecvMessage = liftIO . atomically . tryReadTQueue =<< clientRecvChannel
   clientSendMessage msg = clientSendChannel >>= \c -> liftIO . atomically $ writeTQueue c msg
-
-instance (MonadAudioClient m) => MonadAudioClient (MaybeT m) where
-  clientRecvChannel = lift clientRecvChannel
-  clientSendChannel = lift clientSendChannel
-  clientRecvMessage = lift clientRecvMessage
-  clientSendMessage = lift . clientSendMessage
 
 -- Functions
 runMviz

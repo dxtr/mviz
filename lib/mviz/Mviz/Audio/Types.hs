@@ -15,6 +15,8 @@ module Mviz.Audio.Types
 import           Control.Concurrent.STM              (TQueue)
 import           Control.Exception                   (Exception)
 import qualified Control.Monad.Exception.Synchronous as Sync
+import           Control.Monad.Trans.Class           (lift)
+import           Control.Monad.Trans.Maybe           (MaybeT)
 import qualified Data.Text                           as T
 import qualified Sound.JACK                          as JACK
 import qualified Sound.JACK.Exception                as JACKE
@@ -77,3 +79,9 @@ class HasServerChannel a where
 
 -- class HasSendChannel a where
 --   getSendChannel :: a -> TQueue ClientAudioMessage
+
+instance (MonadAudioClient m) => MonadAudioClient (MaybeT m) where
+  clientRecvChannel = lift clientRecvChannel
+  clientSendChannel = lift clientSendChannel
+  clientRecvMessage = lift clientRecvMessage
+  clientSendMessage = lift . clientSendMessage

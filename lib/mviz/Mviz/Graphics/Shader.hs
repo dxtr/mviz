@@ -48,9 +48,9 @@ createShader' :: ShaderSource -> IO (Either String Shader)
 createShader' ShaderSource{shaderType = sType, shaderSource = sSource} =
   createShader sType sSource
 
-linkProgram :: GL.Program -> IO (Either String Program)
-linkProgram program = do
-  return $ Left "Foo"
+-- linkProgram :: GL.Program -> IO (Either String Program)
+-- linkProgram program = do
+--   return $ Left "Foo"
 
 attachShaders :: Program -> [Shader] -> IO ()
 attachShaders program = mapM_ (GL.attachShader program)

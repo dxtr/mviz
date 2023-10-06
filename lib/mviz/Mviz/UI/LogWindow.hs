@@ -1,6 +1,5 @@
 {-# LANGUAGE BlockArguments    #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell   #-}
 
 module Mviz.UI.LogWindow
   ( LogWindow
@@ -55,9 +54,9 @@ renderTooltip (Loc locFilename _ locModule (sLine,_) _) = do
     ImGui.textUnformatted $ "Module: " <> T.pack locModule
     ImGui.endTooltip
 
-renderLine :: LogMessage -> IO ()
-renderLine msg = do
-  ImGui.textUnformatted $ logMessage msg
+-- renderLine :: LogMessage -> IO ()
+-- renderLine msg = do
+--   ImGui.textUnformatted $ logMessage msg
 
 renderListBox :: V.Vector LogMessage -> IO ()
 renderListBox logMessages = do

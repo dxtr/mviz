@@ -3,9 +3,8 @@
 module Mviz.UI.UIWindow (LogWindow(..)
                         , makeLogWindow) where
 
-import           Data.IORef            (IORef, newIORef)
-import qualified Data.Text             as T
-import           Foreign.Marshal.Alloc (calloc)
+import           Data.IORef (IORef, newIORef)
+import qualified Data.Text  as T
 
 data LogWindow = LogWindow
   { logWindowInputBuffer  :: T.Text

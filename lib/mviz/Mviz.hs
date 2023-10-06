@@ -92,7 +92,6 @@ mainLoop = do
 --  let wnd = getWindow
   swapWindowBuffers
   unless doQuit mainLoop
- where
 
 run :: MvizM MvizEnvironment ()
 run = do
