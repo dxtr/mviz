@@ -8,9 +8,13 @@ import           Control.Concurrent.STM     (newTQueueIO)
 import           Control.Exception          (bracket)
 import           Control.Monad              (unless, when)
 import           Control.Monad.IO.Class     (MonadIO, liftIO)
-import           Control.Monad.Logger
+import           Control.Monad.Logger       (MonadLogger, logDebugN, logInfo)
 import           Control.Monad.Reader       (MonadReader, ask)
+import           Control.Monad.Trans.Class  (lift)
 import           Control.Monad.Trans.Except (ExceptT (..), runExceptT)
+--import           Control.Monad.Trans.Maybe
+--import           Control.Monad.Trans.Maybe  (MaybeT, runMaybeT)
+import           Control.Monad.Trans.Maybe  (MaybeT (MaybeT), runMaybeT)
 import           Data.IORef                 (newIORef, readIORef)
 import qualified Data.Map                   as M
 import qualified Data.Text                  as T
@@ -18,6 +22,7 @@ import           Data.Word                  (Word16)
 import qualified Graphics.Rendering.OpenGL  as OpenGL
 import           ImGui                      (checkVersion)
 import qualified Mviz.Audio
+import           Mviz.Audio.Types           (MonadAudioClient (..))
 import qualified Mviz.GL                    (vendor, version)
 import           Mviz.Logger                (MonadLog (..))
 import qualified Mviz.SDL
@@ -43,10 +48,10 @@ calculateFramerate = do
   state <- ask
   fps@MvizFramerate { mvizFramerateCounter = frames } <- liftIO . readIORef $ getFramerate state
   let tickDifference :: Word16 = fromIntegral $ ticks - mvizFramerateSample fps
-  if (tickDifference >= 1000)
-    then (do let newFrameTime = (fromIntegral tickDifference) / (fromIntegral frames)
+  if tickDifference >= 1000
+    then (do let newFrameTime = fromIntegral tickDifference / fromIntegral frames
              let newFramerate = 1000.0 / newFrameTime
-             logDebugN $ "Framerate: " <> (T.pack $ show newFramerate)
+             logDebugN $ "Framerate: " <> T.pack (show newFramerate)
              modifyFramerate $ fps { mvizFramerate = newFramerate
                                    , mvizFramerateTime = newFrameTime
                                    , mvizFramerateSample = ticks
@@ -62,6 +67,7 @@ mainLoop :: (MonadReader e m,
              MonadLog m,
              MonadUI m,
              MonadDrawWindow m,
+             MonadAudioClient m,
              HasWindow e,
              HasUI e,
              HasFramerate e,
@@ -69,10 +75,15 @@ mainLoop :: (MonadReader e m,
 mainLoop = do
   calculateFramerate
 
-  events <- liftIO $ Mviz.UI.collectEvents
-  let doQuit = elem Mviz.Window.Events.Quit events
+  -- Read all messages from the audio server
+  _ <- runMaybeT $ do
+    audioMessage <- MaybeT clientRecvMessage
+    logDebugN $ "Audio message: " <> T.pack (show audioMessage)
 
-  OpenGL.clearColor OpenGL.$= (OpenGL.Color4 0 0 0 1)
+  events <- liftIO Mviz.UI.collectEvents
+  let doQuit = Mviz.Window.Events.Quit `elem` events
+
+  OpenGL.clearColor OpenGL.$= OpenGL.Color4 0 0 0 1
   liftIO $ OpenGL.clear [OpenGL.ColorBuffer]
 
   -- environment <- ask

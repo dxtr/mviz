@@ -65,7 +65,7 @@ shutdown :: IO ()
 shutdown = do
   ImGui.GL.glShutdown
 
-createUIContext :: (HasGLContext w, GLMakeCurrent m w, MonadIO m) => w -> m ImGui.Context
+createUIContext :: (GLMakeCurrent m w, MonadIO m) => w -> m ImGui.Context
 createUIContext glCtx = do
   _ <- glMakeCurrent glCtx
   ImGui.createContext

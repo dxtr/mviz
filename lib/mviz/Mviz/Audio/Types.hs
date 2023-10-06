@@ -3,9 +3,13 @@ module Mviz.Audio.Types
   ( AudioError(..)
   , MonadJack (..)
   , HasAudioClient (..)
+  , HasServerChannel (..)
+  , HasClientChannel (..)
   , JackReturnType
   , ServerAudioMessage (..)
   , ClientAudioMessage (..)
+  , MonadAudioServer (..)
+  , MonadAudioClient (..)
   ) where
 
 import           Control.Concurrent.STM              (TQueue)
@@ -24,6 +28,7 @@ data AudioError
 -- Messages directed to the client
 data ClientAudioMessage
   = Port String -- Inform the client about a port
+  | Ports [T.Text]
   | SampleRate Int -- Inform the client about the sample rate
   | BufferSize Int -- Inform the client about the buffer size
   deriving (Show)
@@ -46,8 +51,29 @@ class Monad m => MonadJack m where
   bufferSize :: m Int
   sampleRate :: m Int
 
+class Monad m => MonadAudioServer m where
+  serverRecvChannel :: m (TQueue ServerAudioMessage)
+  serverSendChannel :: m (TQueue ClientAudioMessage)
+  serverRecvMessage :: m (Maybe ServerAudioMessage)
+  serverSendMessage :: ClientAudioMessage -> m ()
+
+class Monad m => MonadAudioClient m where
+  clientRecvChannel :: m (TQueue ClientAudioMessage)
+  clientSendChannel :: m (TQueue ServerAudioMessage)
+  clientRecvMessage :: m (Maybe ClientAudioMessage)
+  clientSendMessage :: ServerAudioMessage -> m ()
+
 class HasAudioClient a where
   getAudioClient :: a -> JACK.Client
 
-class HasRecvChannel a where
-  getRecvChannel :: a -> TQueue ServerAudioMessage
+class HasClientChannel a where
+  getClientChannel :: a -> TQueue ClientAudioMessage
+
+class HasServerChannel a where
+  getServerChannel :: a -> TQueue ServerAudioMessage
+
+-- class HasRecvChannel a where
+--   getRecvChannel :: a -> TQueue ServerAudioMessage
+
+-- class HasSendChannel a where
+--   getSendChannel :: a -> TQueue ClientAudioMessage

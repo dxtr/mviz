@@ -3,17 +3,23 @@ module Mviz.Audio
   , shutdown
   , ClientAudioMessage (..)
   , ServerAudioMessage (..)
+  , HasServerChannel (..)
+  , HasClientChannel (..)
   ) where
 
-import           Control.Concurrent.STM (TQueue, atomically, tryReadTQueue,
-                                         writeTQueue)
-import           Control.Monad.IO.Class (MonadIO, liftIO)
-import           Control.Monad.Reader   (MonadReader, ReaderT, ask, runReaderT)
-import qualified Mviz.Audio.Client      as Client
-import           Mviz.Audio.Types       (ClientAudioMessage (..),
-                                         HasAudioClient (..), MonadJack (..),
-                                         ServerAudioMessage (..))
-import qualified Sound.JACK             as JACK
+import           Control.Concurrent.STM  (TQueue, atomically, tryReadTQueue,
+                                          writeTQueue)
+import           Control.Monad.IO.Class  (MonadIO, liftIO)
+import           Control.Monad.IO.Unlift (MonadUnliftIO)
+import           Control.Monad.Reader    (MonadReader, ReaderT, ask, runReaderT)
+import qualified Mviz.Audio.Client       as Client
+import           Mviz.Audio.Types        (ClientAudioMessage (..),
+                                          HasAudioClient (..),
+                                          HasClientChannel (..),
+                                          HasServerChannel (..),
+                                          MonadAudioServer (..), MonadJack (..),
+                                          ServerAudioMessage (..))
+import qualified Sound.JACK              as JACK
 
 data AudioState = AudioState
   { audioSendChannel :: TQueue ClientAudioMessage
@@ -25,12 +31,19 @@ newtype AudioM e a = AudioM (ReaderT e IO a)
   deriving ( Applicative
            , Functor
            , Monad
+           , MonadUnliftIO
            , MonadIO
            , MonadReader e
            )
 
 instance HasAudioClient AudioState where
   getAudioClient = audioClient
+
+instance HasServerChannel AudioState where
+  getServerChannel = audioRecvChannel
+
+instance HasClientChannel AudioState where
+  getClientChannel = audioSendChannel
 
 instance (HasAudioClient env) => MonadJack (AudioM env) where
   jackAction = Client.jackAction
@@ -41,24 +54,44 @@ instance (HasAudioClient env) => MonadJack (AudioM env) where
   sampleRate = ask >>= Client.getSampleRate . getAudioClient
 --  closeClient = ask >>= Client.closeClient . getAudioClient
 
-audioLoop :: (MonadIO m, MonadReader AudioState m) => m ()
+instance (HasServerChannel env, HasClientChannel env) => MonadAudioServer (AudioM env) where
+  serverRecvChannel = ask >>= return . getServerChannel
+  serverSendChannel = ask >>= return . getClientChannel
+  serverRecvMessage = liftIO . atomically . tryReadTQueue =<< serverRecvChannel
+  serverSendMessage msg = serverSendChannel >>= \c -> liftIO . atomically $ writeTQueue c msg
+
+audioLoop :: ( HasAudioClient e
+             , HasServerChannel e
+             , MonadReader e m
+             , MonadAudioServer m
+             ) => m ()
 audioLoop = do
-  state <- ask
-  msg <- liftIO $ atomically $ tryReadTQueue $ audioRecvChannel state
+--  state <- ask
+  -- rc <- recvChannel
+  msg <- serverRecvMessage
   case msg of
-    Just _ -> do
-      liftIO $ putStrLn "Quitting audio system"
-      return ()
+    Just _  -> return ()
     Nothing -> audioLoop
+
+-- audioLoop :: ( HasAudioClient e
+--              , HasRecvChannel e
+--              , MonadReader e m
+--              , MonadAudioServer m
+--              ) => m ()
+-- audioLoop = do
+
 
 clientName :: String
 clientName = "mviz"
 
+-- runAudio :: AudioState -> AudioM AudioState a -> IO a
+-- runAudio environment (AudioM action) = runReaderT action environment
+
 runAudioSystem
-  :: (MonadIO m)
-  => TQueue ClientAudioMessage
+--  :: (MonadIO m)
+  :: TQueue ClientAudioMessage
   -> TQueue ServerAudioMessage
-  -> m ()
+  -> IO ()
 runAudioSystem sendChan recvChan = do
   client <- Client.createClient clientName
   let state = AudioState { audioSendChannel = sendChan
@@ -66,7 +99,12 @@ runAudioSystem sendChan recvChan = do
                          , audioClient = client
                          }
 --  runAudio state audioLoop
-  runReaderT audioLoop state
+  _ <- runAudio state $ do
+    -- TODO: Fetch all the ports and send on the channel
+    ports >>= serverSendMessage . Ports
+    audioLoop
+  return ()
+  where runAudio environment (AudioM action) = runReaderT action environment
 
 shutdown :: (MonadIO m) => TQueue ServerAudioMessage -> m ()
 shutdown writeChan = liftIO $ atomically $ writeTQueue writeChan msg
