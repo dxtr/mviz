@@ -1,0 +1,8 @@
+dist-newstyle/*
+imgui.ini
+cabal.project.local
+*.tix
+*.zip
+*~
+*.tar
+*.tar.gz
