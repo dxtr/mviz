@@ -38,7 +38,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt update
-        sudo apt install -y libsdl2-dev libjack-dev libglew-dev
+        sudo apt install -y build-essential libsdl2-dev libjack-dev libglew-dev
         cabal update
         cabal build --only-dependencies --enable-tests --enable-benchmarks
     - name: Build
