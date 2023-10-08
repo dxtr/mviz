@@ -1,5 +1,7 @@
-module Mviz.UI.ConsoleWindow (
-  ConsoleWindow (..), renderConsoleWindow) where
+module Mviz.UI.ConsoleWindow
+  ( ConsoleWindow (..)
+  , renderConsoleWindow
+  ) where
 
 -- Example: https://github.com/ocornut/imgui/blob/master/imgui_demo.cpp#L6665
 

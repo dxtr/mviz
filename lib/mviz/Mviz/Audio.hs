@@ -121,10 +121,9 @@ runAudioSystem sendChan recvChan = do
                          , audioRecvChannel = recvChan
                          , audioClient = client
                          }
---  runAudio state audioLoop
   _ <- runAudio state $ do
-    sampleRate >>= serverSendMessage . SampleRate
-    bufferSize >>= serverSendMessage . BufferSize
+    sampleRate >>= serverSendMessage . SampleRate -- Send the configured sample rate to the client
+    bufferSize >>= serverSendMessage . BufferSize -- Send the configured buffer size to the client
     ports >>= serverSendMessage . Ports
     audioLoop
   return ()
