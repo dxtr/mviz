@@ -21,7 +21,8 @@ import           ImGui                      (checkVersion)
 import qualified Mviz.Audio
 import           Mviz.Audio.Types           (MonadAudioClient (..))
 import qualified Mviz.GL                    (vendor, version)
-import           Mviz.Logger                (MonadLog (..))
+import           Mviz.Logger                (MonadLog (..), logMessage,
+                                             ringBufferOutput)
 import qualified Mviz.SDL
 import           Mviz.Types                 (HasFramerate (..),
                                              MonadFramerate (..),
@@ -132,6 +133,7 @@ startup = do
                            , mvizAudioSendChannel = audioSendChannel
                            , mvizAudioRecvChannel = audioRecvChannel
                            , mvizLog = logBuffer
+                           , mvizLogFunc = ringBufferOutput logBuffer
                            , mvizLogWindow = logWindow
                            , mvizShowUI = showUI
                            , mvizFPS = fps

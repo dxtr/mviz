@@ -2,6 +2,7 @@
 
 module Mviz.Logger
   ( MonadLog (..)
+  , ringBufferOutput
   , runRingbufferLoggingT
   , LogMessage (..)
   , logMessage
@@ -34,12 +35,10 @@ logMessage (LogMessage zt _loc _logSource logLevel logStr) =
                      LevelError   -> "ERROR"
                      LevelOther l -> l
 
-ringBufferOutput
-  :: RB.Ringbuffer LogMessage -> Loc -> LogSource -> LogLevel -> LogStr -> IO ()
+ringBufferOutput :: RB.Ringbuffer LogMessage -> Loc -> LogSource -> LogLevel -> LogStr -> IO ()
 ringBufferOutput buffer loc src lvl str = do
   timestamp <- getZonedTime
   RB.put buffer $ LogMessage timestamp loc src lvl str
 
-runRingbufferLoggingT
-  :: (MonadIO m) => RB.Ringbuffer LogMessage -> LoggingT m a -> m a
+runRingbufferLoggingT :: (MonadIO m) => RB.Ringbuffer LogMessage -> LoggingT m a -> m a
 runRingbufferLoggingT ringBuffer = (`runLoggingT` ringBufferOutput ringBuffer)

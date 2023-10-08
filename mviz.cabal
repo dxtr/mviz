@@ -75,7 +75,6 @@ library
     import:           warnings
     exposed-modules:  Mviz
     other-modules:
-        Mviz.Core,
         Mviz.Audio,
         Mviz.Audio.Client,
         Mviz.Audio.Types,

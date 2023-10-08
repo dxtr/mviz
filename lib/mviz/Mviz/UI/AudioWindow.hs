@@ -5,6 +5,7 @@ module Mviz.UI.AudioWindow
   , MonadAudioWindow (..)
   ) where
 
+import           Control.Monad    (when)
 import qualified Data.Text        as T
 import           Mviz.Types       (MonadUI)
 import           Mviz.UI.UIWindow (AudioWindow)
@@ -27,4 +28,6 @@ renderAudioWindow :: (MonadUI m, MonadAudioWindow m) => m ()
 renderAudioWindow = do
     isOpen <- isAudioWindowOpen
     when isOpen $ do
-
+        closed <- openAudioWindow windowTitle $ do
+            return ()
+        setAudioWindowOpen closed

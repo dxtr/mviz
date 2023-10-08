@@ -14,7 +14,9 @@ import           Control.Concurrent.STM   (TQueue, atomically, flushTQueue,
                                            tryReadTQueue, writeTQueue)
 import           Control.Monad.IO.Class   (MonadIO, liftIO)
 import           Control.Monad.IO.Unlift  (MonadUnliftIO)
-import           Control.Monad.Logger     (LoggingT, MonadLogger)
+import           Control.Monad.Logger     (Loc, LogLevel, LogSource, LogStr,
+                                           MonadLogger (monadLoggerLog),
+                                           ToLogStr (toLogStr))
 import           Control.Monad.Reader     (MonadReader, ReaderT, ask, asks,
                                            runReaderT)
 import           Data.IORef               (IORef, atomicWriteIORef, readIORef)
@@ -23,20 +25,27 @@ import qualified Data.Text                as T
 import qualified Data.Vector              as V
 import           Data.Word                (Word16, Word64)
 import qualified ImGui
-import           Mviz.Audio.Types
+import           Mviz.Audio.Types         (ClientAudioMessage,
+                                           HasClientChannel (..),
+                                           HasServerChannel (..),
+                                           MonadAudioClient (..),
+                                           ServerAudioMessage)
 import qualified Mviz.Graphics.Shader     as Shader
-import           Mviz.Logger              (LogMessage, MonadLog (..),
-                                           runRingbufferLoggingT)
+import           Mviz.Logger              (LogMessage, MonadLog (..))
 import qualified Mviz.SDL
 import qualified Mviz.SDL.Types
-import           Mviz.UI
+import           Mviz.UI                  (render)
 import           Mviz.UI.LogWindow        (HasLogWindow (..),
                                            MonadLogWindow (..))
-import           Mviz.UI.Types
+import           Mviz.UI.Types            (HasUI (..), MonadUI (..), UIContext)
 import           Mviz.UI.UIWindow         (LogWindow (..))
 import qualified Mviz.Utils.Ringbuffer    as RB
-import           Mviz.Window
-import           Mviz.Window.Types
+import           Mviz.Window              (MonadDrawWindow (..),
+                                           MonadHideWindow (..),
+                                           MonadShowWindow (..),
+                                           MonadWindow (..))
+import           Mviz.Window.Types        (HasNativeWindow (..), HasWindow (..),
+                                           Window)
 import qualified UnliftIO.Exception       as E
 
 -- Types
@@ -62,9 +71,10 @@ data MvizEnvironment = MvizEnvironment
   , mvizFPS              :: IORef MvizFramerate
   , mvizShaders          :: IORef (Map.Map T.Text Shader.ProgramObject)
   , mvizLogWindow        :: LogWindow
+  , mvizLogFunc          :: Loc -> LogSource -> LogLevel -> LogStr -> IO ()
   }
 
-newtype MvizM e a = MvizM (ReaderT e (LoggingT IO) a)
+newtype MvizM e a = MvizM { unMvizM :: ReaderT e IO a }
   deriving
     ( Applicative
     , Functor
@@ -72,7 +82,6 @@ newtype MvizM e a = MvizM (ReaderT e (LoggingT IO) a)
     , MonadUnliftIO
     , MonadIO
     , MonadReader e
-    , MonadLogger
     )
 
 -- Type classes and instances
@@ -82,6 +91,7 @@ class HasFramerate a where
 
 class HasLog a where
   getLog :: a -> RB.Ringbuffer LogMessage
+  getLogFunc :: a -> (Loc -> LogSource -> LogLevel -> LogStr -> IO ())
 
 class Monad m => MonadFramerate m where
   modifyFramerate :: MvizFramerate -> m ()
@@ -93,6 +103,8 @@ instance HasFramerate MvizEnvironment where
 instance HasLog MvizEnvironment where
   getLog :: MvizEnvironment -> RB.Ringbuffer LogMessage
   getLog = mvizLog
+  getLogFunc :: MvizEnvironment -> (Loc -> LogSource -> LogLevel -> LogStr -> IO ())
+  getLogFunc = mvizLogFunc
 
 instance HasUI MvizEnvironment where
   getUIShownRef :: MvizEnvironment -> IORef Bool
@@ -178,12 +190,12 @@ instance (HasServerChannel env, HasClientChannel env) => MonadAudioClient (MvizM
   clientSendMessage :: (HasServerChannel env, HasClientChannel env) => ServerAudioMessage -> MvizM env ()
   clientSendMessage msg = clientSendChannel >>= \c -> liftIO . atomically $ writeTQueue c msg
 
+instance (HasLog env) => MonadLogger (MvizM env) where
+  monadLoggerLog :: (HasLog env, ToLogStr msg) => Loc -> LogSource -> LogLevel -> msg -> MvizM env ()
+  monadLoggerLog loc logSource logLevel msg = do
+    logFunc <- asks getLogFunc
+    liftIO $ logFunc loc logSource logLevel (toLogStr msg)
+
 -- Functions
-runMviz
-  :: MvizEnvironment
-  -> MvizM MvizEnvironment a
-  -> IO a
-runMviz environment (MvizM action) = runLogger environment
- where
-  runReader = runReaderT action environment
-  runLogger env = runRingbufferLoggingT (mvizLog env) runReader
+runMviz :: MvizEnvironment -> MvizM MvizEnvironment a -> IO a
+runMviz environment action = runReaderT (unMvizM action) environment
