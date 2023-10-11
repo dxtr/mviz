@@ -37,8 +37,11 @@ import qualified Mviz.SDL.Types
 import           Mviz.UI                  (render)
 import           Mviz.UI.LogWindow        (HasLogWindow (..),
                                            MonadLogWindow (..))
+import           Mviz.UI.SettingsWindow   (HasSettingsWindow (getSettingsWindow),
+                                           MonadSettingsWindow (isSettingsWindowOpen, openSettingsWindow, setSettingsWindowOpen))
 import           Mviz.UI.Types            (HasUI (..), MonadUI (..), UIContext)
-import           Mviz.UI.UIWindow         (LogWindow (..))
+import           Mviz.UI.UIWindow         (LogWindow (..),
+                                           SettingsWindow (settingsWindowOpen))
 import qualified Mviz.Utils.Ringbuffer    as RB
 import           Mviz.Window              (MonadDrawWindow (..),
                                            MonadHideWindow (..),
@@ -66,12 +69,16 @@ data MvizEnvironment = MvizEnvironment
   , mvizAudioThread      :: Async ()
   , mvizAudioSendChannel :: TQueue ServerAudioMessage
   , mvizAudioRecvChannel :: TQueue ClientAudioMessage
+  , mvizAudioSampleRate  :: IORef Int
+  , mvizAudioBufferSize  :: IORef Int
+  , mvizAudioPorts       :: IORef [T.Text]
   , mvizLog              :: RB.Ringbuffer LogMessage
   , mvizShowUI           :: IORef Bool
   , mvizFPS              :: IORef MvizFramerate
   , mvizShaders          :: IORef (Map.Map T.Text Shader.ProgramObject)
   , mvizLogWindow        :: LogWindow
   , mvizLogFunc          :: Loc -> LogSource -> LogLevel -> LogStr -> IO ()
+  , mvizSettingsWindow   :: SettingsWindow
   }
 
 newtype MvizM e a = MvizM { unMvizM :: ReaderT e IO a }
@@ -103,6 +110,7 @@ instance HasFramerate MvizEnvironment where
 instance HasLog MvizEnvironment where
   getLog :: MvizEnvironment -> RB.Ringbuffer LogMessage
   getLog = mvizLog
+
   getLogFunc :: MvizEnvironment -> (Loc -> LogSource -> LogLevel -> LogStr -> IO ())
   getLogFunc = mvizLogFunc
 
@@ -113,6 +121,9 @@ instance HasUI MvizEnvironment where
 instance HasLogWindow MvizEnvironment where
   getLogWindow :: MvizEnvironment -> LogWindow
   getLogWindow = mvizLogWindow
+
+instance HasSettingsWindow MvizEnvironment where
+  getSettingsWindow = mvizSettingsWindow
 
 instance HasWindow MvizEnvironment where
   getWindow :: MvizEnvironment -> Window
@@ -141,15 +152,28 @@ instance (HasLogWindow env) => MonadLogWindow (MvizM env) where
 
   isLogWindowOpen :: HasLogWindow env => MvizM env Bool
   isLogWindowOpen = do
-    env <- ask
-    let wnd = getLogWindow env
+    wnd <- asks getLogWindow
     liftIO $ readIORef $ logWindowOpen wnd
 
   setLogWindowOpen :: HasLogWindow env => Bool -> MvizM env ()
   setLogWindowOpen newValue = do
-    env <- ask
-    let wnd = getLogWindow env
+    wnd <- asks getLogWindow
     liftIO $ atomicWriteIORef (logWindowOpen wnd) newValue
+
+instance (HasSettingsWindow env) => MonadSettingsWindow (MvizM env) where
+  openSettingsWindow :: HasSettingsWindow env => T.Text -> MvizM env () -> MvizM env Bool
+  openSettingsWindow label func = do
+    ImGui.withCloseableWindow label [] func
+
+  isSettingsWindowOpen :: HasSettingsWindow env => MvizM env Bool
+  isSettingsWindowOpen = do
+    wnd <- asks getSettingsWindow
+    liftIO $ readIORef $ settingsWindowOpen wnd
+
+  setSettingsWindowOpen :: HasSettingsWindow env => Bool -> MvizM env ()
+  setSettingsWindowOpen newValue = do
+    wnd <- asks getSettingsWindow
+    liftIO $ atomicWriteIORef (settingsWindowOpen wnd) newValue
 
 instance (HasNativeWindow env) => MonadShowWindow (MvizM env) where
   showWindow :: HasNativeWindow env => MvizM env ()
@@ -172,21 +196,26 @@ instance (HasLog env) => MonadLog (MvizM env) where
   getLogVector :: HasLog env => MvizM env (V.Vector LogMessage)
   getLogVector = ask >>= liftIO . RB.toVector . getLog
 
-instance (HasUI env, HasLogWindow env, HasLog env) => MonadUI (MvizM env) where
+instance (HasUI env, HasLogWindow env, HasSettingsWindow env, HasLog env) => MonadUI (MvizM env) where
   isUIShown :: (HasUI env, HasLogWindow env, HasLog env) => MvizM env Bool
   isUIShown = ask >>= liftIO . readIORef . getUIShownRef
-  renderUI :: (HasUI env, HasLogWindow env, HasLog env) => MvizM env ()
+
+  renderUI :: (HasUI env, HasLogWindow env, HasSettingsWindow env, HasLog env) => MvizM env ()
   renderUI = Mviz.UI.render
 
 instance (HasServerChannel env, HasClientChannel env) => MonadAudioClient (MvizM env) where
   clientRecvChannel :: (HasServerChannel env, HasClientChannel env) => MvizM env (TQueue ClientAudioMessage)
   clientRecvChannel = asks getClientChannel
+
   clientSendChannel :: (HasServerChannel env, HasClientChannel env) => MvizM env (TQueue ServerAudioMessage)
   clientSendChannel = asks getServerChannel
+
   clientRecvMessage :: (HasServerChannel env, HasClientChannel env) => MvizM env (Maybe ClientAudioMessage)
   clientRecvMessage = liftIO . atomically . tryReadTQueue =<< clientRecvChannel
+
   clientRecvMessages :: (HasServerChannel env, HasClientChannel env) => MvizM env [ClientAudioMessage]
   clientRecvMessages = liftIO . atomically . flushTQueue =<< clientRecvChannel
+
   clientSendMessage :: (HasServerChannel env, HasClientChannel env) => ServerAudioMessage -> MvizM env ()
   clientSendMessage msg = clientSendChannel >>= \c -> liftIO . atomically $ writeTQueue c msg
 

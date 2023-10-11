@@ -89,6 +89,7 @@ library
         Mviz.UI.Types,
         Mviz.UI.UIWindow,
         Mviz.UI.LogWindow,
+        Mviz.UI.SettingsWindow,
         Mviz.Utils,
         Mviz.Utils.Ringbuffer,
         Mviz.Window,

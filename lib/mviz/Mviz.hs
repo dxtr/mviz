@@ -21,8 +21,7 @@ import           ImGui                      (checkVersion)
 import qualified Mviz.Audio
 import           Mviz.Audio.Types           (MonadAudioClient (..))
 import qualified Mviz.GL                    (vendor, version)
-import           Mviz.Logger                (MonadLog (..), logMessage,
-                                             ringBufferOutput)
+import           Mviz.Logger                (MonadLog (..), ringBufferOutput)
 import qualified Mviz.SDL
 import           Mviz.Types                 (HasFramerate (..),
                                              MonadFramerate (..),
@@ -31,8 +30,9 @@ import           Mviz.Types                 (HasFramerate (..),
                                              getFramerate, runMviz)
 import qualified Mviz.UI
 import           Mviz.UI.LogWindow          (MonadLogWindow)
+import           Mviz.UI.SettingsWindow     (MonadSettingsWindow)
 import           Mviz.UI.Types
-import           Mviz.UI.UIWindow           (makeLogWindow)
+import           Mviz.UI.UIWindow           (makeLogWindow, makeSettingsWindow)
 import qualified Mviz.Utils.Ringbuffer      as RB
 import           Mviz.Window                (MonadDrawWindow (..), createWindow,
                                              destroyWindow, showWindow,
@@ -62,6 +62,7 @@ mainLoop :: (MonadReader e m,
              MonadLogger m,
              MonadIO m,
              MonadLogWindow m,
+             MonadSettingsWindow m,
              MonadLog m,
              MonadUI m,
              MonadDrawWindow m,
@@ -121,6 +122,10 @@ startup = do
   logBuffer <- RB.empty 100
   logWindow <- makeLogWindow True
   showUI <- newIORef True
+  sampleRate <- newIORef 0
+  bufferSize <- newIORef 0
+  audioPorts <- newIORef []
+  settingsWindow <- makeSettingsWindow True
   fps <- newIORef $ MvizFramerate { mvizFramerate = 0.0
                                   , mvizFramerateTime = 0.0
                                   , mvizFramerateSample = 0
@@ -138,6 +143,10 @@ startup = do
                            , mvizShowUI = showUI
                            , mvizFPS = fps
                            , mvizShaders = shaders
+                           , mvizSettingsWindow = settingsWindow
+                           , mvizAudioSampleRate = sampleRate
+                           , mvizAudioBufferSize = bufferSize
+                           , mvizAudioPorts = audioPorts
                            }
 
 cleanup :: MvizEnvironment -> IO ()

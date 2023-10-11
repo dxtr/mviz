@@ -2,8 +2,9 @@
 
 module Mviz.UI.UIWindow
   ( LogWindow(..)
+  , SettingsWindow(..)
   , makeLogWindow
-  , AudioWindow(..)
+  , makeSettingsWindow
   ) where
 
 import           Data.IORef (IORef, newIORef)
@@ -17,11 +18,8 @@ data LogWindow = LogWindow
 --  , logWindowScrollToBottom :: Bool
   }
 
-data AudioWindow = AudioWindow
-  { audioWindowPorts      :: [T.Text]
-  , audioWindowBufferSize :: Int
-  , audioWindowSampleRate :: Int
-  }
+data SettingsWindow = SettingsWindow
+  { settingsWindowOpen       :: IORef Bool }
 
 makeLogWindow :: Bool -> IO LogWindow
 makeLogWindow showWindow = do
@@ -32,3 +30,8 @@ makeLogWindow showWindow = do
                     , logWindowSelectedLine = selectedLine
                     , logWindowOpen = windowOpen
                     }
+
+makeSettingsWindow :: Bool -> IO SettingsWindow
+makeSettingsWindow showWindow = do
+  windowOpen <- newIORef showWindow
+  return $ SettingsWindow{ settingsWindowOpen = windowOpen }

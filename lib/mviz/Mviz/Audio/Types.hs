@@ -82,8 +82,17 @@ class HasServerChannel a where
 --   getSendChannel :: a -> TQueue ClientAudioMessage
 
 instance (MonadAudioClient m) => MonadAudioClient (MaybeT m) where
+  clientRecvChannel :: MonadAudioClient m => MaybeT m (TQueue ClientAudioMessage)
   clientRecvChannel = lift clientRecvChannel
+
+  clientSendChannel :: MonadAudioClient m => MaybeT m (TQueue ServerAudioMessage)
   clientSendChannel = lift clientSendChannel
+
+  clientRecvMessage :: MonadAudioClient m => MaybeT m (Maybe ClientAudioMessage)
   clientRecvMessage = lift clientRecvMessage
+
+  clientRecvMessages :: MonadAudioClient m => MaybeT m [ClientAudioMessage]
   clientRecvMessages = lift clientRecvMessages
+
+  clientSendMessage :: MonadAudioClient m => ServerAudioMessage -> MaybeT m ()
   clientSendMessage = lift . clientSendMessage

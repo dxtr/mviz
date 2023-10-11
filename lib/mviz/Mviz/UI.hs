@@ -30,8 +30,11 @@ import           Mviz.Logger               (MonadLog (..))
 -- import           Mviz.SDL                  (glContext, sdlWindow)
 -- import           Mviz.Types                (MvizEnvironment (..))
 import           Data.Functor              ((<&>))
+import           Mviz.Audio.Types          (MonadJack)
 import           Mviz.UI.LogWindow         (MonadLogWindow (..),
                                             renderLogWindow)
+import           Mviz.UI.SettingsWindow    (MonadSettingsWindow,
+                                            renderSettingsWindow)
 import           Mviz.UI.Types
 import           Mviz.Utils                ((<&&>))
 import           Mviz.Window.Events        (Event (IgnoredEvent, Quit, WindowResized))
@@ -59,7 +62,7 @@ shutdown :: IO ()
 shutdown = do
   ImGui.GL.glShutdown
 
-createUIContext :: (GLMakeCurrent m w, MonadIO m) => w -> m ImGui.Context
+createUIContext :: (MonadIO m, HasNativeWindow a, HasGLContext a) => a -> m ImGui.Context
 createUIContext glCtx = do
   _ <- glMakeCurrent glCtx
   ImGui.createContext
@@ -88,17 +91,20 @@ newFrame = do
 endFrame :: (MonadIO m) => m ()
 endFrame = ImGui.endFrame
 
-render :: (HasUI e, MonadReader e m, MonadLogWindow m, MonadLog m, MonadUI m) => m ()
+render :: ( HasUI e
+          , MonadReader e m
+          , MonadLogWindow m
+          , MonadSettingsWindow m
+          , MonadLog m
+          , MonadUI m
+          ) => m ()
 render = do
---  let logWindow = getLogWindow
---  logWindowOpen <- liftIO $ readIORef $ logWindowOpen logWindow
   _ <- liftIO $ do
     newFrame
     ImGui.showDemoWindow
 
   renderLogWindow
-  -- when <$> isLogWindowOpen <*> renderLogWindow
-  --  when logWindowOpen renderLogWindow
+  -- renderSettingsWindow
 
   ImGui.render
   ImGui.GL.glRenderDrawData =<< ImGui.getDrawData

@@ -3,20 +3,18 @@
 module Mviz.Logger
   ( MonadLog (..)
   , ringBufferOutput
-  , runRingbufferLoggingT
   , LogMessage (..)
   , logMessage
   ) where
 
-import           Control.Monad.IO.Class (MonadIO)
-import           Control.Monad.Logger   (Loc, LogLevel (..), LogSource, LogStr,
-                                         LoggingT (runLoggingT), fromLogStr)
-import qualified Data.Text              as T
-import qualified Data.Text.Encoding     as T
-import           Data.Time.LocalTime    (ZonedTime, getZonedTime)
-import           Data.Time.RFC3339
-import qualified Data.Vector            as V
-import qualified Mviz.Utils.Ringbuffer  as RB
+import           Control.Monad.Logger  (Loc, LogLevel (..), LogSource, LogStr,
+                                        fromLogStr)
+import qualified Data.Text             as T
+import qualified Data.Text.Encoding    as T
+import           Data.Time.LocalTime   (ZonedTime, getZonedTime)
+import           Data.Time.RFC3339     (formatTimeRFC3339)
+import qualified Data.Vector           as V
+import qualified Mviz.Utils.Ringbuffer as RB
 
 class Monad m => MonadLog m where
   getLogVector :: m (V.Vector LogMessage)
@@ -39,6 +37,3 @@ ringBufferOutput :: RB.Ringbuffer LogMessage -> Loc -> LogSource -> LogLevel -> 
 ringBufferOutput buffer loc src lvl str = do
   timestamp <- getZonedTime
   RB.put buffer $ LogMessage timestamp loc src lvl str
-
-runRingbufferLoggingT :: (MonadIO m) => RB.Ringbuffer LogMessage -> LoggingT m a -> m a
-runRingbufferLoggingT ringBuffer = (`runLoggingT` ringBufferOutput ringBuffer)
