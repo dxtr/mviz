@@ -10,18 +10,21 @@ import           Control.Monad              (unless, when)
 import           Control.Monad.IO.Class     (MonadIO, liftIO)
 import           Control.Monad.Logger       (MonadLogger, logDebugN, logInfo)
 import           Control.Monad.Reader       (MonadReader, ask)
+import           Control.Monad.Reader.Class (asks)
 import           Control.Monad.Trans.Except (ExceptT (..), runExceptT)
 import           Control.Monad.Trans.Maybe  (MaybeT (MaybeT), runMaybeT)
-import           Data.IORef                 (newIORef, readIORef)
+import           Data.IORef                 (newIORef, readIORef, writeIORef)
 import qualified Data.Map                   as M
 import qualified Data.Text                  as T
 import           Data.Word                  (Word16)
 import qualified Graphics.Rendering.OpenGL  as OpenGL
 import           ImGui                      (checkVersion)
 import qualified Mviz.Audio
-import           Mviz.Audio.Types           (HasBufferSize, HasPorts,
-                                             HasSampleRate, MonadAudio,
-                                             MonadAudioClient (..))
+import           Mviz.Audio.Types           (ClientAudioMessage (..),
+                                             HasBufferSize (getBufferSizeRef),
+                                             HasPorts (getPortsRef),
+                                             HasSampleRate (getSampleRateRef),
+                                             MonadAudio, MonadAudioClient (..))
 import qualified Mviz.GL                    (vendor, version)
 import           Mviz.Logger                (MonadLog (..), ringBufferOutput)
 import qualified Mviz.SDL
@@ -59,6 +62,20 @@ calculateFramerate = do
                                    })
     else modifyFramerate $ fps { mvizFramerateCounter = frames + 1 }
 
+handleAudioMessage ::
+  ( HasPorts r
+  , HasSampleRate r
+  , HasBufferSize r
+  , MonadIO m
+  , MonadReader r m
+  ) => ClientAudioMessage -> m ()
+handleAudioMessage (Ports ports) = asks getPortsRef >>= \portsRef ->
+  liftIO $ writeIORef portsRef ports
+handleAudioMessage (SampleRate sr) = asks getSampleRateRef >>= \srRef ->
+  liftIO $ writeIORef srRef sr
+handleAudioMessage (BufferSize bs) = asks getBufferSizeRef >>= \bsRef ->
+  liftIO $ writeIORef bsRef bs
+
 mainLoop :: (MonadReader e m,
              MonadFramerate m,
              MonadLogger m,
@@ -84,6 +101,7 @@ mainLoop = do
   _ <- runMaybeT $ do
     audioMessage <- MaybeT clientRecvMessage
     logDebugN $ "Audio message: " <> T.pack (show audioMessage)
+    handleAudioMessage audioMessage
     -- TODO: Handle audio messages
 
   events <- liftIO Mviz.UI.collectEvents
@@ -92,13 +110,9 @@ mainLoop = do
   OpenGL.clearColor OpenGL.$= OpenGL.Color4 0 0 0 1
   liftIO $ OpenGL.clear [OpenGL.ColorBuffer]
 
-  -- environment <- ask
-  -- Render the UI
-  -- showUI <- liftIO $ readIORef $ mvizShowUI environment
   showUI <- isUIShown
   when showUI Mviz.UI.render
 
---  let wnd = getWindow
   swapWindowBuffers
   unless doQuit mainLoop
 

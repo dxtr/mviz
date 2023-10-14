@@ -45,6 +45,8 @@ module ImGui.Raw
   , endChild
   , lastItemData
   , isItemHovered
+  , treeNode
+  , treePop
   ) where
 
 import           Control.Monad.IO.Class (MonadIO, liftIO)
@@ -258,3 +260,10 @@ lastItemData :: (MonadIO m) => m ImGuiLastItemData
 lastItemData = liftIO $ do
   res <- [C.exp| ImGuiLastItemData* { &(GImGui->LastItemData) } |]
   peek res
+
+-- Trees
+treeNode :: (MonadIO m) => CString -> m Bool
+treeNode label = liftIO $ (0 /=) <$> [C.exp| bool { TreeNode($(char* label)) } |]
+
+treePop :: MonadIO m => m ()
+treePop = liftIO [C.exp| void { TreePop() } |]

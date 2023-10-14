@@ -34,8 +34,7 @@ data AudioError
 
 -- Messages directed to the client
 data ClientAudioMessage
-  = Port String -- Inform the client about a port
-  | Ports [T.Text]
+  = Ports [T.Text]
   | SampleRate Int -- Inform the client about the sample rate
   | BufferSize Int -- Inform the client about the buffer size
   deriving (Show)

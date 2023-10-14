@@ -1,4 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use mapM_" #-}
 
 module Mviz.UI.SettingsWindow
   ( HasSettingsWindow (..)
@@ -9,7 +11,9 @@ module Mviz.UI.SettingsWindow
 import           Control.Monad          (when)
 import           Control.Monad.IO.Class (liftIO)
 import qualified Data.Text              as T
-import           ImGui                  (beginGroup, endGroup, textUnformatted)
+import           ImGui                  (beginGroup, beginListBox, defaultSize,
+                                         endGroup, endListBox, selectable,
+                                         textUnformatted)
 import           Mviz.UI.Types          (MonadUI)
 import           Mviz.UI.UIWindow       (SettingsWindow)
 
@@ -37,11 +41,14 @@ renderStaticText sampleRate bufferSize = do
 renderSettingsWindow :: ( MonadUI m
                         , MonadSettingsWindow m
                         ) => Int -> Int -> [T.Text] -> m ()
-renderSettingsWindow sampleRate bufferSize _ports = do
+renderSettingsWindow sampleRate bufferSize ports = do
     isOpen <- isSettingsWindowOpen
     when isOpen $ do
         closed <- openSettingsWindow windowTitle $ do
+            -- TODO: Return the selected ports
             _ <- liftIO $ renderStaticText sampleRate bufferSize
-            -- TODO: Render the content of the window
+                >> (beginListBox "Ports" =<< defaultSize)
+                >> mapM (\p -> selectable p False []) ports
+                >> endListBox
             return ()
         setSettingsWindowOpen closed

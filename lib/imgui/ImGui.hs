@@ -35,6 +35,8 @@ module ImGui ( Context
              , Raw.beginItemTooltip
              , Raw.endTooltip
              , Raw.isItemHovered
+             , treeNode
+             , Raw.treePop
              ) where
 
 import           Control.Exception       (bracket)
@@ -107,6 +109,9 @@ withListBox label size func =
 
 -- Text
 textUnformatted :: MonadIO m => T.Text -> m ()
-textUnformatted text = liftIO $ TF.withCString text $ \textPtr -> Raw.textUnformatted textPtr
+textUnformatted text = liftIO $ TF.withCString text Raw.textUnformatted
 
--- Tooltip
+-- Trees
+treeNode :: MonadIO m => T.Text -> m Bool
+treeNode label = liftIO $ TF.withCString label Raw.treeNode
+
