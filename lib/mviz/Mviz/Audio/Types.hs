@@ -10,6 +10,10 @@ module Mviz.Audio.Types
   , ClientAudioMessage (..)
   , MonadAudioServer (..)
   , MonadAudioClient (..)
+  , HasBufferSize (..)
+  , HasSampleRate (..)
+  , HasPorts (..)
+  , MonadAudio (..)
   ) where
 
 import           Control.Concurrent.STM              (TQueue)
@@ -17,6 +21,7 @@ import           Control.Exception                   (Exception)
 import qualified Control.Monad.Exception.Synchronous as Sync
 import           Control.Monad.Trans.Class           (lift)
 import           Control.Monad.Trans.Maybe           (MaybeT)
+import           Data.IORef                          (IORef)
 import qualified Data.Text                           as T
 import qualified Sound.JACK                          as JACK
 import qualified Sound.JACK.Exception                as JACKE
@@ -43,6 +48,11 @@ data ServerAudioMessage
   deriving (Show)
 
 instance Exception AudioError
+
+class Monad m => MonadAudio m where
+  audioPorts :: m [T.Text]
+  audioBufferSize :: m Int
+  audioSampleRate :: m Int
 
 class Monad m => MonadJack m where
   jackAction :: JackReturnType a -> m a
@@ -74,6 +84,15 @@ class HasClientChannel a where
 
 class HasServerChannel a where
   getServerChannel :: a -> TQueue ServerAudioMessage
+
+class HasBufferSize a where
+  getBufferSizeRef :: a -> IORef Int
+
+class HasSampleRate a where
+  getSampleRateRef :: a -> IORef Int
+
+class HasPorts a where
+  getPortsRef :: a -> IORef [T.Text]
 
 -- class HasRecvChannel a where
 --   getRecvChannel :: a -> TQueue ServerAudioMessage

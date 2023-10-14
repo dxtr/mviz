@@ -19,7 +19,9 @@ import           Data.Word                  (Word16)
 import qualified Graphics.Rendering.OpenGL  as OpenGL
 import           ImGui                      (checkVersion)
 import qualified Mviz.Audio
-import           Mviz.Audio.Types           (MonadAudioClient (..))
+import           Mviz.Audio.Types           (HasBufferSize, HasPorts,
+                                             HasSampleRate, MonadAudio,
+                                             MonadAudioClient (..))
 import qualified Mviz.GL                    (vendor, version)
 import           Mviz.Logger                (MonadLog (..), ringBufferOutput)
 import qualified Mviz.SDL
@@ -67,9 +69,13 @@ mainLoop :: (MonadReader e m,
              MonadUI m,
              MonadDrawWindow m,
              MonadAudioClient m,
+             MonadAudio m,
              HasWindow e,
              HasUI e,
              HasFramerate e,
+             HasSampleRate e,
+             HasBufferSize e,
+             HasPorts e,
              HasWindow e) => m ()
 mainLoop = do
   calculateFramerate
@@ -78,6 +84,7 @@ mainLoop = do
   _ <- runMaybeT $ do
     audioMessage <- MaybeT clientRecvMessage
     logDebugN $ "Audio message: " <> T.pack (show audioMessage)
+    -- TODO: Handle audio messages
 
   events <- liftIO Mviz.UI.collectEvents
   let doQuit = Mviz.Window.Events.Quit `elem` events

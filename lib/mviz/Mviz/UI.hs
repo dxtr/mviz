@@ -30,15 +30,15 @@ import           Mviz.Logger               (MonadLog (..))
 -- import           Mviz.SDL                  (glContext, sdlWindow)
 -- import           Mviz.Types                (MvizEnvironment (..))
 import           Data.Functor              ((<&>))
-import           Mviz.Audio.Types          (MonadJack)
+import           Mviz.Audio.Types          (MonadAudio (..))
 import           Mviz.UI.LogWindow         (MonadLogWindow (..),
                                             renderLogWindow)
 import           Mviz.UI.SettingsWindow    (MonadSettingsWindow,
                                             renderSettingsWindow)
-import           Mviz.UI.Types
+import           Mviz.UI.Types             (HasUI, MonadUI, UIContext)
 import           Mviz.Utils                ((<&&>))
 import           Mviz.Window.Events        (Event (IgnoredEvent, Quit, WindowResized))
-import           Mviz.Window.Types
+import           Mviz.Window.Types         (HasNativeWindow (..))
 import qualified SDL                       (EventPayload (QuitEvent, WindowResizedEvent),
                                             V2 (..),
                                             WindowResizedEventData (..),
@@ -97,14 +97,19 @@ render :: ( HasUI e
           , MonadSettingsWindow m
           , MonadLog m
           , MonadUI m
+          , MonadAudio m
           ) => m ()
 render = do
   _ <- liftIO $ do
     newFrame
     ImGui.showDemoWindow
 
+  sampleRate <- audioSampleRate
+  bufferSize <- audioBufferSize
+  ports <- audioPorts
+
   renderLogWindow
-  -- renderSettingsWindow
+  renderSettingsWindow sampleRate bufferSize ports
 
   ImGui.render
   ImGui.GL.glRenderDrawData =<< ImGui.getDrawData
