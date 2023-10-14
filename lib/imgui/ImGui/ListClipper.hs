@@ -21,5 +21,5 @@ withClipper itemsCount itemsHeight = bracket
     initFunc count height = do
           clipper <- Raw.new
           Raw.begin clipper count height
-          return clipper
+          pure clipper
 

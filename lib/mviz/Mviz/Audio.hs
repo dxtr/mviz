@@ -93,7 +93,7 @@ audioLoop = do
   -- rc <- recvChannel
   msg <- serverRecvMessage
   case msg of
-    Just _  -> return ()
+    Just _  -> pure ()
     Nothing -> audioLoop
 
 -- audioLoop :: ( HasAudioClient e
@@ -126,7 +126,7 @@ runAudioSystem sendChan recvChan = do
     bufferSize >>= serverSendMessage . BufferSize -- Send the configured buffer size to the client
     ports >>= serverSendMessage . Ports
     audioLoop
-  return ()
+  pure ()
   where runAudio environment (AudioM action) = runReaderT action environment
 
 shutdown :: (MonadIO m) => TQueue ServerAudioMessage -> m ()

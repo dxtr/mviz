@@ -148,7 +148,7 @@ beginCloseable name flags = liftIO $ do
     with (1 :: CBool) $ \pOpen -> do
     collapsed <- (0 /=) <$> [C.exp| bool { Begin($(char* namePtr), $(bool* pOpen), $(ImGuiWindowFlags flags')) } |]
     pOpen' <- (0 /=) <$> peek pOpen
-    return (collapsed, pOpen')
+    pure (collapsed, pOpen')
   where flags' = combineFlags flags
 
 begin :: (MonadIO m) => T.Text -> [WindowFlag] -> m Bool

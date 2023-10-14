@@ -9,7 +9,7 @@ module Mviz.UI.SettingsWindow
   ) where
 
 import           Control.Monad          (when)
-import           Control.Monad.IO.Class (liftIO)
+import           Control.Monad.IO.Class (MonadIO, liftIO)
 import qualified Data.Text              as T
 import           ImGui                  (beginGroup, beginListBox, defaultSize,
                                          endGroup, endListBox, selectable,
@@ -31,12 +31,21 @@ windowId = "settingswindow"
 windowTitle :: T.Text
 windowTitle = "Settings##" <> windowId
 
-renderStaticText :: Int -> Int -> IO ()
+renderStaticText :: MonadIO m => Int -> Int -> m ()
 renderStaticText sampleRate bufferSize = do
     beginGroup
     _ <- textUnformatted $ "Sample rate: " <> T.pack (show sampleRate)
     _ <- textUnformatted $ "Buffer size: " <> T.pack (show bufferSize)
     endGroup
+
+renderPortBox :: MonadIO m => [T.Text] -> m [Bool]
+renderPortBox ports = do
+    beginGroup
+    liftIO $ (beginListBox "Ports" =<< defaultSize)
+        >> mapM (\p -> selectable p False []) ports
+        >>= \s -> endListBox
+            >> endGroup
+            >> pure s
 
 renderSettingsWindow :: ( MonadUI m
                         , MonadSettingsWindow m
@@ -47,8 +56,6 @@ renderSettingsWindow sampleRate bufferSize ports = do
         closed <- openSettingsWindow windowTitle $ do
             -- TODO: Return the selected ports
             _ <- liftIO $ renderStaticText sampleRate bufferSize
-                >> (beginListBox "Ports" =<< defaultSize)
-                >> mapM (\p -> selectable p False []) ports
-                >> endListBox
-            return ()
+                >> renderPortBox ports
+            pure ()
         setSettingsWindowOpen closed

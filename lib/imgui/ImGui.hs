@@ -56,7 +56,7 @@ getVersion :: MonadIO m => m T.Text
 getVersion = liftIO $ do
   ver <- Raw.getVersion
   verStr <- peekCString ver
-  return $ T.pack verStr
+  pure $ T.pack verStr
 
 fltMin :: MonadIO m => m Float
 fltMin = realToFrac <$> Raw.fltMin
@@ -80,7 +80,7 @@ withCloseableWindow label flags func =
                   (const Raw.end)
                   (\(notCollapsed, pOpen) -> do
                       when notCollapsed $ runInIO func
-                      return pOpen)
+                      pure pOpen)
 
 withChild :: MonadUnliftIO m => T.Text -> ImVec2 -> Bool -> [WindowFlag] -> m () -> m ()
 withChild label size border flags func =

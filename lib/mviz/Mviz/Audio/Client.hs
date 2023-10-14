@@ -27,7 +27,7 @@ jackAction :: (MonadIO m) => JackReturnType a -> m a
 jackAction action = do
   actionRes <- liftIO . Sync.toEitherT . Sync.mapExceptionT mapJackException $ action
   case actionRes of
-    Right r -> return r
+    Right r -> pure r
     Left e  -> liftIO $ throwIO e
 
 createClient :: (MonadIO m) => String -> m JACK.Client

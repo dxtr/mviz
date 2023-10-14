@@ -43,7 +43,7 @@ make_ items = do
   idx <- liftIO $ newIORef 0
   buf <- liftIO . V.thaw $ V.fromList items
   -- buf <- mapM newIORef items
-  return $ Ringbuffer { ringIndex = idx
+  pure $ Ringbuffer { ringIndex = idx
                       , ringSize = foldl' (\c _ -> c + 1) 0 items
                       , ringBuffer = buf
                       }
@@ -60,13 +60,13 @@ put ringBuffer@Ringbuffer{ringBuffer = buffer} newItem =
   >>= \idx -> do
     liftIO $ MV.write buffer idx (Just newItem)
     _ <- updateIndex ringBuffer
-    return ()
+    pure ()
 
 toList' :: (MonadIO m) => Ringbuffer a -> Int -> Int -> [Maybe a] -> m [Maybe a]
 toList' rb@Ringbuffer{ringBuffer = buffer} endIndex cIdx acc
   | endIndex == cIdx = do
     currItem <- liftIO $ MV.read buffer cIdx
-    return $ acc ++ [currItem]
+    pure $ acc ++ [currItem]
   | otherwise = do
     currItem <- liftIO $ MV.read buffer cIdx
     toList' rb endIndex (previousIndex' rb cIdx) (acc ++ [currItem])

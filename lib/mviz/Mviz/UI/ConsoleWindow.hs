@@ -17,4 +17,4 @@ data ConsoleWindow = ConsoleWindow
   }
 
 renderConsoleWindow :: IO ()
-renderConsoleWindow = return ()
+renderConsoleWindow = pure ()

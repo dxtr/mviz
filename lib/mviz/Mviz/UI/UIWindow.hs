@@ -25,7 +25,7 @@ makeLogWindow :: Bool -> IO LogWindow
 makeLogWindow showWindow = do
   selectedLine <- newIORef (-1)
   windowOpen <- newIORef showWindow
-  return $ LogWindow{ logWindowInputBuffer = ""
+  pure $ LogWindow{ logWindowInputBuffer = ""
                     , logWindowAutoScroll = True
                     , logWindowSelectedLine = selectedLine
                     , logWindowOpen = windowOpen
@@ -34,4 +34,4 @@ makeLogWindow showWindow = do
 makeSettingsWindow :: Bool -> IO SettingsWindow
 makeSettingsWindow showWindow = do
   windowOpen <- newIORef showWindow
-  return $ SettingsWindow{ settingsWindowOpen = windowOpen }
+  pure $ SettingsWindow{ settingsWindowOpen = windowOpen }

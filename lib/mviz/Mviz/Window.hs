@@ -59,7 +59,7 @@ createWindow :: (MonadUnliftIO m) => T.Text -> Bool -> m Window
 createWindow title vsync = do
   wnd <- Mviz.SDL.createWindow title
   glContext <- Mviz.SDL.createGlContext wnd vsync
-  return Window { windowHandle = wnd, windowGlContext = glContext }
+  pure Window { windowHandle = wnd, windowGlContext = glContext }
 
 destroyWindow :: (MonadUnliftIO m, HasNativeWindow a) => a -> m ()
 destroyWindow win = do

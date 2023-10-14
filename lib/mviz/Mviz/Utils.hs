@@ -24,8 +24,8 @@ whileM' p f = go
                 then do
                         x'  <- f
                         xs <- go
-                        return (return x' `mplus` xs)
-                else return mzero
+                        pure (pure x' `mplus` xs)
+                else pure mzero
 
 whileM_ :: (Monad m) => m Bool -> m a -> m ()
 whileM_ p f = go
@@ -40,7 +40,7 @@ untilM' :: (Monad m, MonadPlus f) => m a -> m Bool -> m (f a)
 f `untilM'` p = do
         x  <- f
         xs <- whileM' (fmap not p) f
-        return (return x `mplus` xs)
+        pure (pure x `mplus` xs)
 
 untilM_ :: (Monad m) => m a -> m Bool -> m ()
 f `untilM_` p = f >> whileM_ (fmap not p) f

@@ -53,7 +53,7 @@ initialize window = do
   ImGui.styleColorsDark
   success <- ImGui.SDL.sdlInit wnd ctx <&&> ImGui.GL.glInit
   -- TODO: Actually get a proper error message here
-  return (if success then Right () else Left ())
+  pure (if success then Right () else Left ())
  where
   wnd = getNativeWindow window
   ctx = getGLContext window
@@ -134,5 +134,5 @@ pollEvent = runMaybeT (MaybeT ImGui.SDL.sdlPollEvent <&> (translateEvent . SDL.e
 collectEvents :: IO [Mviz.Window.Events.Event]
 collectEvents = pollEvent >>= f
  where
-  f Nothing  = return []
+  f Nothing  = pure []
   f (Just e) = (e :) <$> collectEvents

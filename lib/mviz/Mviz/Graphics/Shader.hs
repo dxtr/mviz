@@ -42,7 +42,7 @@ createShader sType sSource = do
   GL.compileShader newShader
   compiled <- compileStatus newShader
   infoLog <- shaderInfoLog newShader
-  return (if compiled then Right newShader else Left infoLog)
+  pure (if compiled then Right newShader else Left infoLog)
 
 createShader' :: ShaderSource -> IO (Either String Shader)
 createShader' ShaderSource{shaderType = sType, shaderSource = sSource} =
@@ -62,7 +62,7 @@ createProgram :: [ShaderSource] -> IO (Either String Program)
 createProgram shaderSources = do
   newProgram <- GL.createProgram
   shaderResult <- runExceptT $ mapM (ExceptT . createShader') shaderSources
-  return $ case attachShaders newProgram <$> shaderResult of
+  pure $ case attachShaders newProgram <$> shaderResult of
     Left msg -> Left msg
     Right _  -> Right newProgram
 

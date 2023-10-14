@@ -76,7 +76,7 @@ createWindow title = do
     Nothing -> do
 --      glCtx <- liftIO $ createGlContext wnd vsync
 --      SDL.glMakeCurrent wnd glCtx
-      return wnd
+      pure wnd
     Just e  -> throwIO $ SDLMessage e
 
 destroyWindow :: (MonadIO m) => SDLWindow -> m ()
@@ -90,7 +90,7 @@ createGlContext_ :: (MonadIO m) => SDLWindow -> SDL.SwapInterval -> m SDL.GLCont
 createGlContext_ window swapInterval = do
   context <- SDL.glCreateContext window
   SDL.swapInterval SDL.$= swapInterval
-  return context
+  pure context
 
 showWindow :: (MonadIO m) => SDLWindow -> m ()
 showWindow = SDL.showWindow
@@ -109,19 +109,19 @@ swapWindow = SDL.glSwapWindow
 getWindowSize :: (MonadIO m) => SDLWindow -> m Size
 getWindowSize window = do
   SDL.V2 width height <- SDL.get $ SDL.windowSize window
-  return $ Size{sizeWidth = fromIntegral width, sizeHeight = fromIntegral height}
+  pure $ Size{sizeWidth = fromIntegral width, sizeHeight = fromIntegral height}
 
 getDrawableSize :: (MonadIO m) => SDLWindow -> m Size
 getDrawableSize window = do
   SDL.V2 width height <- SDL.glGetDrawableSize window
-  return $ Size{sizeWidth = fromIntegral width, sizeHeight = fromIntegral height}
+  pure $ Size{sizeWidth = fromIntegral width, sizeHeight = fromIntegral height}
 
 getScalingFactor :: (MonadIO m) => SDLWindow -> m (Float, Float)
 getScalingFactor window = do
   Size{sizeWidth = windowWidth, sizeHeight = windowHeight} <- getWindowSize window
   Size{sizeWidth = drawableWidth, sizeHeight = drawableHeight} <-
     getDrawableSize window
-  return
+  pure
     ( fromIntegral drawableWidth/ fromIntegral windowWidth
     , fromIntegral drawableHeight / fromIntegral windowHeight
     )
@@ -140,6 +140,6 @@ getError :: IO (Maybe T.Text)
 getError = do
   errMsg <- SDL.Raw.Error.getError
   errMsgStr <- peekCString errMsg
-  return $ case length errMsgStr of
+  pure $ case length errMsgStr of
     0 -> Nothing
     _ -> Just $ T.pack errMsgStr

@@ -60,7 +60,7 @@ instance Storable ImVec2 where
   peek ptr = do
     x <- peek (castPtr ptr)
     y <- peek (castPtr ptr `plusPtr` sizeOf x)
-    return ImVec2 { x, y }
+    pure ImVec2 { x, y }
 
 instance Storable ImVec3 where
   sizeOf :: ImVec3 -> Int
@@ -80,7 +80,7 @@ instance Storable ImVec3 where
     x <- peek (castPtr ptr)
     y <- peek (castPtr ptr `plusPtr` sizeOf x)
     z <- peek (castPtr ptr `plusPtr` (sizeOf x * 2))
-    return ImVec3{ x, y, z }
+    pure ImVec3{ x, y, z }
 
 instance Storable ImVec4 where
   sizeOf :: ImVec4 -> Int
@@ -102,7 +102,7 @@ instance Storable ImVec4 where
     y <- peek (castPtr ptr `plusPtr` sizeOf x)
     z <- peek (castPtr ptr `plusPtr` (sizeOf x * 2))
     w <- peek (castPtr ptr `plusPtr` (sizeOf x * 3))
-    return ImVec4{ x, y, z, w }
+    pure ImVec4{ x, y, z, w }
 
 instance Storable ImRect where
   sizeOf :: ImRect -> Int
@@ -120,7 +120,7 @@ instance Storable ImRect where
   peek ptr = do
     rectMin <- peek (castPtr ptr)
     rectMax <- peek (castPtr ptr `plusPtr` sizeOf rectMin)
-    return ImRect{ rectMin, rectMax}
+    pure ImRect{ rectMin, rectMax}
 
 instance Storable ImGuiLastItemData where
   sizeOf :: ImGuiLastItemData -> Int
@@ -169,7 +169,7 @@ instance Storable ImGuiLastItemData where
 
     let lastItemDisplayRectOffset = lastItemNavRectOffset + sizeOf lastItemNavRect
     lastItemDisplayRect <- peek (castPtr ptr `plusPtr` lastItemDisplayRectOffset)
-    return ImGuiLastItemData{ lastItemID, lastItemFlags, lastItemStatusFlags, lastItemRect, lastItemNavRect, lastItemDisplayRect }
+    pure ImGuiLastItemData{ lastItemID, lastItemFlags, lastItemStatusFlags, lastItemRect, lastItemNavRect, lastItemDisplayRect }
 
 
 

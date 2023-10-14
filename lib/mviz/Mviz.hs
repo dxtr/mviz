@@ -153,7 +153,7 @@ startup = do
                                   , mvizFramerateCounter = 0
                                   }
   shaders <- newIORef M.empty
-  return $ MvizEnvironment { mvizWindow = wnd
+  pure $ MvizEnvironment { mvizWindow = wnd
                            , mvizUIContext = uiContext
                            , mvizAudioThread = audioThread
                            , mvizAudioSendChannel = audioSendChannel
@@ -183,9 +183,9 @@ cleanup
   >> destroyWindow wnd
   >> Mviz.SDL.quit
   >> wait audioThread
-  >> return ()
+  >> pure ()
 
 main :: IO ()
 main = bracket startup cleanup $ \env -> do
   _ <- runMviz env run
-  return ()
+  pure ()
