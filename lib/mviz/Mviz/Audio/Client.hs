@@ -45,8 +45,10 @@ deactivateClient = jackAction . JACK.deactivate
 getPorts :: (MonadIO m) => JACK.Client -> m [T.Text]
 getPorts client = liftIO (JACK.getPorts client <&> fmap T.pack)
 
-getBufferSize :: (MonadIO m) => JACK.Client -> m Int
-getBufferSize = liftIO . JACK.getBufferSize
+getBufferSize :: (MonadIO m) => JACK.Client -> m Word
+getBufferSize client =
+  liftIO (JACK.getBufferSize client <&> fromIntegral)
 
-getSampleRate :: (MonadIO m) => JACK.Client -> m Int
-getSampleRate = liftIO . JACK.getSampleRate
+getSampleRate :: (MonadIO m) => JACK.Client -> m Word
+getSampleRate client =
+  liftIO (JACK.getSampleRate client <&> fromIntegral)

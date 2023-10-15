@@ -37,6 +37,7 @@ module ImGui ( Context
              , Raw.isItemHovered
              , treeNode
              , Raw.treePop
+             , collapsingHeader
              ) where
 
 import           Control.Exception       (bracket)
@@ -115,3 +116,8 @@ textUnformatted text = liftIO $ TF.withCString text Raw.textUnformatted
 treeNode :: MonadIO m => T.Text -> m Bool
 treeNode label = liftIO $ TF.withCString label Raw.treeNode
 
+-- Collapsing header
+collapsingHeader :: MonadIO m => T.Text -> [TreeNodeFlag] -> m Bool
+collapsingHeader label flags = do
+  liftIO $ TF.withCString label (`Raw.collapsingHeader` flags)
+--  liftIO $ TF.withCString label $ \l -> Raw.collapsingHeader l flags

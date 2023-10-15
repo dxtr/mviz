@@ -35,8 +35,8 @@ data AudioError
 -- Messages directed to the client
 data ClientAudioMessage
   = Ports [T.Text]
-  | SampleRate Int -- Inform the client about the sample rate
-  | BufferSize Int -- Inform the client about the buffer size
+  | SampleRate Word -- Inform the client about the sample rate
+  | BufferSize Word -- Inform the client about the buffer size
   deriving (Show)
 
 -- Messages directed to the server
@@ -50,8 +50,8 @@ instance Exception AudioError
 
 class Monad m => MonadAudio m where
   audioPorts :: m [T.Text]
-  audioBufferSize :: m Int
-  audioSampleRate :: m Int
+  audioBufferSize :: m Word
+  audioSampleRate :: m Word
 
 class Monad m => MonadJack m where
   jackAction :: JackReturnType a -> m a
@@ -59,8 +59,8 @@ class Monad m => MonadJack m where
   deactivateClient :: m ()
 --   closeClient :: m ()
   ports :: m [T.Text]
-  bufferSize :: m Int
-  sampleRate :: m Int
+  bufferSize :: m Word
+  sampleRate :: m Word
 
 class Monad m => MonadAudioServer m where
   serverRecvChannel :: m (TQueue ServerAudioMessage)
@@ -85,10 +85,10 @@ class HasServerChannel a where
   getServerChannel :: a -> TQueue ServerAudioMessage
 
 class HasBufferSize a where
-  getBufferSizeRef :: a -> IORef Int
+  getBufferSizeRef :: a -> IORef Word
 
 class HasSampleRate a where
-  getSampleRateRef :: a -> IORef Int
+  getSampleRateRef :: a -> IORef Word
 
 class HasPorts a where
   getPortsRef :: a -> IORef [T.Text]

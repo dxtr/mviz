@@ -73,8 +73,8 @@ data MvizEnvironment = MvizEnvironment
   , mvizAudioThread      :: Async ()
   , mvizAudioSendChannel :: TQueue ServerAudioMessage
   , mvizAudioRecvChannel :: TQueue ClientAudioMessage
-  , mvizAudioSampleRate  :: IORef Int
-  , mvizAudioBufferSize  :: IORef Int
+  , mvizAudioSampleRate  :: IORef Word
+  , mvizAudioBufferSize  :: IORef Word
   , mvizAudioPorts       :: IORef [T.Text]
   , mvizLog              :: RB.Ringbuffer LogMessage
   , mvizShowUI           :: IORef Bool
@@ -237,10 +237,10 @@ instance (HasPorts env, HasBufferSize env, HasSampleRate env) => MonadAudio (Mvi
   audioPorts :: HasPorts env => MvizM env [T.Text]
   audioPorts = ask >>= liftIO . readIORef . getPortsRef
 
-  audioBufferSize :: HasBufferSize env => MvizM env Int
+  audioBufferSize :: HasBufferSize env => MvizM env Word
   audioBufferSize = ask >>= liftIO . readIORef . getBufferSizeRef
 
-  audioSampleRate :: HasSampleRate env => MvizM env Int
+  audioSampleRate :: HasSampleRate env => MvizM env Word
   audioSampleRate = ask >>= liftIO . readIORef . getSampleRateRef
 
 instance (HasLog env) => MonadLogger (MvizM env) where

@@ -47,6 +47,7 @@ module ImGui.Raw
   , isItemHovered
   , treeNode
   , treePop
+  , collapsingHeader
   ) where
 
 import           Control.Monad.IO.Class (MonadIO, liftIO)
@@ -56,8 +57,8 @@ import           Foreign                (Ptr, Storable (peek), alloca, fromBool,
                                          with)
 import           Foreign.C              (CString)
 import           Foreign.C.Types        (CBool (..), CFloat (..), CInt (CInt))
-import           ImGui.Enums            (SelectableFlag, WindowFlag,
-                                         combineFlags)
+import           ImGui.Enums            (SelectableFlag, TreeNodeFlag,
+                                         WindowFlag, combineFlags)
 import           ImGui.Raw.Context      as CTX (imguiContext)
 import           ImGui.Raw.Structs      (ImGuiContext, ImGuiLastItemData,
                                          ImVec2)
@@ -267,3 +268,8 @@ treeNode label = liftIO $ (0 /=) <$> [C.exp| bool { TreeNode($(char* label)) } |
 
 treePop :: MonadIO m => m ()
 treePop = liftIO [C.exp| void { TreePop() } |]
+
+-- Collapsing header
+collapsingHeader :: (MonadIO m) => CString -> [TreeNodeFlag] -> m Bool
+collapsingHeader label flags = liftIO $ (0 /=) <$> [C.exp| bool { CollapsingHeader($(char* label), $(ImGuiTreeNodeFlags flags')) } |]
+  where flags' = combineFlags flags

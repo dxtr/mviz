@@ -6,6 +6,7 @@ module ImGui.Enums
     , SelectableFlag(..)
     , ItemFlag(..)
     , ItemStatusFlag(..)
+    , TreeNodeFlag (..)
     , fromFlag
     , combineFlags
     , hasFlag
@@ -93,7 +94,26 @@ data ItemStatusFlag
   | ItemStatusFlagInputable
   deriving (Eq, Enum)
 
+data TreeNodeFlag
+  = TreeNodeFlagSelected
+  | TreeNodeFlagFramed
+  | TreeNodeFlagAllowOverlap
+  | TreeNodeFlagNoTreePushOnOpen
+  | TreeNodeFlagNoAutoOpenOnLog
+  | TreeNodeFlagDefaultOpen
+  | TreeNodeFlagOpenOnDoubleClick
+  | TreeNodeFlagOpenOnArrow
+  | TreeNodeFlagLeaf
+  | TreeNodeFlagBullet
+  | TreeNodeFlagFramePadding
+  | TreeNodeFlagSpanAvailWidth
+  | TreeNodeFlagSpanFullWidth
+  | TreeNodeFlagNavLeftJumpsBackHere
+  | TreeNodeFlagCollapsingHeader
+  deriving (Eq, Enum)
+
 instance ImguiFlag WindowFlag
 instance ImguiFlag SelectableFlag
 instance ImguiFlag ItemFlag
 instance ImguiFlag ItemStatusFlag
+instance ImguiFlag TreeNodeFlag

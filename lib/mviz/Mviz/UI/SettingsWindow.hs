@@ -31,7 +31,7 @@ windowId = "settingswindow"
 windowTitle :: T.Text
 windowTitle = "Settings##" <> windowId
 
-renderStaticText :: MonadIO m => Int -> Int -> m ()
+renderStaticText :: MonadIO m => Word -> Word -> m ()
 renderStaticText sampleRate bufferSize = do
     beginGroup
     _ <- textUnformatted $ "Sample rate: " <> T.pack (show sampleRate)
@@ -47,9 +47,15 @@ renderPortBox ports = do
             >> endGroup
             >> pure s
 
+renderShaderList :: MonadIO m => m ()
+renderShaderList = do
+    beginGroup
+    _ <- textUnformatted "TODO: Shaders"
+    endGroup
+
 renderSettingsWindow :: ( MonadUI m
                         , MonadSettingsWindow m
-                        ) => Int -> Int -> [T.Text] -> m ()
+                        ) => Word -> Word -> [T.Text] -> m ()
 renderSettingsWindow sampleRate bufferSize ports = do
     isOpen <- isSettingsWindowOpen
     when isOpen $ do
@@ -57,5 +63,6 @@ renderSettingsWindow sampleRate bufferSize ports = do
             -- TODO: Return the selected ports
             _ <- liftIO $ renderStaticText sampleRate bufferSize
                 >> renderPortBox ports
+                >> renderShaderList
             pure ()
         setSettingsWindowOpen closed

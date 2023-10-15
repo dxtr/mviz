@@ -63,12 +63,11 @@ instance (HasAudioClient env) => MonadJack (AudioM env) where
   ports :: HasAudioClient env => AudioM env [T.Text]
   ports = ask >>= Client.getPorts . getAudioClient
 
-  bufferSize :: HasAudioClient env => AudioM env Int
+  bufferSize :: HasAudioClient env => AudioM env Word
   bufferSize = ask >>= Client.getBufferSize . getAudioClient
 
-  sampleRate :: HasAudioClient env => AudioM env Int
+  sampleRate :: HasAudioClient env => AudioM env Word
   sampleRate = ask >>= Client.getSampleRate . getAudioClient
--- --  closeClient = ask >>= Client.closeClient . getAudioClient
 
 instance (HasServerChannel env, HasClientChannel env) => MonadAudioServer (AudioM env) where
   serverRecvChannel :: (HasServerChannel env, HasClientChannel env) => AudioM env (TQueue ServerAudioMessage)
