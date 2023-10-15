@@ -55,9 +55,6 @@ class Monad m => MonadAudio m where
 
 class Monad m => MonadJack m where
   jackAction :: JackReturnType a -> m a
-  activateClient :: m ()
-  deactivateClient :: m ()
---   closeClient :: m ()
   ports :: m [T.Text]
   bufferSize :: m Word
   sampleRate :: m Word

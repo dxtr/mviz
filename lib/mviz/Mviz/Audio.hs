@@ -54,12 +54,6 @@ instance (HasAudioClient env) => MonadJack (AudioM env) where
   jackAction :: HasAudioClient env => JackReturnType a -> AudioM env a
   jackAction = Client.jackAction
 
-  activateClient :: HasAudioClient env => AudioM env ()
-  activateClient = ask >>= Client.activateClient . getAudioClient
-
-  deactivateClient :: HasAudioClient env => AudioM env ()
-  deactivateClient = ask >>= Client.deactivateClient . getAudioClient
-
   ports :: HasAudioClient env => AudioM env [T.Text]
   ports = ask >>= Client.getPorts . getAudioClient
 
@@ -95,19 +89,8 @@ audioLoop = do
     Just _  -> pure ()
     Nothing -> audioLoop
 
--- audioLoop :: ( HasAudioClient e
---              , HasRecvChannel e
---              , MonadReader e m
---              , MonadAudioServer m
---              ) => m ()
--- audioLoop = do
-
-
 clientName :: String
 clientName = "mviz"
-
--- runAudio :: AudioState -> AudioM AudioState a -> IO a
--- runAudio environment (AudioM action) = runReaderT action environment
 
 runAudioSystem
 --  :: (MonadIO m)
@@ -115,17 +98,19 @@ runAudioSystem
   -> TQueue ServerAudioMessage
   -> IO ()
 runAudioSystem sendChan recvChan = do
-  client <- Client.createClient clientName
-  let state = AudioState { audioSendChannel = sendChan
-                         , audioRecvChannel = recvChan
-                         , audioClient = client
-                         }
-  _ <- runAudio state $ do
-    sampleRate >>= serverSendMessage . SampleRate -- Send the configured sample rate to the client
-    bufferSize >>= serverSendMessage . BufferSize -- Send the configured buffer size to the client
-    ports >>= serverSendMessage . Ports
-    audioLoop
-  pure ()
+  Client.withClient clientName $ \c -> do
+    let state = AudioState { audioSendChannel = sendChan
+                           , audioRecvChannel = recvChan
+                           , audioClient = c
+                           }
+    runAudio state $ do
+      sampleRate >>= serverSendMessage . SampleRate -- Send the configured sample rate to the client
+      bufferSize >>= serverSendMessage . BufferSize -- Send the configured buffer size to the client
+      ports >>= serverSendMessage . Ports
+      -- TODO: Create some ports
+      -- TODO: Set the process callback
+      -- TODO: Set the shutdown callback
+      Client.withActivation c audioLoop
   where runAudio environment (AudioM action) = runReaderT action environment
 
 shutdown :: (MonadIO m) => TQueue ServerAudioMessage -> m ()
