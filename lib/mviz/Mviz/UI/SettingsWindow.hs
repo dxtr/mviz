@@ -8,14 +8,14 @@ module Mviz.UI.SettingsWindow
   , renderSettingsWindow
   ) where
 
-import           Control.Monad          (when)
+import           Control.Monad          (void, when)
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 import qualified Data.Text              as T
-import           ImGui                  (beginGroup, beginListBox, defaultSize,
-                                         endGroup, endListBox, selectable,
-                                         textUnformatted)
+import           ImGui                  (beginGroup, endGroup, selectable,
+                                         textUnformatted, withCollapsingHeader)
 import           Mviz.UI.Types          (MonadUI)
 import           Mviz.UI.UIWindow       (SettingsWindow)
+import           UnliftIO               (MonadUnliftIO)
 
 class HasSettingsWindow a where
     getSettingsWindow :: a -> SettingsWindow
@@ -34,23 +34,23 @@ windowTitle = "Settings##" <> windowId
 renderStaticText :: MonadIO m => Word -> Word -> m ()
 renderStaticText sampleRate bufferSize = do
     beginGroup
-    _ <- textUnformatted $ "Sample rate: " <> T.pack (show sampleRate)
+    _ <- textUnformatted $ "Sample rate: " <> T.pack (show sampleRate) <> " Hz"
     _ <- textUnformatted $ "Buffer size: " <> T.pack (show bufferSize)
     endGroup
 
-renderPortBox :: MonadIO m => [T.Text] -> m [Bool]
+renderPortBox :: MonadUnliftIO m => [T.Text] -> m ()
 renderPortBox ports = do
     beginGroup
-    liftIO $ (beginListBox "Ports" =<< defaultSize)
-        >> mapM (\p -> selectable p False []) ports
-        >>= \s -> endListBox
-            >> endGroup
-            >> pure s
+    withCollapsingHeader "Ports" [] $ do
+        mapM (\p -> selectable p False []) ports
+        >>= \_s -> pure ()
+    endGroup
 
-renderShaderList :: MonadIO m => m ()
+renderShaderList :: MonadUnliftIO m => m ()
 renderShaderList = do
     beginGroup
-    _ <- textUnformatted "TODO: Shaders"
+    withCollapsingHeader "Shaders" [] $ do
+        void (selectable "Shader 1" False [])
     endGroup
 
 renderSettingsWindow :: ( MonadUI m
@@ -60,7 +60,7 @@ renderSettingsWindow sampleRate bufferSize ports = do
     isOpen <- isSettingsWindowOpen
     when isOpen $ do
         closed <- openSettingsWindow windowTitle $ do
-            -- TODO: Return the selected ports
+            -- TODO: Do something with the selected port and shader
             _ <- liftIO $ renderStaticText sampleRate bufferSize
                 >> renderPortBox ports
                 >> renderShaderList

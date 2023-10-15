@@ -38,6 +38,7 @@ module ImGui ( Context
              , treeNode
              , Raw.treePop
              , collapsingHeader
+             , withCollapsingHeader
              ) where
 
 import           Control.Exception       (bracket)
@@ -121,3 +122,10 @@ collapsingHeader :: MonadIO m => T.Text -> [TreeNodeFlag] -> m Bool
 collapsingHeader label flags = do
   liftIO $ TF.withCString label (`Raw.collapsingHeader` flags)
 --  liftIO $ TF.withCString label $ \l -> Raw.collapsingHeader l flags
+
+withCollapsingHeader :: MonadUnliftIO m => T.Text -> [TreeNodeFlag] -> m () -> m ()
+withCollapsingHeader label flags func =
+  withRunInIO $ \runInIO ->
+    bracket (collapsingHeader label flags)
+            (`when` pure ())
+            (`when` runInIO func)
