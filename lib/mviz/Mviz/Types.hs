@@ -95,8 +95,6 @@ newtype MvizM e a = MvizM { unMvizM :: ReaderT e IO a }
     , MonadReader e
     )
 
--- Type classes and instances
-
 class HasFramerate a where
   getFramerate :: a -> IORef MvizFramerate
 

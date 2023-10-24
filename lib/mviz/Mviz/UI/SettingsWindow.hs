@@ -11,8 +11,10 @@ module Mviz.UI.SettingsWindow
 import           Control.Monad          (void, when)
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 import qualified Data.Text              as T
-import           ImGui                  (beginGroup, endGroup, selectable,
-                                         textUnformatted, withCollapsingHeader)
+import           ImGui                  (ImVec2 (ImVec2), beginGroup, endGroup,
+                                         sameLine, selectable, textUnformatted,
+                                         withCollapsingHeader, withGroup,
+                                         withListBox)
 import           Mviz.UI.Types          (MonadUI)
 import           Mviz.UI.UIWindow       (SettingsWindow)
 import           UnliftIO               (MonadUnliftIO)
@@ -40,11 +42,18 @@ renderStaticText sampleRate bufferSize = do
 
 renderPortBox :: MonadUnliftIO m => [T.Text] -> m ()
 renderPortBox ports = do
-    beginGroup
     withCollapsingHeader "Ports" [] $ do
-        mapM (\p -> selectable p False []) ports
-        >>= \_s -> pure ()
-    endGroup
+        let size = ImVec2 0.0 0.0
+        withGroup $ do
+            withListBox "Inputs" size $ do
+                _ <- mapM (\p -> selectable p False []) ports
+                pure ()
+        sameLine
+        withGroup $ do
+            withListBox "Channels" size $ do
+                _ <- selectable "Foo" False []
+                pure ()
+        pure ()
 
 renderShaderList :: MonadUnliftIO m => m ()
 renderShaderList = do

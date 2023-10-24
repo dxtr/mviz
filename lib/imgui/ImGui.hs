@@ -1,3 +1,4 @@
+{-# LANGUAGE BlockArguments #-}
 module ImGui ( Context
              , ImVec2(..)
              , ImVec3 (..)
@@ -39,18 +40,23 @@ module ImGui ( Context
              , Raw.treePop
              , collapsingHeader
              , withCollapsingHeader
+             , checkbox
+             , Raw.sameLine
+             , withGroup
              ) where
 
-import           Control.Exception       (bracket)
 import           Control.Monad           (when)
 import           Control.Monad.IO.Class  (MonadIO, liftIO)
-import           Control.Monad.IO.Unlift (MonadUnliftIO, withRunInIO)
+import           Control.Monad.IO.Unlift (MonadUnliftIO)
+import           Data.Bool               (bool)
 import qualified Data.Text               as T
 import qualified Data.Text.Foreign       as TF
+import           Foreign                 (peek, with)
 import           Foreign.C.String        (peekCString)
-import           ImGui.Enums
+import           ImGui.Enums             (TreeNodeFlag, WindowFlag (..))
 import qualified ImGui.Raw               as Raw
-import           ImGui.Structs
+import           ImGui.Structs           (ImVec2 (..), ImVec3 (..))
+import           UnliftIO                (bracket, bracket_)
 
 type Context = Raw.Context
 
@@ -68,29 +74,23 @@ defaultSize = ImVec2 <$> fltMin <*> fltMin
 
 withWindow :: MonadUnliftIO m => T.Text -> [WindowFlag] -> m () -> m ()
 withWindow label flags func =
-  withRunInIO $ \runInIO ->
-                  bracket
-                  (Raw.begin label flags)
-                  (const Raw.end)
-                  (`when` runInIO func)
+  bracket (Raw.begin label flags)
+          (const Raw.end)
+          (`when` func)
 
 withCloseableWindow :: MonadUnliftIO m => T.Text -> [WindowFlag] -> m () -> m Bool
 withCloseableWindow label flags func =
-  withRunInIO $ \runInIO ->
-                  bracket
-                  (Raw.beginCloseable label flags)
-                  (const Raw.end)
-                  (\(notCollapsed, pOpen) -> do
-                      when notCollapsed $ runInIO func
-                      pure pOpen)
+  bracket (Raw.beginCloseable label flags)
+          (const Raw.end)
+          (\(notCollapsed, pOpen) -> do
+            when notCollapsed func
+            pure pOpen)
 
 withChild :: MonadUnliftIO m => T.Text -> ImVec2 -> Bool -> [WindowFlag] -> m () -> m ()
 withChild label size border flags func =
-  withRunInIO $ \runInIO ->
-                  bracket
-                  (Raw.beginChild label size border flags)
-                  (`when` Raw.endChild)
-                  (`when` runInIO func)
+  bracket (Raw.beginChild label size border flags)
+          (`when` Raw.endChild)
+          (`when` func)
 
 -- Listbox
 beginListBox :: MonadIO m => T.Text -> ImVec2 -> m Bool
@@ -103,11 +103,9 @@ endListBox = Raw.endListBox
 
 withListBox :: MonadUnliftIO m => T.Text -> ImVec2 -> m () -> m ()
 withListBox label size func =
-  withRunInIO $ \runInIO ->
-                  bracket
-                  (beginListBox label size)
-                  (`when` endListBox)
-                  (`when` runInIO func)
+  bracket (beginListBox label size)
+          (`when` endListBox)
+          (`when` func)
 
 -- Text
 textUnformatted :: MonadIO m => T.Text -> m ()
@@ -119,13 +117,27 @@ treeNode label = liftIO $ TF.withCString label Raw.treeNode
 
 -- Collapsing header
 collapsingHeader :: MonadIO m => T.Text -> [TreeNodeFlag] -> m Bool
-collapsingHeader label flags = do
-  liftIO $ TF.withCString label (`Raw.collapsingHeader` flags)
---  liftIO $ TF.withCString label $ \l -> Raw.collapsingHeader l flags
+collapsingHeader label flags = liftIO $ TF.withCString label (`Raw.collapsingHeader` flags)
 
 withCollapsingHeader :: MonadUnliftIO m => T.Text -> [TreeNodeFlag] -> m () -> m ()
 withCollapsingHeader label flags func =
-  withRunInIO $ \runInIO ->
     bracket (collapsingHeader label flags)
             (`when` pure ())
-            (`when` runInIO func)
+            (`when` func)
+
+-- Checkbox
+checkbox :: (MonadIO m) => T.Text -> Bool -> m (Bool, Bool)
+checkbox label selected = liftIO $
+  with (bool 0 1 selected) \boolPtr -> do
+    changed <- TF.withCString label (`Raw.checkbox` boolPtr)
+    peek boolPtr >>= \newValue -> return (changed, newValue == 1)
+    -- if changed then
+    --   peek boolPtr >>= \newValue -> return (True, newValue == 1)
+    -- else
+    --   return (False, selected)
+
+-- Groups
+withGroup :: MonadUnliftIO m => m a -> m a
+withGroup = bracket_ Raw.beginGroup Raw.endGroup
+--  withRunInIO $ \runInIO ->
+--    bracket_ Raw.beginGroup Raw.endGroup (runInIO f)

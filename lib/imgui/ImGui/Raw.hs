@@ -48,6 +48,7 @@ module ImGui.Raw
   , treeNode
   , treePop
   , collapsingHeader
+  , checkbox
   ) where
 
 import           Control.Monad.IO.Class (MonadIO, liftIO)
@@ -273,3 +274,8 @@ treePop = liftIO [C.exp| void { TreePop() } |]
 collapsingHeader :: (MonadIO m) => CString -> [TreeNodeFlag] -> m Bool
 collapsingHeader label flags = liftIO $ (0 /=) <$> [C.exp| bool { CollapsingHeader($(char* label), $(ImGuiTreeNodeFlags flags')) } |]
   where flags' = combineFlags flags
+
+-- Checkbox
+checkbox :: (MonadIO m) => CString -> Ptr CBool -> m Bool
+checkbox labelPtr boolPtr = liftIO $ do
+  (0 /=) <$> [C.exp| bool { Checkbox($(char* labelPtr), $(bool* boolPtr)) } |]
