@@ -49,6 +49,10 @@ module ImGui.Raw
   , treePop
   , collapsingHeader
   , checkbox
+  , contentRegionAvail
+  , calcTextSize
+  , itemSpacing
+  , itemInnerSpacing
   ) where
 
 import           Control.Monad.IO.Class (MonadIO, liftIO)
@@ -62,7 +66,7 @@ import           ImGui.Enums            (SelectableFlag, TreeNodeFlag,
                                          WindowFlag, combineFlags)
 import           ImGui.Raw.Context      as CTX (imguiContext)
 import           ImGui.Raw.Structs      (ImGuiContext, ImGuiLastItemData,
-                                         ImVec2)
+                                         ImVec2 (..))
 import           ImGui.Types            (DrawData (..))
 import qualified Language.C.Inline      as C
 import qualified Language.C.Inline.Cpp  as Cpp
@@ -70,7 +74,7 @@ import qualified Language.C.Inline.Cpp  as Cpp
 C.context (C.baseCtx <> Cpp.cppCtx <> C.bsCtx <> CTX.imguiContext)
 C.include "imgui.h"
 C.include "imgui_internal.h"
-Cpp.using "namespace ImGui";
+Cpp.using "namespace ImGui"
 
 newtype Context = Context (Ptr ImGuiContext)
 
@@ -119,6 +123,41 @@ styleColorsDark = liftIO [C.exp| void { StyleColorsDark(); } |]
 styleColorsLight :: (MonadIO m) => m ()
 styleColorsLight = liftIO [C.exp| void { StyleColorsLight(); } |]
 
+contentRegionAvail :: (MonadIO m) => m ImVec2
+contentRegionAvail = liftIO $
+  alloca $ \szPtr -> do
+    [C.exp| void { *$(ImVec2* szPtr) = GetContentRegionAvail(); } |]
+    peek szPtr
+
+calcTextSize :: (MonadIO m) => T.Text -> Bool -> m ImVec2
+calcTextSize text hideText = liftIO $
+  alloca $ \szPtr ->
+    withCString text $ \textPtr -> do
+      [C.exp| void { *$(ImVec2* szPtr) = CalcTextSize($(char* textPtr), NULL, $(bool cHideText)); } |]
+      peek szPtr
+  where cHideText = fromBool hideText :: CBool
+
+itemSpacing :: (MonadIO m) => m ImVec2
+itemSpacing = liftIO $
+  peek =<< [C.block|
+    ImVec2* {
+      ImGuiContext& g = *GImGui;
+      ImGuiStyle& style = g.Style;
+      return &style.ItemSpacing;
+    }
+  |]
+
+itemInnerSpacing :: (MonadIO m) => m ImVec2
+itemInnerSpacing = liftIO $
+  peek =<< [C.block|
+    ImVec2* {
+      ImGuiContext& g = *GImGui;
+      ImGuiStyle& style = g.Style;
+      return &style.ItemInnerSpacing;
+    }
+  |]
+
+
 --- Context
 createContext :: (MonadIO m) => m Context
 createContext = liftIO $ Context <$> [C.exp| ImGuiContext* { CreateContext() } |]
@@ -136,12 +175,10 @@ setCurrentContext (Context contextPtr) = liftIO $ do
 
 --- Frame
 newFrame :: (MonadIO m) => m ()
-newFrame = liftIO $ do
-  [C.exp| void { NewFrame(); } |]
+newFrame = liftIO [C.exp| void { NewFrame(); } |]
 
 endFrame :: (MonadIO m) => m ()
-endFrame = liftIO $ do
-  [C.exp| void { EndFrame(); } |]
+endFrame = liftIO [C.exp| void { EndFrame(); } |]
 
 --- Window
 beginCloseable :: (MonadIO m) => T.Text -> [WindowFlag] -> m (Bool, Bool)

@@ -43,6 +43,10 @@ module ImGui ( Context
              , checkbox
              , Raw.sameLine
              , withGroup
+             , Raw.contentRegionAvail
+             , Raw.calcTextSize
+             , Raw.itemSpacing
+             , Raw.itemInnerSpacing
              ) where
 
 import           Control.Monad           (when)
