@@ -105,13 +105,13 @@ beginListBox label size = liftIO $
 endListBox :: MonadIO m => m ()
 endListBox = Raw.endListBox
 
-withListBox :: MonadUnliftIO m => T.Text -> ImVec2 -> m a -> m (Either () a)
+withListBox :: MonadUnliftIO m => T.Text -> ImVec2 -> m a -> m (Maybe a)
 withListBox label size func =
   bracket (beginListBox label size)
           (`when` endListBox)
           runFunc
-  where runFunc True  = Right <$> func
-        runFunc False = pure $ Left ()
+  where runFunc False = pure Nothing
+        runFunc True  = Just <$> func
 
 -- Text
 textUnformatted :: MonadIO m => T.Text -> m ()
@@ -125,11 +125,10 @@ treeNode label = liftIO $ TF.withCString label Raw.treeNode
 collapsingHeader :: MonadIO m => T.Text -> [TreeNodeFlag] -> m Bool
 collapsingHeader label flags = liftIO $ TF.withCString label (`Raw.collapsingHeader` flags)
 
-withCollapsingHeader :: MonadUnliftIO m => T.Text -> [TreeNodeFlag] -> m () -> m ()
-withCollapsingHeader label flags func =
+withCollapsingHeader :: MonadUnliftIO m => T.Text -> [TreeNodeFlag] -> (Bool -> m a) -> m a
+withCollapsingHeader label flags =
     bracket (collapsingHeader label flags)
             (`when` pure ())
-            (`when` func)
 
 -- Checkbox
 checkbox :: (MonadIO m) => T.Text -> Bool -> m (Bool, Bool)

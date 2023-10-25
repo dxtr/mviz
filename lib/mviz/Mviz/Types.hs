@@ -43,10 +43,10 @@ import           Mviz.UI                  (render)
 import           Mviz.UI.LogWindow        (HasLogWindow (..),
                                            MonadLogWindow (..))
 import           Mviz.UI.SettingsWindow   (HasSettingsWindow (getSettingsWindow),
-                                           MonadSettingsWindow (isSettingsWindowOpen, openSettingsWindow, setSettingsWindowOpen))
+                                           MonadSettingsWindow (..))
 import           Mviz.UI.Types            (HasUI (..), MonadUI (..), UIContext)
 import           Mviz.UI.UIWindow         (LogWindow (..),
-                                           SettingsWindow (settingsWindowOpen))
+                                           SettingsWindow (settingsCheckedChannels, settingsSelectedInput, settingsWindowOpen))
 import qualified Mviz.Utils.Ringbuffer    as RB
 import           Mviz.Window              (MonadDrawWindow (..),
                                            MonadHideWindow (..),
@@ -181,9 +181,20 @@ instance (HasSettingsWindow env) => MonadSettingsWindow (MvizM env) where
   isSettingsWindowOpen = liftIO . readIORef . settingsWindowOpen =<< asks getSettingsWindow
 
   setSettingsWindowOpen :: HasSettingsWindow env => Bool -> MvizM env ()
-  setSettingsWindowOpen newValue = do
-    wnd <- asks getSettingsWindow
-    liftIO $ atomicWriteIORef (settingsWindowOpen wnd) newValue
+  setSettingsWindowOpen = (asks getSettingsWindow >>=) . (liftIO .) . flip (atomicWriteIORef . settingsWindowOpen)
+    -- liftIO $ atomicWriteIORef (settingsWindowOpen wnd) newValue
+
+  setSelectedInput :: HasSettingsWindow env => Maybe T.Text -> MvizM env ()
+  setSelectedInput = (asks getSettingsWindow >>=) . (liftIO .) . flip (atomicWriteIORef . settingsSelectedInput)
+
+  getSelectedInput :: HasSettingsWindow env => MvizM env (Maybe T.Text)
+  getSelectedInput = liftIO . readIORef . settingsSelectedInput =<< asks getSettingsWindow
+
+  setSelectedChannels :: HasSettingsWindow env => [T.Text] -> MvizM env ()
+  setSelectedChannels = (asks getSettingsWindow >>=) . (liftIO .) . flip (atomicWriteIORef . settingsCheckedChannels)
+
+  getSelectedChannels :: HasSettingsWindow env => MvizM env [T.Text]
+  getSelectedChannels = liftIO . readIORef . settingsCheckedChannels =<< asks getSettingsWindow
 
 instance (HasNativeWindow env) => MonadShowWindow (MvizM env) where
   showWindow :: HasNativeWindow env => MvizM env ()

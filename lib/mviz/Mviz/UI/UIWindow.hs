@@ -19,19 +19,29 @@ data LogWindow = LogWindow
   }
 
 data SettingsWindow = SettingsWindow
-  { settingsWindowOpen       :: IORef Bool }
+  { settingsWindowOpen      :: IORef Bool
+  , settingsSelectedInput   :: IORef (Maybe T.Text)
+  , settingsCheckedChannels :: IORef [T.Text]
+  }
 
 makeLogWindow :: Bool -> IO LogWindow
 makeLogWindow showWindow = do
   selectedLine <- newIORef (-1)
   windowOpen <- newIORef showWindow
-  pure $ LogWindow{ logWindowInputBuffer = ""
-                    , logWindowAutoScroll = True
-                    , logWindowSelectedLine = selectedLine
-                    , logWindowOpen = windowOpen
-                    }
+  pure $ LogWindow { logWindowInputBuffer = ""
+                   , logWindowAutoScroll = True
+                   , logWindowSelectedLine = selectedLine
+                   , logWindowOpen = windowOpen
+                   }
 
+-- TODO: Should be able to initialize this from
+-- a configuration file for example.
 makeSettingsWindow :: Bool -> IO SettingsWindow
 makeSettingsWindow showWindow = do
   windowOpen <- newIORef showWindow
-  pure $ SettingsWindow{ settingsWindowOpen = windowOpen }
+  selectedInput <- newIORef Nothing
+  checkedChannels <- newIORef []
+  pure $ SettingsWindow { settingsWindowOpen = windowOpen
+                        , settingsSelectedInput = selectedInput
+                        , settingsCheckedChannels = checkedChannels
+                        }

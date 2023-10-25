@@ -29,6 +29,7 @@ import           Mviz.GL                   (GLMakeCurrent (..),
 import           Mviz.Logger               (MonadLog (..))
 -- import           Mviz.SDL                  (glContext, sdlWindow)
 -- import           Mviz.Types                (MvizEnvironment (..))
+import           Control.Monad.Logger      (MonadLogger)
 import           Data.Functor              ((<&>))
 import           Mviz.Audio.Types          (MonadAudio (..))
 import           Mviz.UI.LogWindow         (MonadLogWindow (..),
@@ -96,6 +97,7 @@ render :: ( HasUI e
           , MonadLogWindow m
           , MonadSettingsWindow m
           , MonadLog m
+          , MonadLogger m
           , MonadUI m
           , MonadAudio m
           ) => m ()
@@ -106,10 +108,10 @@ render = do
 
   sampleRate <- audioSampleRate
   bufferSize <- audioBufferSize
-  ports <- audioPorts
+  inputs <- audioInputs
 
   renderLogWindow
-  renderSettingsWindow sampleRate bufferSize ports
+  renderSettingsWindow sampleRate bufferSize inputs
 
   ImGui.render
   ImGui.GL.glRenderDrawData =<< ImGui.getDrawData
