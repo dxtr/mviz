@@ -15,7 +15,7 @@ import           Control.Monad.Logger      (MonadLogger, logDebugN)
 import           Control.Monad.Trans.Maybe (MaybeT (MaybeT, runMaybeT),
                                             hoistMaybe)
 import           Data.List                 (sort, uncons)
-import           Data.Maybe                (fromJust, fromMaybe, isJust)
+import           Data.Maybe                (fromMaybe)
 import qualified Data.Text                 as T
 import           ImGui                     (ImVec2 (ImVec2), beginGroup,
                                             calcTextSize, checkbox,
