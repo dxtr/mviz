@@ -11,9 +11,11 @@ module Mviz.UI.SettingsWindow
 import           Control.Monad          (void, when)
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 import qualified Data.Text              as T
-import           ImGui                  (ImVec2 (ImVec2), beginGroup, endGroup,
-                                         sameLine, selectable, textUnformatted,
-                                         withCollapsingHeader, withGroup,
+import           ImGui                  (ImVec2 (ImVec2), beginGroup,
+                                         calcTextSize, checkbox,
+                                         contentRegionAvail, endGroup,
+                                         itemSpacing, sameLine, selectable,
+                                         textUnformatted, withCollapsingHeader,
                                          withListBox)
 import           Mviz.UI.Types          (MonadUI)
 import           Mviz.UI.UIWindow       (SettingsWindow)
@@ -43,16 +45,19 @@ renderStaticText sampleRate bufferSize = do
 renderPortBox :: MonadUnliftIO m => [T.Text] -> m ()
 renderPortBox ports = do
     withCollapsingHeader "Ports" [] $ do
-        let size = ImVec2 0.0 0.0
-        withGroup $ do
-            withListBox "Inputs" size $ do
-                _ <- mapM (\p -> selectable p False []) ports
-                pure ()
+        ImVec2 regionSizeX _ <- contentRegionAvail
+        ImVec2 spacingX _ <- itemSpacing
+        let sizeX = regionSizeX * 0.5
+        let calcSize = flip subtract (sizeX - spacingX)
+        ImVec2 inputsLabelSize _ <- calcTextSize "Inputs" True
+        _ <- withListBox "Inputs" (ImVec2 (calcSize inputsLabelSize) 0.0) $ do
+            mapM (\p -> (p, ) <$> selectable p False []) ports
         sameLine
-        withGroup $ do
-            withListBox "Channels" size $ do
-                _ <- selectable "Foo" False []
-                pure ()
+        ImVec2 channelsLabelSize _ <- calcTextSize "Channels" True
+        _ <- withListBox "Channels" (ImVec2 (calcSize channelsLabelSize) 0.0) $ do
+            _ <- checkbox "Foo" False
+            _ <- checkbox "Bar" True
+            pure ()
         pure ()
 
 renderShaderList :: MonadUnliftIO m => m ()

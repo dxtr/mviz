@@ -13,8 +13,10 @@ import           Control.Monad.IO.Class  (MonadIO, liftIO)
 import           Control.Monad.IO.Unlift (MonadUnliftIO)
 import           Control.Monad.Reader    (MonadReader, ReaderT, ask, asks,
                                           runReaderT)
+import           Data.Functor            ((<&>))
 import qualified Data.Text               as T
 import qualified Mviz.Audio.Client       as Client
+import           Mviz.Audio.Inputs       (InputMap, mkInputMap)
 import           Mviz.Audio.Types        (ClientAudioMessage (..),
                                           HasAudioClient (..),
                                           HasClientChannel (..),
@@ -57,6 +59,9 @@ instance (HasAudioClient env) => MonadJack (AudioM env) where
   ports :: HasAudioClient env => AudioM env [T.Text]
   ports = ask >>= Client.getPorts . getAudioClient
 
+  inputs :: HasAudioClient env => AudioM env InputMap
+  inputs = ports <&> mkInputMap
+
   bufferSize :: HasAudioClient env => AudioM env Word
   bufferSize = ask >>= Client.getBufferSize . getAudioClient
 
@@ -76,18 +81,27 @@ instance (HasServerChannel env, HasClientChannel env) => MonadAudioServer (Audio
   serverSendMessage :: (HasServerChannel env, HasClientChannel env) => ClientAudioMessage -> AudioM env ()
   serverSendMessage msg = serverSendChannel >>= \c -> liftIO . atomically $ writeTQueue c msg
 
+data Progress = Stop | Continue
+
+handleAudioMessage :: (MonadAudioServer m, MonadJack m) => ServerAudioMessage -> m Progress
+handleAudioMessage Quit          = pure Stop
+handleAudioMessage GetBufferSize = bufferSize >>= serverSendMessage . BufferSize >> pure Continue
+handleAudioMessage GetSampleRate = sampleRate >>= serverSendMessage . SampleRate >> pure Continue
+handleAudioMessage GetInputs = inputs >>= serverSendMessage . Inputs >> pure Continue
+
 audioLoop :: ( HasAudioClient e
              , HasServerChannel e
              , MonadReader e m
              , MonadAudioServer m
+             , MonadJack m
              ) => m ()
 audioLoop = do
 --  state <- ask
   -- rc <- recvChannel
-  msg <- serverRecvMessage
+  msg <- maybe (pure Continue) handleAudioMessage =<< serverRecvMessage
   case msg of
-    Just _  -> pure ()
-    Nothing -> audioLoop
+    Stop     -> pure ()
+    Continue -> audioLoop
 
 clientName :: String
 clientName = "mviz"
@@ -107,6 +121,7 @@ runAudioSystem sendChan recvChan = do
       sampleRate >>= serverSendMessage . SampleRate -- Send the configured sample rate to the client
       bufferSize >>= serverSendMessage . BufferSize -- Send the configured buffer size to the client
       ports >>= serverSendMessage . Ports
+      inputs >>= serverSendMessage . Inputs
       -- TODO: Create some ports
       -- TODO: Set the process callback
       -- TODO: Set the shutdown callback

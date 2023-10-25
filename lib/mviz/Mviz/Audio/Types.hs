@@ -12,17 +12,19 @@ module Mviz.Audio.Types
   , MonadAudioClient (..)
   , HasBufferSize (..)
   , HasSampleRate (..)
-  , HasPorts (..)
   , MonadAudio (..)
+  , HasInputs (..)
   ) where
 
 import           Control.Concurrent.STM              (TQueue)
 import           Control.Exception                   (Exception)
 import qualified Control.Monad.Exception.Synchronous as Sync
+import           Control.Monad.IO.Class              (MonadIO)
 import           Control.Monad.Trans.Class           (lift)
 import           Control.Monad.Trans.Maybe           (MaybeT)
 import           Data.IORef                          (IORef)
 import qualified Data.Text                           as T
+import           Mviz.Audio.Inputs                   (InputMap)
 import qualified Sound.JACK                          as JACK
 import qualified Sound.JACK.Exception                as JACKE
 
@@ -35,6 +37,7 @@ data AudioError
 -- Messages directed to the client
 data ClientAudioMessage
   = Ports [T.Text]
+  | Inputs InputMap
   | SampleRate Word -- Inform the client about the sample rate
   | BufferSize Word -- Inform the client about the buffer size
   deriving (Show)
@@ -44,18 +47,21 @@ data ServerAudioMessage
   = Quit -- Tell the server to quit
   | GetSampleRate
   | GetBufferSize
+  | GetInputs
   deriving (Show)
 
 instance Exception AudioError
 
 class Monad m => MonadAudio m where
   audioPorts :: m [T.Text]
+  audioInputs :: m InputMap
   audioBufferSize :: m Word
   audioSampleRate :: m Word
 
 class Monad m => MonadJack m where
   jackAction :: JackReturnType a -> m a
   ports :: m [T.Text]
+  inputs :: m InputMap
   bufferSize :: m Word
   sampleRate :: m Word
 
@@ -87,8 +93,12 @@ class HasBufferSize a where
 class HasSampleRate a where
   getSampleRateRef :: a -> IORef Word
 
-class HasPorts a where
+-- class HasPorts a where
+--  getPortsRef :: a -> IORef [T.Text]
+
+class HasInputs a where
   getPortsRef :: a -> IORef [T.Text]
+  getInputsRef :: a -> IORef InputMap
 
 -- class HasRecvChannel a where
 --   getRecvChannel :: a -> TQueue ServerAudioMessage

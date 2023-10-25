@@ -9,8 +9,8 @@ module Mviz.Window.Types
 import qualified Mviz.SDL.Types as Mviz.SDL
 
 data Window = Window
-  { windowHandle    :: Mviz.SDL.SDLWindow
-  , windowGlContext :: Mviz.SDL.GLContext
+  { windowHandle    :: !Mviz.SDL.SDLWindow
+  , windowGlContext :: !Mviz.SDL.GLContext
   }
 
 data WindowMode = Fullscreen | FullscreenDesktop | Windowed

@@ -105,11 +105,13 @@ beginListBox label size = liftIO $
 endListBox :: MonadIO m => m ()
 endListBox = Raw.endListBox
 
-withListBox :: MonadUnliftIO m => T.Text -> ImVec2 -> m () -> m ()
+withListBox :: MonadUnliftIO m => T.Text -> ImVec2 -> m a -> m (Either () a)
 withListBox label size func =
   bracket (beginListBox label size)
           (`when` endListBox)
-          (`when` func)
+          runFunc
+  where runFunc True  = Right <$> func
+        runFunc False = pure $ Left ()
 
 -- Text
 textUnformatted :: MonadIO m => T.Text -> m ()

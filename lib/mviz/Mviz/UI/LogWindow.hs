@@ -61,7 +61,8 @@ renderTooltip (Loc locFilename _ locModule (sLine,_) _) = do
 renderListBox :: V.Vector LogMessage -> IO ()
 renderListBox logMessages = do
 --  listBoxSize <- ImGui.defaultSize
-  ImGui.withListBox listBoxTitle listBoxSize $ mapM_ renderLogLine logMessages
+  _ <- ImGui.withListBox listBoxTitle listBoxSize $ mapM_ renderLogLine logMessages
+  pure ()
   where
     listBoxTitle = "##log"
     listBoxSize = ImGui.ImVec2 (-1.0) (-1.0)

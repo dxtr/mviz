@@ -25,10 +25,11 @@ import qualified Data.Text                as T
 import qualified Data.Vector              as V
 import           Data.Word                (Word16, Word64)
 import qualified ImGui
+import           Mviz.Audio.Inputs        (InputMap)
 import           Mviz.Audio.Types         (ClientAudioMessage,
                                            HasBufferSize (getBufferSizeRef),
                                            HasClientChannel (..),
-                                           HasPorts (getPortsRef),
+                                           HasInputs (..),
                                            HasSampleRate (getSampleRateRef),
                                            HasServerChannel (..),
                                            MonadAudio (..),
@@ -76,6 +77,7 @@ data MvizEnvironment = MvizEnvironment
   , mvizAudioSampleRate  :: IORef Word
   , mvizAudioBufferSize  :: IORef Word
   , mvizAudioPorts       :: IORef [T.Text]
+  , mvizAudioInputs      :: IORef InputMap
   , mvizLog              :: RB.Ringbuffer LogMessage
   , mvizShowUI           :: IORef Bool
   , mvizFPS              :: IORef MvizFramerate
@@ -144,14 +146,18 @@ instance HasServerChannel MvizEnvironment where
   getServerChannel = mvizAudioSendChannel
 
 instance HasSampleRate MvizEnvironment where
+  getSampleRateRef :: MvizEnvironment -> IORef Word
   getSampleRateRef = mvizAudioSampleRate
 
 instance HasBufferSize MvizEnvironment where
+  getBufferSizeRef :: MvizEnvironment -> IORef Word
   getBufferSizeRef = mvizAudioBufferSize
 
-instance HasPorts MvizEnvironment where
+instance HasInputs MvizEnvironment where
+  getPortsRef :: MvizEnvironment -> IORef [T.Text]
   getPortsRef = mvizAudioPorts
-
+  getInputsRef :: MvizEnvironment -> IORef InputMap
+  getInputsRef = mvizAudioInputs
 
 instance (HasWindow env) => MonadWindow (MvizM env) where
   getWindowM :: HasWindow env => MvizM env Window
@@ -159,28 +165,20 @@ instance (HasWindow env) => MonadWindow (MvizM env) where
 
 instance (HasLogWindow env) => MonadLogWindow (MvizM env) where
   openLogWindow :: HasLogWindow env => T.Text -> MvizM env () -> MvizM env Bool
-  openLogWindow label func = do
-    ImGui.withCloseableWindow label [] func
+  openLogWindow label = ImGui.withCloseableWindow label []
 
   isLogWindowOpen :: HasLogWindow env => MvizM env Bool
-  isLogWindowOpen = do
-    wnd <- asks getLogWindow
-    liftIO $ readIORef $ logWindowOpen wnd
+  isLogWindowOpen =  liftIO . readIORef . logWindowOpen =<< asks getLogWindow
 
   setLogWindowOpen :: HasLogWindow env => Bool -> MvizM env ()
-  setLogWindowOpen newValue = do
-    wnd <- asks getLogWindow
-    liftIO $ atomicWriteIORef (logWindowOpen wnd) newValue
+  setLogWindowOpen = (asks getLogWindow >>=) . (liftIO .) . flip (atomicWriteIORef . logWindowOpen)
 
 instance (HasSettingsWindow env) => MonadSettingsWindow (MvizM env) where
   openSettingsWindow :: HasSettingsWindow env => T.Text -> MvizM env () -> MvizM env Bool
-  openSettingsWindow label func = do
-    ImGui.withCloseableWindow label [] func
+  openSettingsWindow label = ImGui.withCloseableWindow label []
 
   isSettingsWindowOpen :: HasSettingsWindow env => MvizM env Bool
-  isSettingsWindowOpen = do
-    wnd <- asks getSettingsWindow
-    liftIO $ readIORef $ settingsWindowOpen wnd
+  isSettingsWindowOpen = liftIO . readIORef . settingsWindowOpen =<< asks getSettingsWindow
 
   setSettingsWindowOpen :: HasSettingsWindow env => Bool -> MvizM env ()
   setSettingsWindowOpen newValue = do
@@ -208,7 +206,7 @@ instance (HasLog env) => MonadLog (MvizM env) where
   getLogVector :: HasLog env => MvizM env (V.Vector LogMessage)
   getLogVector = ask >>= liftIO . RB.toVector . getLog
 
-instance (HasUI env, HasLogWindow env, HasSettingsWindow env, HasLog env, HasPorts env, HasBufferSize env, HasSampleRate env) => MonadUI (MvizM env) where
+instance (HasUI env, HasLogWindow env, HasSettingsWindow env, HasLog env, HasInputs env, HasBufferSize env, HasSampleRate env) => MonadUI (MvizM env) where
   isUIShown :: (HasUI env, HasLogWindow env, HasLog env) => MvizM env Bool
   isUIShown = ask >>= liftIO . readIORef . getUIShownRef
 
@@ -231,9 +229,12 @@ instance (HasServerChannel env, HasClientChannel env) => MonadAudioClient (MvizM
   clientSendMessage :: (HasServerChannel env, HasClientChannel env) => ServerAudioMessage -> MvizM env ()
   clientSendMessage msg = clientSendChannel >>= \c -> liftIO . atomically $ writeTQueue c msg
 
-instance (HasPorts env, HasBufferSize env, HasSampleRate env) => MonadAudio (MvizM env) where
-  audioPorts :: HasPorts env => MvizM env [T.Text]
+instance (HasInputs env, HasBufferSize env, HasSampleRate env) => MonadAudio (MvizM env) where
+  audioPorts :: HasInputs env => MvizM env [T.Text]
   audioPorts = ask >>= liftIO . readIORef . getPortsRef
+
+  audioInputs :: HasInputs env => MvizM env InputMap
+  audioInputs = ask >>= liftIO . readIORef . getInputsRef
 
   audioBufferSize :: HasBufferSize env => MvizM env Word
   audioBufferSize = ask >>= liftIO . readIORef . getBufferSizeRef

@@ -76,6 +76,7 @@ library
     exposed-modules:  Mviz
     other-modules:
         Mviz.Audio,
+        Mviz.Audio.Inputs,
         Mviz.Audio.Client,
         Mviz.Audio.Types,
         Mviz.GL,

@@ -11,8 +11,8 @@ import           Data.IORef (IORef, newIORef)
 import qualified Data.Text  as T
 
 data LogWindow = LogWindow
-  { logWindowInputBuffer  :: T.Text
-  , logWindowAutoScroll   :: Bool
+  { logWindowInputBuffer  :: !T.Text
+  , logWindowAutoScroll   :: !Bool
   , logWindowSelectedLine :: IORef Int
   , logWindowOpen         :: IORef Bool
 --  , logWindowScrollToBottom :: Bool

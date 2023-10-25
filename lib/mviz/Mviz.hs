@@ -20,9 +20,10 @@ import           Data.Word                  (Word16)
 import qualified Graphics.Rendering.OpenGL  as OpenGL
 import           ImGui                      (checkVersion)
 import qualified Mviz.Audio
+import           Mviz.Audio.Inputs          (mkInputMap)
 import           Mviz.Audio.Types           (ClientAudioMessage (..),
                                              HasBufferSize (getBufferSizeRef),
-                                             HasPorts (getPortsRef),
+                                             HasInputs (..),
                                              HasSampleRate (getSampleRateRef),
                                              MonadAudio, MonadAudioClient (..))
 import qualified Mviz.GL                    (vendor, version)
@@ -63,12 +64,14 @@ calculateFramerate = do
     else modifyFramerate $ fps { mvizFramerateCounter = frames + 1 }
 
 handleAudioMessage ::
-  ( HasPorts r
+  ( HasInputs r
   , HasSampleRate r
   , HasBufferSize r
   , MonadIO m
   , MonadReader r m
   ) => ClientAudioMessage -> m ()
+handleAudioMessage (Inputs inputs) = asks getInputsRef >>= \inputsRef ->
+  liftIO $ writeIORef inputsRef inputs
 handleAudioMessage (Ports ports) = asks getPortsRef >>= \portsRef ->
   liftIO $ writeIORef portsRef ports
 handleAudioMessage (SampleRate sr) = asks getSampleRateRef >>= \srRef ->
@@ -92,7 +95,7 @@ mainLoop :: (MonadReader e m,
              HasFramerate e,
              HasSampleRate e,
              HasBufferSize e,
-             HasPorts e,
+             HasInputs e,
              HasWindow e) => m ()
 mainLoop = do
   calculateFramerate
@@ -153,6 +156,7 @@ startup = do
                                   , mvizFramerateCounter = 0
                                   }
   shaders <- newIORef M.empty
+  inputMap <- newIORef $ mkInputMap []
   pure $ MvizEnvironment { mvizWindow = wnd
                            , mvizUIContext = uiContext
                            , mvizAudioThread = audioThread
@@ -168,6 +172,7 @@ startup = do
                            , mvizAudioSampleRate = sampleRate
                            , mvizAudioBufferSize = bufferSize
                            , mvizAudioPorts = audioPorts
+                           , mvizAudioInputs = inputMap
                            }
 
 cleanup :: MvizEnvironment -> IO ()
