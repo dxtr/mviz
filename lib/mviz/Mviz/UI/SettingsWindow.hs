@@ -103,7 +103,6 @@ renderSettingsWindow sampleRate bufferSize inputs = do
             -- TODO: Do something with the selected port and shader
             _ <- liftIO $ renderStaticText sampleRate bufferSize
             newSelectedInput <- liftIO $ renderPortBox inputs selectedInput checkedChannels
-            liftIO $ print newSelectedInput
             case newSelectedInput of
                 Nothing     -> pure ()
                 Just i@(s, c) -> unless (selectedInput == Just s && checkedChannels == c) $ do
