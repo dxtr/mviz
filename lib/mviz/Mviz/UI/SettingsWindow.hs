@@ -54,8 +54,8 @@ renderStaticText sampleRate bufferSize = do
     _ <- textUnformatted $ "Buffer size: " <> T.pack (show bufferSize)
     endGroup
 
-renderPortBox :: (MonadUnliftIO m, MonadIO m) => InputMap -> Maybe T.Text -> m (Maybe (T.Text, [(T.Text, (Bool, Bool))]))
-renderPortBox inputs selectedInput = withCollapsingHeader "Ports" [] $ \case
+renderPortBox :: (MonadUnliftIO m, MonadIO m) => InputMap -> Maybe T.Text -> [T.Text] -> m (Maybe (T.Text, [T.Text]))
+renderPortBox inputs selectedInput selectedChannels = withCollapsingHeader "Ports" [] $ \case
     False -> pure Nothing
     True -> do
         ImVec2 regionSizeX _ <- contentRegionAvail
@@ -66,22 +66,25 @@ renderPortBox inputs selectedInput = withCollapsingHeader "Ports" [] $ \case
         ImVec2 inputsLabelSize _ <- calcTextSize "Inputs" True
         ImVec2 channelsLabelSize _ <- calcTextSize "Channels" True
 
+        liftIO $ print selectedInput
+        liftIO $ print selectedChannels
+
         runMaybeT $ do
-            newSelectedInput <- MaybeT $ liftIO $ withListBox "Inputs" (ImVec2 (calcSize inputsLabelSize) 0.0) $ do
+            newSelectedInput <- MaybeT . liftIO $ withListBox "Inputs" (ImVec2 (calcSize inputsLabelSize) 0.0) $ do
                 items <- mapM (\p -> (p, ) <$> selectable p (Just p == selectedInput) []) sortedInputs
                 case uncons $ filter snd items of
-                    Nothing     -> pure Nothing
+                    Nothing     -> pure selectedInput
                     Just (i, _) -> pure $ Just $ fst i
             sameLine
-            let channels = maybe [] (sort . getChannels inputs) (newSelectedInput <|> selectedInput)
-            checkedChannels <- MaybeT $ liftIO $ withListBox "Channels" (ImVec2 (calcSize channelsLabelSize) 0.0) $ do
-                chans <- mapM (\c -> (c, ) <$> checkbox c False) channels
-                -- let fChans = filter (\(_, (_, checked)) -> checked) chans
-                pure $ Just chans
+            let channels = maybe [] (sort . getChannels inputs) newSelectedInput
+            checkedChannels <- MaybeT . liftIO $ withListBox "Channels" (ImVec2 (calcSize channelsLabelSize) 0.0) $ do
+                chans <- mapM (\c -> (c, ) <$> checkbox c (c `elem` selectedChannels)) channels
+                let checked = map fst $ filter (\(_, (_, c)) -> c) chans
+                print checked
+                pure checked
+            liftIO $ print checkedChannels
             sInput <- hoistMaybe newSelectedInput
-            let cChans = fromMaybe [] checkedChannels
-
-            pure (sInput, cChans)
+            pure (sInput, checkedChannels)
 
 renderShaderList :: MonadUnliftIO m => m ()
 renderShaderList = do
@@ -100,17 +103,19 @@ renderSettingsWindow :: ( MonadUI m
 renderSettingsWindow sampleRate bufferSize inputs = do
     isOpen <- isSettingsWindowOpen
     selectedInput <- getSelectedInput
-    _checkedChannels <- getSelectedChannels
+    checkedChannels <- getSelectedChannels
     when isOpen $ do
         closed <- openSettingsWindow windowTitle $ do
             -- TODO: Do something with the selected port and shader
             _ <- liftIO $ renderStaticText sampleRate bufferSize
-            newSelectedInput <- liftIO $ renderPortBox inputs selectedInput
+            newSelectedInput <- liftIO $ renderPortBox inputs selectedInput checkedChannels
+            liftIO $ print newSelectedInput
             case newSelectedInput of
                 Nothing     -> pure ()
-                Just i@(s, _) -> unless (selectedInput == Just s) $ do
+                Just i@(s, c) -> unless (selectedInput == Just s && checkedChannels == c) $ do
                     logDebugN $ "New selected input: " <> T.pack (show i)
                     setSelectedInput (Just s)
+                    setSelectedChannels c
             liftIO renderShaderList
             pure ()
         setSettingsWindowOpen closed
