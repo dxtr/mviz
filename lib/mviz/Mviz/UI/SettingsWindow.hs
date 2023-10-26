@@ -9,6 +9,7 @@ module Mviz.UI.SettingsWindow
   , renderSettingsWindow
   ) where
 
+import           Control.Applicative       ((<|>))
 import           Control.Monad             (unless, void, when)
 import           Control.Monad.IO.Class    (MonadIO, liftIO)
 import           Control.Monad.Logger      (MonadLogger, logDebugN)
@@ -53,7 +54,7 @@ renderStaticText sampleRate bufferSize = do
     _ <- textUnformatted $ "Buffer size: " <> T.pack (show bufferSize)
     endGroup
 
-renderPortBox :: MonadUnliftIO m => InputMap -> Maybe T.Text -> m (Maybe (T.Text, [(T.Text, (Bool, Bool))]))
+renderPortBox :: (MonadUnliftIO m, MonadIO m) => InputMap -> Maybe T.Text -> m (Maybe (T.Text, [(T.Text, (Bool, Bool))]))
 renderPortBox inputs selectedInput = withCollapsingHeader "Ports" [] $ \case
     False -> pure Nothing
     True -> do
@@ -72,7 +73,7 @@ renderPortBox inputs selectedInput = withCollapsingHeader "Ports" [] $ \case
                     Nothing     -> pure Nothing
                     Just (i, _) -> pure $ Just $ fst i
             sameLine
-            let channels = maybe [] (sort . getChannels inputs) newSelectedInput
+            let channels = maybe [] (sort . getChannels inputs) (newSelectedInput <|> selectedInput)
             checkedChannels <- MaybeT $ liftIO $ withListBox "Channels" (ImVec2 (calcSize channelsLabelSize) 0.0) $ do
                 chans <- mapM (\c -> (c, ) <$> checkbox c False) channels
                 -- let fChans = filter (\(_, (_, checked)) -> checked) chans
