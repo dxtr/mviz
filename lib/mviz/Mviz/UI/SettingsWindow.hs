@@ -66,23 +66,17 @@ renderPortBox inputs selectedInput selectedChannels = withCollapsingHeader "Port
         ImVec2 inputsLabelSize _ <- calcTextSize "Inputs" True
         ImVec2 channelsLabelSize _ <- calcTextSize "Channels" True
 
-        liftIO $ print selectedInput
-        liftIO $ print selectedChannels
-
         runMaybeT $ do
             newSelectedInput <- MaybeT . liftIO $ withListBox "Inputs" (ImVec2 (calcSize inputsLabelSize) 0.0) $ do
-                items <- mapM (\p -> (p, ) <$> selectable p (Just p == selectedInput) []) sortedInputs
-                case uncons $ filter snd items of
+                items <- uncons . filter snd <$> mapM (\p -> (p, ) <$> selectable p (Just p == selectedInput) []) sortedInputs
+                case items of
                     Nothing     -> pure selectedInput
                     Just (i, _) -> pure $ Just $ fst i
             sameLine
             let channels = maybe [] (sort . getChannels inputs) newSelectedInput
             checkedChannels <- MaybeT . liftIO $ withListBox "Channels" (ImVec2 (calcSize channelsLabelSize) 0.0) $ do
                 chans <- mapM (\c -> (c, ) <$> checkbox c (c `elem` selectedChannels)) channels
-                let checked = map fst $ filter (\(_, (_, c)) -> c) chans
-                print checked
-                pure checked
-            liftIO $ print checkedChannels
+                pure . map fst $ filter (\(_, (_, c)) -> c) chans
             sInput <- hoistMaybe newSelectedInput
             pure (sInput, checkedChannels)
 
