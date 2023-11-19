@@ -12,7 +12,7 @@ import           Control.Monad.Logger  (Loc, LogLevel (..), LogSource, LogStr,
 import qualified Data.Text             as T
 import qualified Data.Text.Encoding    as T
 import           Data.Time.LocalTime   (ZonedTime, getZonedTime)
-import           Data.Time.RFC3339     (formatTimeRFC3339)
+import           Mviz.Utils.Time     (formatTimeRFC3339)
 import qualified Data.Vector           as V
 import qualified Mviz.Utils.Ringbuffer as RB
 

@@ -53,22 +53,20 @@ import           Control.Monad           (when)
 import           Control.Monad.IO.Class  (MonadIO, liftIO)
 import           Control.Monad.IO.Unlift (MonadUnliftIO)
 import           Data.Bool               (bool)
+import           Data.Functor            ((<&>))
 import qualified Data.Text               as T
 import qualified Data.Text.Foreign       as TF
 import           Foreign                 (peek, with)
 import           Foreign.C.String        (peekCString)
 import           ImGui.Enums             (TreeNodeFlag, WindowFlag (..))
 import qualified ImGui.Raw               as Raw
-import           ImGui.Structs           (ImVec2 (..), ImVec3 (..))
+import           ImGui.Raw.Structs       (ImVec2 (..), ImVec3 (..))
 import           UnliftIO                (bracket, bracket_)
 
 type Context = Raw.Context
 
 getVersion :: MonadIO m => m T.Text
-getVersion = liftIO $ do
-  ver <- Raw.getVersion
-  verStr <- peekCString ver
-  pure $ T.pack verStr
+getVersion = liftIO $ (Raw.getVersion >>= peekCString) <&> T.pack
 
 fltMin :: MonadIO m => m Float
 fltMin = realToFrac <$> Raw.fltMin
@@ -82,13 +80,11 @@ withWindow label flags func =
           (const Raw.end)
           (`when` func)
 
-withCloseableWindow :: MonadUnliftIO m => T.Text -> [WindowFlag] -> m () -> m Bool
+withCloseableWindow :: MonadUnliftIO m => T.Text -> [WindowFlag] -> m a -> m (Bool, Maybe a)
 withCloseableWindow label flags func =
   bracket (Raw.beginCloseable label flags)
           (const Raw.end)
-          (\(notCollapsed, pOpen) -> do
-            when notCollapsed func
-            pure pOpen)
+          \(notCollapsed, pOpen) -> (pOpen, ) . flip (bool Nothing) notCollapsed . Just <$> func
 
 withChild :: MonadUnliftIO m => T.Text -> ImVec2 -> Bool -> [WindowFlag] -> m () -> m ()
 withChild label size border flags func =
@@ -136,13 +132,7 @@ checkbox label selected = liftIO $
   with (bool 0 1 selected) \boolPtr -> do
     changed <- TF.withCString label (`Raw.checkbox` boolPtr)
     peek boolPtr >>= \newValue -> return (changed, newValue == 1)
-    -- if changed then
-    --   peek boolPtr >>= \newValue -> return (True, newValue == 1)
-    -- else
-    --   return (False, selected)
 
 -- Groups
 withGroup :: MonadUnliftIO m => m a -> m a
 withGroup = bracket_ Raw.beginGroup Raw.endGroup
---  withRunInIO $ \runInIO ->
---    bracket_ Raw.beginGroup Raw.endGroup (runInIO f)

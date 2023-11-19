@@ -100,12 +100,12 @@ mainLoop :: (MonadReader e m,
 mainLoop = do
   calculateFramerate
 
-  -- Read all messages from the audio server
+  -- Read messages from the audio server
+  -- TODO: Read all messages in one go?
   _ <- runMaybeT $ do
     audioMessage <- MaybeT clientRecvMessage
     logDebugN $ "Audio message: " <> T.pack (show audioMessage)
     handleAudioMessage audioMessage
-    -- TODO: Handle audio messages
 
   events <- liftIO Mviz.UI.collectEvents
   let doQuit = Mviz.Window.Events.Quit `elem` events

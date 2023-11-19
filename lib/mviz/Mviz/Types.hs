@@ -19,6 +19,7 @@ import           Control.Monad.Logger     (Loc, LogLevel, LogSource, LogStr,
                                            ToLogStr (toLogStr))
 import           Control.Monad.Reader     (MonadReader, ReaderT, ask, asks,
                                            runReaderT)
+import           Data.Functor             ((<&>))
 import           Data.IORef               (IORef, atomicWriteIORef, readIORef)
 import qualified Data.Map.Strict          as Map
 import qualified Data.Text                as T
@@ -165,7 +166,7 @@ instance (HasWindow env) => MonadWindow (MvizM env) where
 
 instance (HasLogWindow env) => MonadLogWindow (MvizM env) where
   openLogWindow :: HasLogWindow env => T.Text -> MvizM env () -> MvizM env Bool
-  openLogWindow label = ImGui.withCloseableWindow label []
+  openLogWindow label f = ImGui.withCloseableWindow label [] f <&> fst
 
   isLogWindowOpen :: HasLogWindow env => MvizM env Bool
   isLogWindowOpen =  liftIO . readIORef . logWindowOpen =<< asks getLogWindow
@@ -174,7 +175,7 @@ instance (HasLogWindow env) => MonadLogWindow (MvizM env) where
   setLogWindowOpen = (asks getLogWindow >>=) . (liftIO .) . flip (atomicWriteIORef . logWindowOpen)
 
 instance (HasSettingsWindow env) => MonadSettingsWindow (MvizM env) where
-  openSettingsWindow :: HasSettingsWindow env => T.Text -> MvizM env () -> MvizM env Bool
+  openSettingsWindow :: HasSettingsWindow env => T.Text -> MvizM env Bool -> MvizM env (Bool, Maybe Bool)
   openSettingsWindow label = ImGui.withCloseableWindow label []
 
   isSettingsWindowOpen :: HasSettingsWindow env => MvizM env Bool
@@ -182,7 +183,6 @@ instance (HasSettingsWindow env) => MonadSettingsWindow (MvizM env) where
 
   setSettingsWindowOpen :: HasSettingsWindow env => Bool -> MvizM env ()
   setSettingsWindowOpen = (asks getSettingsWindow >>=) . (liftIO .) . flip (atomicWriteIORef . settingsWindowOpen)
-    -- liftIO $ atomicWriteIORef (settingsWindowOpen wnd) newValue
 
   setSelectedInput :: HasSettingsWindow env => Maybe T.Text -> MvizM env ()
   setSelectedInput = (asks getSettingsWindow >>=) . (liftIO .) . flip (atomicWriteIORef . settingsSelectedInput)

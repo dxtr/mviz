@@ -1,4 +1,4 @@
-cabal-version:      3.0
+cabal-version:      3.4
 name:               mviz
 version:            0.1.0.0
 synopsis:           Audio visualizer
@@ -66,7 +66,7 @@ library imgui
         unliftio,
         unliftio-core,
         containers
-    pkgconfig-depends: gl, glew, sdl2
+    pkgconfig-depends: gl >= 1.2, sdl2 >= 2.26.0 && < 3.0.0
 
     hs-source-dirs:   lib/imgui
     default-language: GHC2021
@@ -93,6 +93,7 @@ library
         Mviz.UI.SettingsWindow,
         Mviz.Utils,
         Mviz.Utils.Ringbuffer,
+        Mviz.Utils.Time,
         Mviz.Window,
         Mviz.Window.Types,
         Mviz.Window.Events
@@ -107,7 +108,7 @@ library
         containers,
         explicit-exception,
         hashable,
-        imgui,
+        mviz:imgui,
         jack,
         monad-logger,
         mtl,
@@ -116,7 +117,6 @@ library
         template-haskell,
         text,
         time,
-        timerep,
         transformers,
         unliftio,
         unliftio-core,
@@ -143,7 +143,7 @@ executable mviz
     -- Other library packages from which modules are imported.
     build-depends:
         base ^>=4.18.0.0,
-        mviz
+        mviz:mviz
 
     -- Directories containing source files.
     hs-source-dirs:   app

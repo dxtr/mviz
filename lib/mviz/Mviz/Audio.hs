@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Mviz.Audio
   ( runAudioSystem
   , shutdown
@@ -14,14 +16,18 @@ import           Control.Monad.IO.Unlift (MonadUnliftIO)
 import           Control.Monad.Reader    (MonadReader, ReaderT, ask, asks,
                                           runReaderT)
 import           Data.Functor            ((<&>))
+import           Data.IORef              (IORef, readIORef, writeIORef)
 import qualified Data.Text               as T
+import           GHC.IORef               (newIORef)
 import qualified Mviz.Audio.Client       as Client
 import           Mviz.Audio.Inputs       (InputMap, mkInputMap)
 import           Mviz.Audio.Types        (ClientAudioMessage (..),
                                           HasAudioClient (..),
                                           HasClientChannel (..),
-                                          HasServerChannel (..), JackReturnType,
-                                          MonadAudioServer (..), MonadJack (..),
+                                          HasInputPorts (..),
+                                          HasServerChannel (..), InputPort (..),
+                                          JackReturnType, MonadAudioServer (..),
+                                          MonadJack (..),
                                           ServerAudioMessage (..))
 import qualified Sound.JACK              as JACK
 
@@ -29,6 +35,7 @@ data AudioState = AudioState
   { audioSendChannel :: TQueue ClientAudioMessage
   , audioRecvChannel :: TQueue ServerAudioMessage
   , audioClient      :: JACK.Client
+  , audioInputPorts  :: IORef [InputPort] -- These are the ports that connect to the device we want to listen on
   }
 
 newtype AudioM e a = AudioM (ReaderT e IO a)
@@ -52,21 +59,53 @@ instance HasClientChannel AudioState where
   getClientChannel :: AudioState -> TQueue ClientAudioMessage
   getClientChannel = audioSendChannel
 
-instance (HasAudioClient env) => MonadJack (AudioM env) where
-  jackAction :: HasAudioClient env => JackReturnType a -> AudioM env a
+instance (HasAudioClient env, HasInputPorts env) => MonadJack (AudioM env) where
+  jackAction :: JackReturnType a -> AudioM env a
   jackAction = Client.jackAction
 
-  ports :: HasAudioClient env => AudioM env [T.Text]
+  ports :: AudioM env [T.Text]
   ports = ask >>= Client.getPorts . getAudioClient
 
-  inputs :: HasAudioClient env => AudioM env InputMap
+  inputs :: AudioM env InputMap
   inputs = ports <&> mkInputMap
 
-  bufferSize :: HasAudioClient env => AudioM env Word
+  bufferSize :: AudioM env Word
   bufferSize = ask >>= Client.getBufferSize . getAudioClient
 
-  sampleRate :: HasAudioClient env => AudioM env Word
+  sampleRate :: AudioM env Word
   sampleRate = ask >>= Client.getSampleRate . getAudioClient
+
+  newPort :: T.Text -> T.Text -> AudioM env InputPort
+  newPort name target = do
+    client <- asks getAudioClient
+    port <- jackAction $ JACK.newPort client (T.unpack name)
+    pure $ InputPort { inputPortHandle = port
+                     , inputPortTarget = target
+                     }
+
+  disposePort :: InputPort -> AudioM env ()
+  disposePort InputPort{inputPortHandle = handle} = jackAction . flip JACK.disposePort handle =<< asks getAudioClient
+
+  setPorts :: [InputPort] -> AudioM env ()
+  setPorts p = ask >>= liftIO . flip setInputPorts p
+
+  getPorts :: AudioM env [InputPort]
+  getPorts = ask >>= liftIO . getInputPorts
+
+  portName :: InputPort -> AudioM env T.Text
+  portName InputPort{inputPortHandle = handle} = do
+    liftIO $ JACK.portName handle <&> T.pack
+
+  connectPorts :: [T.Text] -> AudioM env ()
+  connectPorts targets = do
+    p <- getPorts
+    c <- asks getAudioClient
+    let d = zip p targets
+    mapM_ (\(src, tgt) -> do
+      srcName <- portName src
+      connect c (T.unpack srcName) (T.unpack tgt)) d
+    where
+      connect client src = jackAction . JACK.connect client src
 
 instance (HasServerChannel env, HasClientChannel env) => MonadAudioServer (AudioM env) where
   serverRecvChannel :: (HasServerChannel env, HasClientChannel env) => AudioM env (TQueue ServerAudioMessage)
@@ -81,6 +120,12 @@ instance (HasServerChannel env, HasClientChannel env) => MonadAudioServer (Audio
   serverSendMessage :: (HasServerChannel env, HasClientChannel env) => ClientAudioMessage -> AudioM env ()
   serverSendMessage msg = serverSendChannel >>= \c -> liftIO . atomically $ writeTQueue c msg
 
+instance HasInputPorts AudioState where
+  getInputPorts :: AudioState -> IO [InputPort]
+  getInputPorts = readIORef . audioInputPorts
+  setInputPorts :: AudioState -> [InputPort] -> IO ()
+  setInputPorts = writeIORef . audioInputPorts
+
 data Progress = Stop | Continue
 
 handleAudioMessage :: (MonadAudioServer m, MonadJack m) => ServerAudioMessage -> m Progress
@@ -88,6 +133,17 @@ handleAudioMessage Quit          = pure Stop
 handleAudioMessage GetBufferSize = bufferSize >>= serverSendMessage . BufferSize >> pure Continue
 handleAudioMessage GetSampleRate = sampleRate >>= serverSendMessage . SampleRate >> pure Continue
 handleAudioMessage GetInputs = inputs >>= serverSendMessage . Inputs >> pure Continue
+handleAudioMessage (SetInput _input@(inputName, channels)) = do
+  -- let targetPortNames = map (\c -> T.concat [inputName, ":", c]) channels
+  let targetPortNames = [T.concat [inputName, ":", c] | c <- channels]
+  let newPortNames = [T.concat ["in_", T.pack $ show n] | n <- [0,1..(length targetPortNames - 1)]]
+  let srcTargets = zip newPortNames targetPortNames
+  mapM_ disposePort =<< getPorts -- Remove the old ports
+  p <- mapM (uncurry newPort) srcTargets -- Create new ports
+  setPorts p
+  -- TODO: Register new ports
+  -- TODO: Connect new ports
+  pure Continue
 
 audioLoop :: ( HasAudioClient e
              , HasServerChannel e
@@ -107,15 +163,16 @@ clientName :: String
 clientName = "mviz"
 
 runAudioSystem
---  :: (MonadIO m)
   :: TQueue ClientAudioMessage
   -> TQueue ServerAudioMessage
   -> IO ()
 runAudioSystem sendChan recvChan = do
+  inputPorts <- newIORef []
   Client.withClient clientName $ \c -> do
     let state = AudioState { audioSendChannel = sendChan
                            , audioRecvChannel = recvChan
                            , audioClient = c
+                           , audioInputPorts = inputPorts
                            }
     runAudio state $ do
       sampleRate >>= serverSendMessage . SampleRate -- Send the configured sample rate to the client
@@ -132,3 +189,4 @@ shutdown :: (MonadIO m) => TQueue ServerAudioMessage -> m ()
 shutdown writeChan = liftIO $ atomically $ writeTQueue writeChan msg
  where
   msg = Quit
+

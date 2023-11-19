@@ -14,21 +14,28 @@ module Mviz.Audio.Types
   , HasSampleRate (..)
   , MonadAudio (..)
   , HasInputs (..)
+  , HasInputPorts(..)
+  , InputPort(..)
   ) where
 
 import           Control.Concurrent.STM              (TQueue)
 import           Control.Exception                   (Exception)
 import qualified Control.Monad.Exception.Synchronous as Sync
-import           Control.Monad.IO.Class              (MonadIO)
 import           Control.Monad.Trans.Class           (lift)
 import           Control.Monad.Trans.Maybe           (MaybeT)
 import           Data.IORef                          (IORef)
 import qualified Data.Text                           as T
+import           Foreign.C                           (CFloat)
 import           Mviz.Audio.Inputs                   (InputMap)
 import qualified Sound.JACK                          as JACK
 import qualified Sound.JACK.Exception                as JACKE
 
 type JackReturnType a = Sync.ExceptionalT JACKE.All IO a
+
+-- newtype InputPort = InputPort (JACK.Port CFloat JACK.Input)
+data InputPort = InputPort { inputPortHandle :: JACK.Port CFloat JACK.Input
+                           , inputPortTarget :: T.Text
+                           }
 
 data AudioError
   = JACKError String
@@ -48,6 +55,7 @@ data ServerAudioMessage
   | GetSampleRate
   | GetBufferSize
   | GetInputs
+  | SetInput (T.Text, [T.Text])
   deriving (Show)
 
 instance Exception AudioError
@@ -64,6 +72,14 @@ class Monad m => MonadJack m where
   inputs :: m InputMap
   bufferSize :: m Word
   sampleRate :: m Word
+  newPort :: T.Text -> T.Text -> m InputPort
+  disposePort :: InputPort -> m ()
+  setPorts :: [InputPort] -> m ()
+  getPorts :: m [InputPort]
+  portName :: InputPort -> m T.Text
+  connectPorts :: [T.Text] -> m ()
+  disconnectPorts :: m ()
+  isPortConnected :: InputPort -> m Bool
 
 class Monad m => MonadAudioServer m where
   serverRecvChannel :: m (TQueue ServerAudioMessage)
@@ -93,6 +109,9 @@ class HasBufferSize a where
 class HasSampleRate a where
   getSampleRateRef :: a -> IORef Word
 
+class HasInputPorts a where
+  getInputPorts :: a -> IO [InputPort]
+  setInputPorts :: a -> [InputPort] -> IO ()
 -- class HasPorts a where
 --  getPortsRef :: a -> IORef [T.Text]
 

@@ -29,6 +29,7 @@ import           Mviz.GL                   (GLMakeCurrent (..),
 import           Mviz.Logger               (MonadLog (..))
 -- import           Mviz.SDL                  (glContext, sdlWindow)
 -- import           Mviz.Types                (MvizEnvironment (..))
+import           Control.Monad             (when)
 import           Control.Monad.Logger      (MonadLogger)
 import           Data.Functor              ((<&>))
 import           Mviz.Audio.Types          (MonadAudio (..))
@@ -111,7 +112,11 @@ render = do
   inputs <- audioInputs
 
   renderLogWindow
-  renderSettingsWindow sampleRate bufferSize inputs
+  settingsChanged <- renderSettingsWindow sampleRate bufferSize inputs
+  when settingsChanged $ do
+    -- TODO: Send the new ports to the audio thread
+    pure ()
+
 
   ImGui.render
   ImGui.GL.glRenderDrawData =<< ImGui.getDrawData
