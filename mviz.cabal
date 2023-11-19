@@ -66,7 +66,7 @@ library imgui
         unliftio,
         unliftio-core,
         containers
-    pkgconfig-depends: gl >= 1.2, sdl2 >= 2.26.0 && < 3.0.0
+    pkgconfig-depends: gl >= 1.2, sdl2 >= 2.0.20 && < 3.0.0
 
     hs-source-dirs:   lib/imgui
     default-language: GHC2021
