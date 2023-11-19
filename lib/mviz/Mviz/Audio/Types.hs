@@ -33,7 +33,8 @@ import qualified Sound.JACK.Exception                as JACKE
 type JackReturnType a = Sync.ExceptionalT JACKE.All IO a
 
 -- newtype InputPort = InputPort (JACK.Port CFloat JACK.Input)
-data InputPort = InputPort { inputPortHandle :: JACK.Port CFloat JACK.Input
+data InputPort = InputPort { inputPortName   :: T.Text
+                           , inputPortHandle :: JACK.Port CFloat JACK.Input
                            , inputPortTarget :: T.Text
                            }
 
@@ -77,7 +78,7 @@ class Monad m => MonadJack m where
   setPorts :: [InputPort] -> m ()
   getPorts :: m [InputPort]
   portName :: InputPort -> m T.Text
-  connectPorts :: [T.Text] -> m ()
+  connectPorts :: m ()
   disconnectPorts :: m ()
   isPortConnected :: InputPort -> m Bool
 

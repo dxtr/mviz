@@ -18,6 +18,7 @@ import           Control.Monad.Reader    (MonadReader, ReaderT, ask, asks,
 import           Data.Functor            ((<&>))
 import           Data.IORef              (IORef, readIORef, writeIORef)
 import qualified Data.Text               as T
+import           Foreign.C               (CFloat)
 import           GHC.IORef               (newIORef)
 import qualified Mviz.Audio.Client       as Client
 import           Mviz.Audio.Inputs       (InputMap, mkInputMap)
@@ -30,6 +31,7 @@ import           Mviz.Audio.Types        (ClientAudioMessage (..),
                                           MonadJack (..),
                                           ServerAudioMessage (..))
 import qualified Sound.JACK              as JACK
+import qualified Sound.JACK              as JACK.Direction
 
 data AudioState = AudioState
   { audioSendChannel :: TQueue ClientAudioMessage
@@ -78,8 +80,10 @@ instance (HasAudioClient env, HasInputPorts env) => MonadJack (AudioM env) where
   newPort :: T.Text -> T.Text -> AudioM env InputPort
   newPort name target = do
     client <- asks getAudioClient
-    port <- jackAction $ JACK.newPort client (T.unpack name)
-    pure $ InputPort { inputPortHandle = port
+    port :: JACK.Port CFloat JACK.Direction.Input <- jackAction $ JACK.newPort client (T.unpack name)
+    longName <- portName $ InputPort{inputPortName = "", inputPortHandle = port, inputPortTarget = ""}
+    pure $ InputPort { inputPortName = longName
+                     , inputPortHandle = port
                      , inputPortTarget = target
                      }
 
@@ -96,16 +100,21 @@ instance (HasAudioClient env, HasInputPorts env) => MonadJack (AudioM env) where
   portName InputPort{inputPortHandle = handle} = do
     liftIO $ JACK.portName handle <&> T.pack
 
-  connectPorts :: [T.Text] -> AudioM env ()
-  connectPorts targets = do
+  connectPorts :: AudioM env ()
+  connectPorts = do
     p <- getPorts
     c <- asks getAudioClient
-    let d = zip p targets
-    mapM_ (\(src, tgt) -> do
-      srcName <- portName src
-      connect c (T.unpack srcName) (T.unpack tgt)) d
+    mapM_ (\InputPort{inputPortName = srcName, inputPortTarget = targetName} -> do
+      -- srcName <- portName src
+      connect c targetName srcName) p
     where
-      connect client src = jackAction . JACK.connect client src
+      connect client src tgt = jackAction $ JACK.connect client (T.unpack src) (T.unpack tgt)
+
+  disconnectPorts :: (HasAudioClient env, HasInputPorts env) => AudioM env ()
+  disconnectPorts = pure ()
+
+  isPortConnected :: (HasAudioClient env, HasInputPorts env) => InputPort -> AudioM env Bool
+  isPortConnected _ = pure False
 
 instance (HasServerChannel env, HasClientChannel env) => MonadAudioServer (AudioM env) where
   serverRecvChannel :: (HasServerChannel env, HasClientChannel env) => AudioM env (TQueue ServerAudioMessage)
@@ -141,8 +150,9 @@ handleAudioMessage (SetInput _input@(inputName, channels)) = do
   mapM_ disposePort =<< getPorts -- Remove the old ports
   p <- mapM (uncurry newPort) srcTargets -- Create new ports
   setPorts p
-  -- TODO: Register new ports
+  -- TODO: Register new ports?
   -- TODO: Connect new ports
+  connectPorts
   pure Continue
 
 audioLoop :: ( HasAudioClient e
