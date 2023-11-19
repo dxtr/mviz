@@ -20,4 +20,4 @@ class HasUI a where
 
 class MonadIO m => MonadUI m where
   isUIShown :: m Bool
-  renderUI :: m ()
+  renderUI :: m Bool

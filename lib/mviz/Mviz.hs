@@ -25,7 +25,8 @@ import           Mviz.Audio.Types           (ClientAudioMessage (..),
                                              HasBufferSize (getBufferSizeRef),
                                              HasInputs (..),
                                              HasSampleRate (getSampleRateRef),
-                                             MonadAudio, MonadAudioClient (..))
+                                             MonadAudio, MonadAudioClient (..),
+                                             ServerAudioMessage (SetInput))
 import qualified Mviz.GL                    (vendor, version)
 import           Mviz.Logger                (MonadLog (..), ringBufferOutput)
 import qualified Mviz.SDL
@@ -36,7 +37,7 @@ import           Mviz.Types                 (HasFramerate (..),
                                              getFramerate, runMviz)
 import qualified Mviz.UI
 import           Mviz.UI.LogWindow          (MonadLogWindow)
-import           Mviz.UI.SettingsWindow     (MonadSettingsWindow)
+import           Mviz.UI.SettingsWindow     (MonadSettingsWindow (getSelectedChannels, getSelectedInput))
 import           Mviz.UI.Types
 import           Mviz.UI.UIWindow           (makeLogWindow, makeSettingsWindow)
 import qualified Mviz.Utils.Ringbuffer      as RB
@@ -114,7 +115,14 @@ mainLoop = do
   liftIO $ OpenGL.clear [OpenGL.ColorBuffer]
 
   showUI <- isUIShown
-  when showUI Mviz.UI.render
+  when showUI $ do
+    changes <- renderUI
+    when changes $ do
+      channels <- getSelectedChannels
+      _ <- runMaybeT $ do
+        input <- MaybeT getSelectedInput
+        clientSendMessage $ SetInput (input, channels)
+      return ()
 
   swapWindowBuffers
   unless doQuit mainLoop

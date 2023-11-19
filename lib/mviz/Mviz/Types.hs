@@ -217,11 +217,11 @@ instance (HasLog env) => MonadLog (MvizM env) where
   getLogVector :: HasLog env => MvizM env (V.Vector LogMessage)
   getLogVector = ask >>= liftIO . RB.toVector . getLog
 
-instance (HasUI env, HasLogWindow env, HasSettingsWindow env, HasLog env, HasInputs env, HasBufferSize env, HasSampleRate env) => MonadUI (MvizM env) where
+instance (HasUI env, HasServerChannel env, HasLogWindow env, HasSettingsWindow env, HasLog env, HasInputs env, HasBufferSize env, HasSampleRate env) => MonadUI (MvizM env) where
   isUIShown :: (HasUI env, HasLogWindow env, HasLog env) => MvizM env Bool
   isUIShown = ask >>= liftIO . readIORef . getUIShownRef
 
-  renderUI :: (HasUI env, HasLogWindow env, HasSettingsWindow env, HasLog env) => MvizM env ()
+  renderUI :: (HasUI env, HasLogWindow env, HasSettingsWindow env, HasLog env) => MvizM env Bool
   renderUI = Mviz.UI.render
 
 instance (HasServerChannel env, HasClientChannel env) => MonadAudioClient (MvizM env) where

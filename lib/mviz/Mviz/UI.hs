@@ -29,13 +29,12 @@ import           Mviz.GL                   (GLMakeCurrent (..),
 import           Mviz.Logger               (MonadLog (..))
 -- import           Mviz.SDL                  (glContext, sdlWindow)
 -- import           Mviz.Types                (MvizEnvironment (..))
-import           Control.Monad             (when)
 import           Control.Monad.Logger      (MonadLogger)
 import           Data.Functor              ((<&>))
 import           Mviz.Audio.Types          (MonadAudio (..))
 import           Mviz.UI.LogWindow         (MonadLogWindow (..),
                                             renderLogWindow)
-import           Mviz.UI.SettingsWindow    (MonadSettingsWindow,
+import           Mviz.UI.SettingsWindow    (MonadSettingsWindow (getSelectedInput),
                                             renderSettingsWindow)
 import           Mviz.UI.Types             (HasUI, MonadUI, UIContext)
 import           Mviz.Utils                ((<&&>))
@@ -101,7 +100,7 @@ render :: ( HasUI e
           , MonadLogger m
           , MonadUI m
           , MonadAudio m
-          ) => m ()
+          ) => m Bool
 render = do
   _ <- liftIO $ do
     newFrame
@@ -113,13 +112,17 @@ render = do
 
   renderLogWindow
   settingsChanged <- renderSettingsWindow sampleRate bufferSize inputs
-  when settingsChanged $ do
-    -- TODO: Send the new ports to the audio thread
-    pure ()
-
+  -- when settingsChanged $ do
+  --   -- TODO: Send the new ports to the audio thread
+  --   channels <- getSelectedChannels
+  --   _ <- runMaybeT $ do
+  --     input <- MaybeT getSelectedInput
+  --     clientSendMessage $ SetInput (input, channels)
+  --   pure ()
 
   ImGui.render
   ImGui.GL.glRenderDrawData =<< ImGui.getDrawData
+  pure settingsChanged
 
 translateEvent :: SDL.EventPayload -> Mviz.Window.Events.Event
 translateEvent SDL.QuitEvent = Mviz.Window.Events.Quit
