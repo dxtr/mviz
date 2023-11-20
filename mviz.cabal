@@ -121,7 +121,8 @@ library
         unliftio,
         unliftio-core,
         unordered-containers,
-        vector
+        vector,
+        array
 
     hs-source-dirs:   lib/mviz
     default-language: GHC2021

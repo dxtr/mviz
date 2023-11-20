@@ -9,7 +9,8 @@ import           Control.Exception          (bracket)
 import           Control.Monad              (unless, when)
 import           Control.Monad.IO.Class     (MonadIO, liftIO)
 import           Control.Monad.Logger       (MonadLogger, logDebugN, logInfo)
-import           Control.Monad.Reader       (MonadReader, ask)
+import           Control.Monad.Reader       (MonadReader, MonadTrans (lift),
+                                             ask)
 import           Control.Monad.Reader.Class (asks)
 import           Control.Monad.Trans.Except (ExceptT (..), runExceptT)
 import           Control.Monad.Trans.Maybe  (MaybeT (MaybeT), runMaybeT)
@@ -26,7 +27,7 @@ import           Mviz.Audio.Types           (ClientAudioMessage (..),
                                              HasInputs (..),
                                              HasSampleRate (getSampleRateRef),
                                              MonadAudio, MonadAudioClient (..),
-                                             ServerAudioMessage (SetInput))
+                                             ServerAudioMessage (GetSamples, SetInput))
 import qualified Mviz.GL                    (vendor, version)
 import           Mviz.Logger                (MonadLog (..), ringBufferOutput)
 import qualified Mviz.SDL
@@ -38,7 +39,7 @@ import           Mviz.Types                 (HasFramerate (..),
 import qualified Mviz.UI
 import           Mviz.UI.LogWindow          (MonadLogWindow)
 import           Mviz.UI.SettingsWindow     (MonadSettingsWindow (getSelectedChannels, getSelectedInput))
-import           Mviz.UI.Types
+import           Mviz.UI.Types              (HasUI, MonadUI (..))
 import           Mviz.UI.UIWindow           (makeLogWindow, makeSettingsWindow)
 import qualified Mviz.Utils.Ringbuffer      as RB
 import           Mviz.Window                (MonadDrawWindow (..), createWindow,
@@ -70,6 +71,7 @@ handleAudioMessage ::
   , HasBufferSize r
   , MonadIO m
   , MonadReader r m
+  , MonadLogger m
   ) => ClientAudioMessage -> m ()
 handleAudioMessage (Inputs inputs) = asks getInputsRef >>= \inputsRef ->
   liftIO $ writeIORef inputsRef inputs
@@ -79,6 +81,8 @@ handleAudioMessage (SampleRate sr) = asks getSampleRateRef >>= \srRef ->
   liftIO $ writeIORef srRef sr
 handleAudioMessage (BufferSize bs) = asks getBufferSizeRef >>= \bsRef ->
   liftIO $ writeIORef bsRef bs
+handleAudioMessage (Samples samples) = do
+  logDebugN $ "Got samples: " <> T.pack (show samples)
 
 mainLoop :: (MonadReader e m,
              MonadFramerate m,
@@ -100,13 +104,14 @@ mainLoop :: (MonadReader e m,
              HasWindow e) => m ()
 mainLoop = do
   calculateFramerate
+  _ <- clientSendMessage GetSamples
 
   -- Read messages from the audio server
   -- TODO: Read all messages in one go?
   _ <- runMaybeT $ do
     audioMessage <- MaybeT clientRecvMessage
     logDebugN $ "Audio message: " <> T.pack (show audioMessage)
-    handleAudioMessage audioMessage
+    lift $ handleAudioMessage audioMessage
 
   events <- liftIO Mviz.UI.collectEvents
   let doQuit = Mviz.Window.Events.Quit `elem` events

@@ -15,6 +15,8 @@ import qualified Control.Monad.Exception.Synchronous as Sync
 import           Control.Monad.IO.Class              (MonadIO, liftIO)
 import           Data.Functor                        ((<&>))
 import qualified Data.Text                           as T
+import           Foreign.C                           (Errno (Errno))
+import           GHC.Stack                           (HasCallStack)
 import           Mviz.Audio.Types                    (AudioError (..),
                                                       JackReturnType)
 import qualified Sound.JACK                          as JACK
@@ -23,11 +25,18 @@ import           UnliftIO                            (MonadUnliftIO, bracket,
                                                       bracket_)
 
 mapJackException :: JACKE.All -> AudioError
-mapJackException ex = JACKError $ JACKE.toStringWithHead ex
+mapJackException (JACKE.Status statusSet) =
+  AudioError { audioErrorMessage = "Status " <> JACKE.toString statusSet }
+mapJackException (JACKE.NoStatus (JACKE.NoPortRegister (JACKE.PortMismatch JACKE.TypeMismatch))) =
+  AudioError { audioErrorMessage = "NoStatus,NoPortRegister,PortMismatch,TypeMismatch" }
+mapJackException (JACKE.NoStatus (JACKE.NoPortRegister (JACKE.PortMismatch JACKE.DirectionMismatch))) =
+  AudioError { audioErrorMessage = "NoStatus,NoPortRegister,PortMismatch,DirectionMismatch" }
+mapJackException (JACKE.NoStatus JACKE.PortRegister) =
+  AudioError { audioErrorMessage = "NoStatus,PortRegister" }
+mapJackException (JACKE.NoStatus (JACKE.NoPortRegister (JACKE.NoPortMismatch e))) =
+  AudioError { audioErrorMessage = "NoStatus,NoPortRegister,NoPortMismatch " <> JACKE.toString e }
 
--- jackAction :: (MonadIO m) => JackReturnType a -> m (Either AudioError a)
--- jackAction action = liftIO . Sync.toEitherT . Sync.mapExceptionT mapJackException $ action
-jackAction :: (MonadIO m) => JackReturnType a -> m a
+jackAction :: (MonadIO m, HasCallStack) => JackReturnType a -> m a
 jackAction action = do
   actionRes <- liftIO . Sync.toEitherT . Sync.mapExceptionT mapJackException $ action
   case actionRes of

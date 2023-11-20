@@ -16,6 +16,7 @@ module Mviz.Audio.Types
   , HasInputs (..)
   , HasInputPorts(..)
   , InputPort(..)
+  , HasSamples(..)
   ) where
 
 import           Control.Concurrent.STM              (TQueue)
@@ -25,22 +26,24 @@ import           Control.Monad.Trans.Class           (lift)
 import           Control.Monad.Trans.Maybe           (MaybeT)
 import           Data.IORef                          (IORef)
 import qualified Data.Text                           as T
-import           Foreign.C                           (CFloat)
+import           Foreign                             (Ptr)
+import           Foreign.C                           (Errno)
 import           Mviz.Audio.Inputs                   (InputMap)
 import qualified Sound.JACK                          as JACK
+import qualified Sound.JACK.Audio                    as JACKA
 import qualified Sound.JACK.Exception                as JACKE
 
 type JackReturnType a = Sync.ExceptionalT JACKE.All IO a
 
 -- newtype InputPort = InputPort (JACK.Port CFloat JACK.Input)
 data InputPort = InputPort { inputPortName   :: T.Text
-                           , inputPortHandle :: JACK.Port CFloat JACK.Input
+                           , inputPortHandle :: JACK.Port JACKA.Sample JACK.Input
                            , inputPortTarget :: T.Text
                            }
 
-data AudioError
-  = JACKError String
-  deriving (Show)
+data AudioError =
+  AudioError { audioErrorMessage :: String
+             } deriving (Show)
 
 -- Messages directed to the client
 data ClientAudioMessage
@@ -48,11 +51,13 @@ data ClientAudioMessage
   | Inputs InputMap
   | SampleRate Word -- Inform the client about the sample rate
   | BufferSize Word -- Inform the client about the buffer size
+  | Samples [Float]
   deriving (Show)
 
 -- Messages directed to the server
 data ServerAudioMessage
   = Quit -- Tell the server to quit
+  | GetSamples
   | GetSampleRate
   | GetBufferSize
   | GetInputs
@@ -81,6 +86,9 @@ class Monad m => MonadJack m where
   connectPorts :: m ()
   disconnectPorts :: m ()
   isPortConnected :: InputPort -> m Bool
+  setProcessCallback :: JACK.Process a -> Ptr a -> m ()
+  sampleBufferRef :: m (IORef [[JACKA.Sample]])
+  sampleBuffer :: m [[JACKA.Sample]]
 
 class Monad m => MonadAudioServer m where
   serverRecvChannel :: m (TQueue ServerAudioMessage)
@@ -119,6 +127,9 @@ class HasInputPorts a where
 class HasInputs a where
   getPortsRef :: a -> IORef [T.Text]
   getInputsRef :: a -> IORef InputMap
+
+class HasSamples a where
+  getSampleBufferRef :: a -> IORef [[JACKA.Sample]]
 
 -- class HasRecvChannel a where
 --   getRecvChannel :: a -> TQueue ServerAudioMessage
