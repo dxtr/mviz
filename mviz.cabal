@@ -70,6 +70,8 @@ library imgui
 
     hs-source-dirs:   lib/imgui
     default-language: GHC2021
+    ghc-options: -O0 -g2
+    -- ghc-options: -O1 -fllvm
         
 library
     import:           warnings
@@ -126,6 +128,8 @@ library
 
     hs-source-dirs:   lib/mviz
     default-language: GHC2021
+    ghc-options: -O0 -g2
+    -- ghc-options: -O1 -fllvm
 
 executable mviz
     -- Import common warning flags.
@@ -151,7 +155,8 @@ executable mviz
 
     -- Base language which the package is written in.
     default-language: GHC2021
-    ghc-options: -O1
+    ghc-options: -O0 -g2
+    -- ghc-options: -O1 -fllvm
 
 test-suite mviz-test
     -- Import common warning flags.

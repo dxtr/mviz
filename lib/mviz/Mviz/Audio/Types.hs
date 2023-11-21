@@ -1,4 +1,5 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE DerivingStrategies  #-}
 module Mviz.Audio.Types
   ( AudioError(..)
   , MonadJack (..)
@@ -17,8 +18,11 @@ module Mviz.Audio.Types
   , HasInputPorts(..)
   , InputPort(..)
   , HasSamples(..)
+  , AudioException (..)
+  , HasPortLock(..)
   ) where
 
+import           Control.Concurrent                  (MVar)
 import           Control.Concurrent.STM              (TQueue)
 import           Control.Exception                   (Exception)
 import qualified Control.Monad.Exception.Synchronous as Sync
@@ -28,6 +32,9 @@ import           Data.IORef                          (IORef)
 import qualified Data.Text                           as T
 import           Foreign                             (Ptr)
 import           Foreign.C                           (Errno)
+import           GHC.Stack                           (HasCallStack, SrcLoc,
+                                                      callStack,
+                                                      prettyCallStack)
 import           Mviz.Audio.Inputs                   (InputMap)
 import qualified Sound.JACK                          as JACK
 import qualified Sound.JACK.Audio                    as JACKA
@@ -43,7 +50,21 @@ data InputPort = InputPort { inputPortName   :: T.Text
 
 data AudioError =
   AudioError { audioErrorMessage :: String
-             } deriving (Show)
+             }
+
+instance Show AudioError where
+  show = audioErrorMessage
+
+data AudioException a where
+  AudioException :: (Show a, HasCallStack) => a -> AudioException a
+
+instance Show (AudioException a) where
+  show (AudioException e) = "AudioException\n" <> show e <> "\n" <> prettyCallStack callStack
+
+-- instance Exception AudioError
+instance Exception (AudioException AudioError)
+
+-- deriving anyclass instance Exception (AudioException AudioError)
 
 -- Messages directed to the client
 data ClientAudioMessage
@@ -63,8 +84,6 @@ data ServerAudioMessage
   | GetInputs
   | SetInput (T.Text, [T.Text])
   deriving (Show)
-
-instance Exception AudioError
 
 class Monad m => MonadAudio m where
   audioPorts :: m [T.Text]
@@ -89,6 +108,7 @@ class Monad m => MonadJack m where
   setProcessCallback :: JACK.Process a -> Ptr a -> m ()
   sampleBufferRef :: m (IORef [[JACKA.Sample]])
   sampleBuffer :: m [[JACKA.Sample]]
+  withPortLock :: m a -> m a
 
 class Monad m => MonadAudioServer m where
   serverRecvChannel :: m (TQueue ServerAudioMessage)
@@ -117,6 +137,9 @@ class HasBufferSize a where
 
 class HasSampleRate a where
   getSampleRateRef :: a -> IORef Word
+
+class HasPortLock a where
+  getPortLock :: a -> MVar ()
 
 class HasInputPorts a where
   getInputPorts :: a -> IO [InputPort]

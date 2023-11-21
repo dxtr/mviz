@@ -9,27 +9,33 @@ module Mviz.Audio
   , HasClientChannel (..)
   ) where
 
+import           Control.Concurrent      (MVar, newEmptyMVar, newMVar, putMVar,
+                                          takeMVar, tryPutMVar)
 import           Control.Concurrent.STM  (TQueue, atomically, tryReadTQueue,
                                           writeTQueue)
-import           Control.Exception       (catch, evaluate, handle)
+import           Control.Exception       (evaluate, handle)
+import           Control.Monad           (when)
 import           Control.Monad.IO.Class  (MonadIO, liftIO)
 import           Control.Monad.IO.Unlift (MonadUnliftIO)
 import           Control.Monad.Reader    (MonadReader, ReaderT, ask, asks,
                                           runReaderT)
 import           Data.Array.Base         (getElems)
 import           Data.Functor            ((<&>))
-import           Data.IORef
+import           Data.IORef              (IORef, newIORef, readIORef,
+                                          writeIORef)
 import qualified Data.Text               as T
 import           Foreign                 (Ptr)
 import qualified Foreign                 as Ptr
 import           Foreign.C               (CFloat)
 import           Foreign.C.Error         (Errno, eOK)
+import           GHC.Stack               (HasCallStack)
 import qualified Mviz.Audio.Client       as Client
 import           Mviz.Audio.Inputs       (InputMap, mkInputMap)
-import           Mviz.Audio.Types        (AudioError, ClientAudioMessage (..),
+import           Mviz.Audio.Types        (AudioError, AudioException,
+                                          ClientAudioMessage (..),
                                           HasAudioClient (..),
                                           HasClientChannel (..),
-                                          HasInputPorts (..),
+                                          HasInputPorts (..), HasPortLock (..),
                                           HasSamples (getSampleBufferRef),
                                           HasServerChannel (..), InputPort (..),
                                           JackReturnType, MonadAudioServer (..),
@@ -37,6 +43,7 @@ import           Mviz.Audio.Types        (AudioError, ClientAudioMessage (..),
                                           ServerAudioMessage (..))
 import qualified Sound.JACK              as JACK
 import qualified Sound.JACK.Audio        as JACKA
+import           UnliftIO.Exception      (bracket_)
 
 data AudioState = AudioState
   { audioSendChannel  :: TQueue ClientAudioMessage
@@ -44,6 +51,7 @@ data AudioState = AudioState
   , audioClient       :: JACK.Client
   , audioInputPorts   :: IORef [InputPort] -- These are the ports that connect to the device we want to listen on
   , audioSampleBuffer :: IORef [[JACKA.Sample]]
+  , audioPortLock     :: MVar ()
   }
 
 newtype AudioM e a = AudioM (ReaderT e IO a)
@@ -67,8 +75,12 @@ instance HasClientChannel AudioState where
   getClientChannel :: AudioState -> TQueue ClientAudioMessage
   getClientChannel = audioSendChannel
 
-instance (HasAudioClient env, HasInputPorts env, HasSamples env) => MonadJack (AudioM env) where
-  jackAction :: JackReturnType a -> AudioM env a
+instance HasPortLock AudioState where
+  getPortLock :: AudioState -> MVar ()
+  getPortLock = audioPortLock
+
+instance (HasAudioClient env, HasInputPorts env, HasSamples env, HasPortLock env) => MonadJack (AudioM env) where
+  jackAction :: HasCallStack => JackReturnType a -> AudioM env a
   jackAction = Client.jackAction
 
   ports :: AudioM env [T.Text]
@@ -83,18 +95,18 @@ instance (HasAudioClient env, HasInputPorts env, HasSamples env) => MonadJack (A
   sampleRate :: AudioM env Word
   sampleRate = ask >>= Client.getSampleRate . getAudioClient
 
-  newPort :: T.Text -> T.Text -> AudioM env InputPort
+  newPort :: HasCallStack => T.Text -> T.Text -> AudioM env InputPort
   newPort name target = do
     client <- asks getAudioClient
-    port :: JACK.Port CFloat JACK.Input <- jackAction $ JACK.newPort client (T.unpack name)
+    port <- jackAction $ JACK.newPort client (T.unpack name)
     longName <- portName $ InputPort{inputPortName = "", inputPortHandle = port, inputPortTarget = ""}
     pure $ InputPort { inputPortName = longName
                      , inputPortHandle = port
                      , inputPortTarget = target
                      }
 
-  disposePort :: InputPort -> AudioM env ()
-  disposePort InputPort{inputPortHandle = handle} = jackAction . flip JACK.disposePort handle =<< asks getAudioClient
+  disposePort :: HasCallStack => InputPort -> AudioM env ()
+  disposePort InputPort{inputPortHandle = h} = jackAction . flip JACK.disposePort h =<< asks getAudioClient
 
   setPorts :: [InputPort] -> AudioM env ()
   setPorts p = ask >>= liftIO . flip setInputPorts p
@@ -103,10 +115,10 @@ instance (HasAudioClient env, HasInputPorts env, HasSamples env) => MonadJack (A
   getPorts = ask >>= liftIO . getInputPorts
 
   portName :: InputPort -> AudioM env T.Text
-  portName InputPort{inputPortHandle = handle} = do
-    liftIO $ JACK.portName handle <&> T.pack
+  portName InputPort{inputPortHandle = h} = do
+    liftIO $ JACK.portName h <&> T.pack
 
-  connectPorts :: AudioM env ()
+  connectPorts :: HasCallStack => AudioM env ()
   connectPorts = do
     p <- getPorts
     c <- asks getAudioClient
@@ -122,7 +134,7 @@ instance (HasAudioClient env, HasInputPorts env, HasSamples env) => MonadJack (A
   isPortConnected :: (HasAudioClient env, HasInputPorts env) => InputPort -> AudioM env Bool
   isPortConnected _ = pure False
 
-  setProcessCallback :: JACK.Process a -> Ptr a -> AudioM env ()
+  setProcessCallback :: HasCallStack => JACK.Process a -> Ptr a -> AudioM env ()
   setProcessCallback f arg = do
     client <- asks getAudioClient
     p <- liftIO $ JACK.makeProcess f
@@ -133,6 +145,13 @@ instance (HasAudioClient env, HasInputPorts env, HasSamples env) => MonadJack (A
 
   sampleBuffer :: AudioM env [[JACKA.Sample]]
   sampleBuffer = liftIO . readIORef =<< sampleBufferRef
+
+  withPortLock :: AudioM env a -> AudioM env a
+  withPortLock action = do
+    lock <- asks getPortLock
+    bracket_ (liftIO $ putMVar lock ())
+             (liftIO $ takeMVar lock)
+             action
 
 instance (HasServerChannel env, HasClientChannel env) => MonadAudioServer (AudioM env) where
   serverRecvChannel :: (HasServerChannel env, HasClientChannel env) => AudioM env (TQueue ServerAudioMessage)
@@ -170,19 +189,21 @@ mixChannelBuffers (f:r) =
     firstBuffer = mixChannelBuffers [f]
     restBuffers = mixChannelBuffers r
 
-handleAudioMessage :: (MonadAudioServer m, MonadJack m) => ServerAudioMessage -> m Progress
+handleAudioMessage :: (HasCallStack, MonadAudioServer m, MonadJack m, MonadIO m) => ServerAudioMessage -> m Progress
 handleAudioMessage Quit          = pure Stop
 handleAudioMessage GetBufferSize = bufferSize >>= serverSendMessage . BufferSize >> pure Continue
 handleAudioMessage GetSampleRate = sampleRate >>= serverSendMessage . SampleRate >> pure Continue
 handleAudioMessage GetInputs = inputs >>= serverSendMessage . Inputs >> pure Continue
 handleAudioMessage (SetInput _input@(inputName, channels)) = do
-  mapM_ disposePort =<< getPorts -- Remove the old ports
-  p <- mapM (uncurry newPort) srcTargets -- Create new ports
-  sb <- sampleBufferRef
-  setPorts p
-  setProcessCallback (processCallback p sb) Ptr.nullPtr
-  connectPorts
-  pure Continue
+  liftIO $ putStrLn "Acquiring port lock"
+  withPortLock $ do
+    liftIO $ putStrLn "Acquired port lock!"
+    mapM_ disposePort =<< getPorts -- Remove the old ports
+    p <- mapM (uncurry newPort) srcTargets -- Create new ports
+    -- sb <- sampleBufferRef
+    connectPorts
+    setPorts p
+    pure Continue
   where
     targetPortNames = [T.concat [inputName, ":", c] | c <- channels]
     newPortNames = [T.concat ["in_", T.pack $ show n] | n <- [0,1..(length targetPortNames - 1)]]
@@ -196,6 +217,7 @@ audioLoop :: ( HasAudioClient e
              , MonadReader e m
              , MonadAudioServer m
              , MonadJack m
+             , MonadIO m
              ) => m ()
 audioLoop = do
   msg <- maybe (pure Continue) handleAudioMessage =<< serverRecvMessage
@@ -206,30 +228,34 @@ audioLoop = do
 clientName :: String
 clientName = "mviz"
 
-handleException :: AudioError -> IO ()
+handleException :: (Show a) => AudioException a -> IO ()
 handleException ex = do
   putStrLn $ "Caught exception: " <> show ex
 
 runAudioSystem
-  :: TQueue ClientAudioMessage
+  :: HasCallStack
+  => TQueue ClientAudioMessage
   -> TQueue ServerAudioMessage
   -> IO ()
 runAudioSystem sendChan recvChan = do
   inputPorts <- newIORef []
   sb <- newIORef []
-  handle @AudioError handleException $ do
+  portLock <- newEmptyMVar
+  handle @(AudioException AudioError) handleException $ do
     Client.withClient clientName $ \c -> do
       let state = AudioState { audioSendChannel = sendChan
                             , audioRecvChannel = recvChan
                             , audioClient = c
                             , audioInputPorts = inputPorts
                             , audioSampleBuffer = sb
+                            , audioPortLock = portLock
                             }
       runAudio state $ do
         sampleRate >>= serverSendMessage . SampleRate -- Send the configured sample rate to the client
         bufferSize >>= serverSendMessage . BufferSize -- Send the configured buffer size to the client
         ports >>= serverSendMessage . Ports
         inputs >>= serverSendMessage . Inputs
+        setProcessCallback (processCallback portLock inputPorts sb) Ptr.nullPtr
         -- TODO: Set the shutdown callback
         Client.withActivation c audioLoop
   where runAudio environment (AudioM action) = runReaderT action environment
@@ -237,10 +263,14 @@ runAudioSystem sendChan recvChan = do
 shutdown :: (MonadIO m) => TQueue ServerAudioMessage -> m ()
 shutdown writeChan = liftIO . atomically $ writeTQueue writeChan Quit
 
-processCallback :: [InputPort] -> IORef [[JACKA.Sample]] -> JACK.NFrames -> Ptr Int -> IO Errno
-processCallback p bufferRef nframes _arg =
-    mapM (flip JACKA.getBufferArray nframes . inputPortHandle) p
-    >>= mapM getElems
-    >>= evaluate -- Make sure everything is evaluted
-    >>= writeIORef bufferRef
+processCallback :: (HasCallStack) => MVar () -> IORef [InputPort] -> IORef [[JACKA.Sample]] -> JACK.NFrames -> Ptr Int -> IO Errno
+processCallback lock ipRef bufferRef nframes _arg = do
+    lockAcquired <- tryPutMVar lock ()
+    when lockAcquired $
+      readIORef ipRef
+      >>= mapM (flip JACKA.getBufferArray nframes . inputPortHandle)
+      >>= mapM getElems
+      >>= evaluate -- Make sure everything is evaluted
+      >>= writeIORef bufferRef
+      >> takeMVar lock
     >> pure eOK
