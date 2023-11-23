@@ -31,9 +31,7 @@ import           Control.Monad.Trans.Maybe           (MaybeT)
 import           Data.IORef                          (IORef)
 import qualified Data.Text                           as T
 import           Foreign                             (Ptr)
-import           Foreign.C                           (Errno)
-import           GHC.Stack                           (HasCallStack, SrcLoc,
-                                                      callStack,
+import           GHC.Stack                           (HasCallStack, callStack,
                                                       prettyCallStack)
 import           Mviz.Audio.Inputs                   (InputMap)
 import qualified Sound.JACK                          as JACK
@@ -102,7 +100,7 @@ class Monad m => MonadJack m where
   setPorts :: [InputPort] -> m ()
   getPorts :: m [InputPort]
   portName :: InputPort -> m T.Text
-  connectPorts :: m ()
+  connectPorts :: [InputPort] -> m ()
   disconnectPorts :: m ()
   isPortConnected :: InputPort -> m Bool
   setProcessCallback :: JACK.Process a -> Ptr a -> m ()
@@ -113,7 +111,7 @@ class Monad m => MonadJack m where
 class Monad m => MonadAudioServer m where
   serverRecvChannel :: m (TQueue ServerAudioMessage)
   serverSendChannel :: m (TQueue ClientAudioMessage)
-  serverRecvMessage :: m (Maybe ServerAudioMessage)
+  serverRecvMessage :: m ServerAudioMessage
   serverSendMessage :: ClientAudioMessage -> m ()
 
 class Monad m => MonadAudioClient m where

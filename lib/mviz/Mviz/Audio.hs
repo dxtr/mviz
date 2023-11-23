@@ -9,41 +9,44 @@ module Mviz.Audio
   , HasClientChannel (..)
   ) where
 
-import           Control.Concurrent      (MVar, newEmptyMVar, newMVar, putMVar,
-                                          takeMVar, tryPutMVar)
-import           Control.Concurrent.STM  (TQueue, atomically, tryReadTQueue,
-                                          writeTQueue)
-import           Control.Exception       (evaluate, handle)
-import           Control.Monad           (when)
-import           Control.Monad.IO.Class  (MonadIO, liftIO)
-import           Control.Monad.IO.Unlift (MonadUnliftIO)
-import           Control.Monad.Reader    (MonadReader, ReaderT, ask, asks,
-                                          runReaderT)
-import           Data.Array.Base         (getElems)
-import           Data.Functor            ((<&>))
-import           Data.IORef              (IORef, newIORef, readIORef,
-                                          writeIORef)
-import qualified Data.Text               as T
-import           Foreign                 (Ptr)
-import qualified Foreign                 as Ptr
-import           Foreign.C               (CFloat)
-import           Foreign.C.Error         (Errno, eOK)
-import           GHC.Stack               (HasCallStack)
-import qualified Mviz.Audio.Client       as Client
-import           Mviz.Audio.Inputs       (InputMap, mkInputMap)
-import           Mviz.Audio.Types        (AudioError, AudioException,
-                                          ClientAudioMessage (..),
-                                          HasAudioClient (..),
-                                          HasClientChannel (..),
-                                          HasInputPorts (..), HasPortLock (..),
-                                          HasSamples (getSampleBufferRef),
-                                          HasServerChannel (..), InputPort (..),
-                                          JackReturnType, MonadAudioServer (..),
-                                          MonadJack (..),
-                                          ServerAudioMessage (..))
-import qualified Sound.JACK              as JACK
-import qualified Sound.JACK.Audio        as JACKA
-import           UnliftIO.Exception      (bracket_)
+import           Control.Concurrent            (MVar, newEmptyMVar, newMVar,
+                                                putMVar, takeMVar, tryPutMVar)
+import           Control.Concurrent.STM        (TQueue, atomically,
+                                                tryReadTQueue, writeTQueue)
+import           Control.Concurrent.STM.TQueue (readTQueue)
+import           Control.Exception             (evaluate, handle)
+import           Control.Monad                 (when)
+import           Control.Monad.IO.Class        (MonadIO, liftIO)
+import           Control.Monad.IO.Unlift       (MonadUnliftIO)
+import           Control.Monad.Reader          (MonadReader, ReaderT, ask, asks,
+                                                runReaderT)
+import           Data.Array.Base               (getElems)
+import           Data.Functor                  ((<&>))
+import           Data.IORef                    (IORef, newIORef, readIORef,
+                                                writeIORef)
+import qualified Data.Text                     as T
+import           Foreign                       (Ptr)
+import qualified Foreign                       as Ptr
+import           Foreign.C                     (CFloat)
+import           Foreign.C.Error               (Errno, eOK)
+import           GHC.Stack                     (HasCallStack)
+import qualified Mviz.Audio.Client             as Client
+import           Mviz.Audio.Inputs             (InputMap, mkInputMap)
+import           Mviz.Audio.Types              (AudioError, AudioException,
+                                                ClientAudioMessage (..),
+                                                HasAudioClient (..),
+                                                HasClientChannel (..),
+                                                HasInputPorts (..),
+                                                HasPortLock (..),
+                                                HasSamples (getSampleBufferRef),
+                                                HasServerChannel (..),
+                                                InputPort (..), JackReturnType,
+                                                MonadAudioServer (..),
+                                                MonadJack (..),
+                                                ServerAudioMessage (..))
+import qualified Sound.JACK                    as JACK
+import qualified Sound.JACK.Audio              as JACKA
+import           UnliftIO.Exception            (bracket_)
 
 data AudioState = AudioState
   { audioSendChannel  :: TQueue ClientAudioMessage
@@ -118,9 +121,9 @@ instance (HasAudioClient env, HasInputPorts env, HasSamples env, HasPortLock env
   portName InputPort{inputPortHandle = h} = do
     liftIO $ JACK.portName h <&> T.pack
 
-  connectPorts :: HasCallStack => AudioM env ()
-  connectPorts = do
-    p <- getPorts
+  connectPorts :: HasCallStack => [InputPort] -> AudioM env ()
+  connectPorts p = do
+    -- p <- getPorts
     c <- asks getAudioClient
     mapM_ (\InputPort{inputPortName = srcName, inputPortTarget = targetName} -> do
       -- srcName <- portName src
@@ -160,8 +163,8 @@ instance (HasServerChannel env, HasClientChannel env) => MonadAudioServer (Audio
   serverSendChannel :: (HasServerChannel env, HasClientChannel env) => AudioM env (TQueue ClientAudioMessage)
   serverSendChannel = asks getClientChannel
 
-  serverRecvMessage :: (HasServerChannel env, HasClientChannel env) => AudioM env (Maybe ServerAudioMessage)
-  serverRecvMessage = liftIO . atomically . tryReadTQueue =<< serverRecvChannel
+  serverRecvMessage :: (HasServerChannel env, HasClientChannel env) => AudioM env ServerAudioMessage
+  serverRecvMessage = liftIO . atomically . readTQueue =<< serverRecvChannel
 
   serverSendMessage :: (HasServerChannel env, HasClientChannel env) => ClientAudioMessage -> AudioM env ()
   serverSendMessage msg = serverSendChannel >>= \c -> liftIO . atomically $ writeTQueue c msg
@@ -195,13 +198,11 @@ handleAudioMessage GetBufferSize = bufferSize >>= serverSendMessage . BufferSize
 handleAudioMessage GetSampleRate = sampleRate >>= serverSendMessage . SampleRate >> pure Continue
 handleAudioMessage GetInputs = inputs >>= serverSendMessage . Inputs >> pure Continue
 handleAudioMessage (SetInput _input@(inputName, channels)) = do
-  liftIO $ putStrLn "Acquiring port lock"
   withPortLock $ do
-    liftIO $ putStrLn "Acquired port lock!"
     mapM_ disposePort =<< getPorts -- Remove the old ports
     p <- mapM (uncurry newPort) srcTargets -- Create new ports
     -- sb <- sampleBufferRef
-    connectPorts
+    connectPorts p
     setPorts p
     pure Continue
   where
@@ -220,7 +221,7 @@ audioLoop :: ( HasAudioClient e
              , MonadIO m
              ) => m ()
 audioLoop = do
-  msg <- maybe (pure Continue) handleAudioMessage =<< serverRecvMessage
+  msg <- handleAudioMessage =<< serverRecvMessage
   case msg of
     Stop     -> pure ()
     Continue -> audioLoop
