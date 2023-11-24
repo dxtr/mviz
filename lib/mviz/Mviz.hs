@@ -3,7 +3,7 @@
 
 module Mviz where
 
-import           Control.Concurrent.Async   (asyncBound, wait)
+import           Control.Concurrent.Async   (async, wait)
 import           Control.Concurrent.STM     (newTQueueIO)
 import           Control.Exception          (bracket)
 import           Control.Monad              (unless, when)
@@ -155,7 +155,7 @@ startup = do
   _res <- runExceptT $ ExceptT $ Mviz.UI.initialize wnd
   audioSendChannel <- newTQueueIO
   audioRecvChannel <- newTQueueIO
-  audioThread <- asyncBound $ Mviz.Audio.runAudioSystem audioRecvChannel audioSendChannel
+  audioThread <- async $ Mviz.Audio.runAudioSystem audioRecvChannel audioSendChannel
   logBuffer <- RB.empty 100
   logWindow <- makeLogWindow True
   showUI <- newIORef True
