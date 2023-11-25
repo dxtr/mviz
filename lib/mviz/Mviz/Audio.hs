@@ -9,10 +9,9 @@ module Mviz.Audio
   , HasClientChannel (..)
   ) where
 
-import           Control.Concurrent            (MVar, newEmptyMVar, newMVar,
-                                                putMVar, takeMVar, tryPutMVar)
-import           Control.Concurrent.STM        (TQueue, atomically,
-                                                tryReadTQueue, writeTQueue)
+import           Control.Concurrent            (MVar, newEmptyMVar, putMVar,
+                                                takeMVar, tryPutMVar)
+import           Control.Concurrent.STM        (TQueue, atomically, writeTQueue)
 import           Control.Concurrent.STM.TQueue (readTQueue)
 import           Control.Exception             (evaluate, handle)
 import           Control.Monad                 (when)
