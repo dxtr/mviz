@@ -8,9 +8,6 @@ insert_final_newline = true
 charset = utf-8
 end_of_line = lf
 
-[Makefile]
-indent_style = tab
-
-[*.{c,cpp}]
+[*.{c,cpp,h}]
 indent_style = space
 indent_size = 2
