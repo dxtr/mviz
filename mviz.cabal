@@ -12,6 +12,10 @@ category:           audio
 build-type:         Simple
 extra-doc-files:    README.md, CHANGELOG.md
 
+source-repository head
+    type: git
+    location: https://github.com/dxtr/mviz
+
 common warnings
     ghc-options: -Wall
 
