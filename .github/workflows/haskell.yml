@@ -24,6 +24,11 @@ jobs:
         with:
           submodules: true
       
+      - name: Install OS dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential libsdl2-dev libjack-dev libglew-dev libfftw3-dev
+      
       - name: Set up GHC ${{ matrix.ghc-version }}
         uses: haskell-actions/setup@v2
         id: setup
@@ -46,11 +51,6 @@ jobs:
           path: ${{ steps.setup.outputs.cabal-store }}
           key: ${{ env.key }}-plan-${{ hashFiles('**/plan.json') }}
           restore-keys: ${{ env.key }}-
-      
-      - name: Install OS dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y build-essential libsdl2-dev libjack-dev libglew-dev libfftw3-dev
 
       - name: Install Haskell dependencies
         if: steps.cache.outputs.cache-hit != 'true'
