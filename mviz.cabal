@@ -12,12 +12,6 @@ category:           audio
 build-type:         Simple
 extra-doc-files:    README.md, CHANGELOG.md
 
-extra-source-files:
-    vendor/imgui/*
-
-common optimize
-    ghc-options: -O1
-
 common warnings
     ghc-options: -Wall
 
@@ -41,9 +35,8 @@ library imgui
         ImGui.Structs,
         ImGui.Raw
 
-    ghc-options: -O1
-    cc-options: -std=c11 -O1 -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_SDL2 -DIMGUI_DISABLE_OBSOLETE_FUNCTIONS -DIMGUI_DISABLE_OBSOLETE_KEYIO
-    cxx-options: -std=c++11 -O1 -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_SDL2 -DIMGUI_DISABLE_OBSOLETE_FUNCTIONS -DIMGUI_DISABLE_OBSOLETE_KEYIO
+    cc-options: -std=c11 -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_SDL2 -DIMGUI_DISABLE_OBSOLETE_FUNCTIONS -DIMGUI_DISABLE_OBSOLETE_KEYIO
+    cxx-options: -std=c++11 -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_SDL2 -DIMGUI_DISABLE_OBSOLETE_FUNCTIONS -DIMGUI_DISABLE_OBSOLETE_KEYIO
     cpp-options: -DIMGUI_DISABLE_OBSOLETE_FUNCTIONS -DIMGUI_DISABLE_OBSOLETE_KEYIO
     cxx-sources:
         vendor/imgui/imgui.cpp
@@ -61,23 +54,23 @@ library imgui
         text ^>=2.0.1,
         sdl2,
         StateVar,
-        inline-c,
-        inline-c-cpp,
-        unliftio,
-        unliftio-core,
+        inline-c >= 0.9.1 && < 0.10,
+        inline-c-cpp >= 0.5.0 && < 0.6,
+        unliftio >= 0.2.25 && < 0.3,
+        unliftio-core >= 0.2.1 && < 0.3,
         containers
     pkgconfig-depends: gl >= 1.2, sdl2 >= 2.0.20 && < 3.0.0
 
     hs-source-dirs:   lib/imgui
     default-language: GHC2021
-    ghc-options: -O0 -g2
-    -- ghc-options: -O1 -fllvm
         
 library
     import:           warnings
+    autogen-modules: Paths_mviz
     exposed-modules:
         Mviz,
-        Mviz.Utils.Audio
+        Mviz.Utils.Audio,
+        Paths_mviz
     other-modules:
         Mviz.Audio,
         Mviz.Audio.Inputs,
@@ -106,35 +99,33 @@ library
 --    other-extensions: Strict
     build-depends:
         base ^>=4.18.0.0,
-        OpenGL,
-        StateVar,
-        async,
-        bytestring,
-        containers,
-        explicit-exception,
-        hashable,
+        OpenGL >= 3.0.3 && < 3.1,
+        StateVar >= 1.2.2 && < 1.3,
+        async >= 2.2.4 && < 2.3,
+        bytestring >= 0.11.5 && < 0.12,
+        containers >= 0.6.7 && < 0.7,
+        explicit-exception >= 0.2 && < 0.3,
+        hashable >= 1.4.3 && < 1.5,
         mviz:imgui,
-        jack,
-        monad-logger,
-        mtl,
-        sdl2,
-        stm,
-        template-haskell,
-        text,
-        time,
-        transformers,
-        unliftio,
-        unliftio-core,
-        unordered-containers,
-        vector,
-        array,
-        comfort-array,
-        comfort-fftw
+        jack >= 0.7.2 && < 0.8,
+        monad-logger >= 0.3.40 && < 0.4,
+        mtl >= 2.3.1 && < 2.4,
+        sdl2 >= 2.5.5 && < 2.6,
+        stm >= 2.5.1 && < 2.6,
+        template-haskell >= 2.20.0 && < 2.21,
+        text >= 2.0.2 && < 2.1,
+        time >= 1.12.2 && < 1.13,
+        transformers >= 0.6.1 && < 0.7,
+        unliftio >= 0.2.25 && < 0.3,
+        unliftio-core >= 0.2.1 && < 0.3,
+        unordered-containers >= 0.2.19 && < 0.3,
+        vector >= 0.13.1 && < 0.14,
+        array >= 0.5.5 && < 0.6,
+        comfort-array >= 0.5.3 && < 0.6,
+        comfort-fftw >= 0.0.0 && < 0.1
 
     hs-source-dirs:   lib/mviz
     default-language: GHC2021
-    ghc-options: -O0 -g2
-    -- ghc-options: -O1 -fllvm
 
 executable mviz
     -- Import common warning flags.
@@ -160,8 +151,6 @@ executable mviz
 
     -- Base language which the package is written in.
     default-language: GHC2021
-    ghc-options: -O0 -g2
-    -- ghc-options: -O1 -fllvm
 
 test-suite mviz-test
     -- Import common warning flags.
