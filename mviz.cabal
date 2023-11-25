@@ -75,7 +75,9 @@ library imgui
         
 library
     import:           warnings
-    exposed-modules:  Mviz
+    exposed-modules:
+        Mviz,
+        Mviz.Utils.Audio
     other-modules:
         Mviz.Audio,
         Mviz.Audio.Inputs,
@@ -94,6 +96,7 @@ library
         Mviz.UI.LogWindow,
         Mviz.UI.SettingsWindow,
         Mviz.Utils,
+        -- Mviz.Utils.Audio,
         Mviz.Utils.Ringbuffer,
         Mviz.Utils.Time,
         Mviz.Window,
@@ -168,7 +171,9 @@ test-suite mviz-test
     default-language: GHC2021
 
     -- Modules included in this executable, other than Main.
-    -- other-modules:
+    other-modules:
+        Utils.AudioSpec,
+        Paths_mviz
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -180,9 +185,11 @@ test-suite mviz-test
     hs-source-dirs:   test
 
     -- The entrypoint to the test suite.
-    main-is:          Main.hs
+    main-is:          Spec.hs
 
     -- Test dependencies.
+    build-tool-depends: hspec-discover:hspec-discover
     build-depends:
         base ^>=4.18.0.0,
+        hspec,
         mviz
