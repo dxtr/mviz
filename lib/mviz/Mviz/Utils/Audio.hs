@@ -7,18 +7,25 @@ module Mviz.Utils.Audio
 
 import qualified Data.Array.Comfort.Shape    as Shape
 import qualified Data.Array.Comfort.Storable as Arr (fromList, toList)
-import           Data.Complex                (Complex, imagPart, realPart)
+import           Data.Complex                (Complex ((:+)), imagPart,
+                                              realPart)
 import           Data.List.NonEmpty          (NonEmpty)
 import qualified Data.List.NonEmpty          as NE
 import qualified Numeric.FFTW.Rank1          as FFT
 import qualified Numeric.FFTW.Shape          as Spectrum
 
-frequencies :: (Integral a, RealFloat b) => a -> a -> [b]
+frequencies :: Int -> Int -> NonEmpty Float
+frequencies _ 0 = error "bufferSize cannot be 0"
+frequencies 0 _ = error "sampleRate cannot be 0"
 frequencies sampleRate bufferSize =
-    [ fromIntegral i * (fromIntegral sampleRate / fromIntegral bufferSize) | i <- [0..numFreq] ]
+    NE.fromList [ fromIntegral i * (fromIntegral sampleRate / fromIntegral bufferSize) | i <- [0..numFreq] ]
     where numFreq = (bufferSize `quot` 2) - 1
 
 magnitude :: Complex Float -> Float
+magnitude (0.0 :+ 0.0) = 0.0
+magnitude (1.0 :+ 0.0) = 1.0
+magnitude (0.0 :+ 1.0) = 1.0
+magnitude (1.0 :+ 1.0) = 1.4142135
 magnitude bin =
     sqrt (re*re + im*im)
     where re = realPart bin

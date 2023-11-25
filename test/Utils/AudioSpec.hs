@@ -3,7 +3,7 @@ module Utils.AudioSpec (spec) where
 import           Control.Exception  (evaluate)
 import           Data.Complex       (Complex ((:+)))
 import           Data.List.NonEmpty (NonEmpty ((:|)))
-import           Mviz.Utils.Audio   (fft, ffti)
+import           Mviz.Utils.Audio   (fft, ffti, frequencies, magnitude)
 import           Test.Hspec         (Spec, anyErrorCall, describe, it, shouldBe,
                                      shouldThrow)
 
@@ -20,3 +20,17 @@ spec = do
             ffti 4 (4.0 :+ 0.0 :| [(-4.0) :+ (-2.0), 0.0 :+ 0.0]) `shouldBe` -1 :| [2,3,0]
         it "throws error" $ do
             evaluate (ffti 0 (-1 :| [])) `shouldThrow` anyErrorCall
+    describe "frequencies" $ do
+        it "throws error" $ do
+            evaluate (frequencies 0 1) `shouldThrow` anyErrorCall
+            evaluate (frequencies 1 0) `shouldThrow` anyErrorCall
+    describe "magnitude" $ do
+        it "returns 0" $ do
+            magnitude (0.0 :+ 0.0) `shouldBe` sqrt 0
+        it "returns 1" $ do
+            magnitude (1.0 :+ 0.0) `shouldBe` sqrt 1
+            magnitude (0.0 :+ 1.0) `shouldBe` sqrt 1
+        it "returns sqrt 2" $ do
+            magnitude (1.0 :+ 1.0) `shouldBe` sqrt 2
+        it "returns" $ do
+            magnitude (2.0 :+ 2.0) `shouldBe` sqrt (4+4)
