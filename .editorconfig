@@ -11,6 +11,6 @@ end_of_line = lf
 [Makefile]
 indent_style = tab
 
-[*.c]
+[*.{c,cpp}]
 indent_style = space
 indent_size = 2
