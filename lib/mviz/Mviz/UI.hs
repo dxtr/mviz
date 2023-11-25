@@ -34,7 +34,7 @@ import           Data.Functor              ((<&>))
 import           Mviz.Audio.Types          (MonadAudio (..))
 import           Mviz.UI.LogWindow         (MonadLogWindow (..),
                                             renderLogWindow)
-import           Mviz.UI.SettingsWindow    (MonadSettingsWindow (getSelectedInput),
+import           Mviz.UI.SettingsWindow    (MonadSettingsWindow,
                                             renderSettingsWindow)
 import           Mviz.UI.Types             (HasUI, MonadUI, UIContext)
 import           Mviz.Utils                ((<&&>))
