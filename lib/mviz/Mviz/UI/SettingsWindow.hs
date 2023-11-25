@@ -91,9 +91,6 @@ renderShaderList = do
             pure $ Just ()
     endGroup
 
--- TODO: Somehow indicate that settings have changed
--- (return value perhaps?). This is needed to, for example,
--- let the audio thread know that it has to change ports
 renderSettingsWindow :: ( MonadUI m
                         , MonadSettingsWindow m
                         , MonadLogger m

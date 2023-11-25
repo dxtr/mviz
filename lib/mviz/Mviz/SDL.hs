@@ -16,7 +16,7 @@ module Mviz.SDL (
   createGlContext
 ) where
 
-import           Control.Monad.IO.Unlift
+import           Control.Monad.IO.Unlift (MonadIO (..), MonadUnliftIO)
 import qualified Data.Text               as T
 import           Foreign.C.String        (peekCString)
 -- import qualified Graphics.Rendering.OpenGL as SDLGL

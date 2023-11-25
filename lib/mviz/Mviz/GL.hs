@@ -12,8 +12,6 @@ module Mviz.GL
 import           Control.Monad.IO.Class    (MonadIO)
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Mviz.SDL.Types            as Mviz.SDL (GLContext)
--- import           Mviz.Window               (IsNativeWindow)
--- import           Mviz.GL.Types
 import           Mviz.Window.Types         (HasNativeWindow (..),
                                             Window (windowGlContext))
 import qualified SDL

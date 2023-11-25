@@ -10,7 +10,7 @@ module Mviz.Window
   , destroyWindow
   ) where
 
-import           Control.Monad.IO.Unlift
+import           Control.Monad.IO.Unlift (MonadIO (..), MonadUnliftIO)
 import qualified Data.Text               as T
 import qualified Mviz.SDL                (createGlContext, createWindow,
                                           destroyWindow, getDrawableSize,

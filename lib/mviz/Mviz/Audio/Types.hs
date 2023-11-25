@@ -46,9 +46,7 @@ data InputPort = InputPort { inputPortName   :: T.Text
                            , inputPortTarget :: T.Text
                            }
 
-data AudioError =
-  AudioError { audioErrorMessage :: String
-             }
+newtype AudioError = AudioError { audioErrorMessage :: String }
 
 instance Show AudioError where
   show = audioErrorMessage

@@ -18,20 +18,18 @@ module Mviz.UI
   ) where
 
 import           Control.Monad.IO.Class    (MonadIO, liftIO)
+import           Control.Monad.Logger      (MonadLogger)
 import           Control.Monad.Reader      (MonadReader)
 import           Control.Monad.Trans.Maybe (MaybeT (..), runMaybeT)
+import           Data.Functor              ((<&>))
 import qualified Data.Text                 as T
 import qualified ImGui
 import qualified ImGui.GL
 import qualified ImGui.SDL
+import           Mviz.Audio.Types          (MonadAudio (..))
 import           Mviz.GL                   (GLMakeCurrent (..),
                                             HasGLContext (..))
 import           Mviz.Logger               (MonadLog (..))
--- import           Mviz.SDL                  (glContext, sdlWindow)
--- import           Mviz.Types                (MvizEnvironment (..))
-import           Control.Monad.Logger      (MonadLogger)
-import           Data.Functor              ((<&>))
-import           Mviz.Audio.Types          (MonadAudio (..))
 import           Mviz.UI.LogWindow         (MonadLogWindow (..),
                                             renderLogWindow)
 import           Mviz.UI.SettingsWindow    (MonadSettingsWindow,

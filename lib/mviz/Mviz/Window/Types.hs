@@ -28,4 +28,5 @@ class HasNativeWindow a where
   getNativeWindow :: a -> Mviz.SDL.SDLWindow
 
 instance HasNativeWindow Window where
+  getNativeWindow :: Window -> Mviz.SDL.SDLWindow
   getNativeWindow = windowHandle
