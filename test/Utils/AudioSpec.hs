@@ -12,6 +12,7 @@ spec = do
             fft 4 [-1,2,3,0] `shouldBe` Right [4.0 :+ 0.0, (-4.0) :+ (-2.0), 0.0 :+ 0.0]
             fft 8 [2, 1,-1,5,0,3,0,-4] `shouldBe` Right [6.0 :+ 0.0, (-5.7781744) :+ (-3.9497476), 3.0 :+ (-3.0), 9.778174 :+ (-5.9497476), (-4.0) :+ 0.0]
             fft 0 [] `shouldBe` Right []
+            fft 1 [] `shouldBe` Right []
             fft 1 [-1] `shouldBe` Right [(-1.0) :+ 0.0]
             fft 0 [-1] `shouldBe` Right []
             fft 2 [-1] `shouldSatisfy` isLeft
@@ -20,7 +21,9 @@ spec = do
         it "calculates the inverse fft" $ do
             ffti 4 [4.0 :+ 0.0, (-4.0) :+ (-2.0), 0.0 :+ 0.0] `shouldBe` Right [-1, 2, 3, 0]
             ffti 0 [-1] `shouldBe` Right []
+            ffti 1 [] `shouldBe` Right []
             ffti 1 [-1] `shouldBe` Right [-1.0]
+            ffti 2 [-1, -2, -3] `shouldSatisfy` isLeft
     describe "fft symmetry" $ do
         it "calculates fft -> ffti -> fft" $ do
             (fft 4 [-1,2,3,0] >>= ffti 4 >>= fft 4 >>= ffti 4) `shouldBe` Right [-1,2,3,0]
