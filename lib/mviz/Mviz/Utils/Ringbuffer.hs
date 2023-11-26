@@ -16,24 +16,24 @@ import qualified Data.Vector            as V
 import qualified Data.Vector.Mutable    as MV
 
 data Ringbuffer a = Ringbuffer
-  { ringIndex  :: IORef Word
+  { ringIndex  :: IORef Int
   , ringSize   :: !Word
   , ringBuffer :: MV.MVector (MV.PrimState IO) (Maybe a)
   }
 
-currentIndex :: (MonadIO m) => Ringbuffer a -> m Word
+currentIndex :: (MonadIO m) => Ringbuffer a -> m Int
 currentIndex Ringbuffer{ringIndex = idx} = liftIO $ readIORef idx
 
-nextIndex :: (MonadIO m) => Ringbuffer a -> m Word
+nextIndex :: (MonadIO m) => Ringbuffer a -> m Int
 nextIndex rb = nextIndex' rb <$> currentIndex rb
 
-nextIndex' :: Ringbuffer a -> Word -> Word
+nextIndex' :: Ringbuffer a -> Int -> Int
 nextIndex' Ringbuffer{ringSize = rsize} idx = (idx + 1) `mod` fromIntegral rsize
 
-previousIndex' :: Ringbuffer a -> Word -> Word
+previousIndex' :: Ringbuffer a -> Int -> Int
 previousIndex' Ringbuffer{ringSize = rsize} idx = (idx - 1) `mod` fromIntegral rsize
 
-updateIndex :: (MonadIO m) => Ringbuffer a -> m Word
+updateIndex :: (MonadIO m) => Ringbuffer a -> m Int
 updateIndex ringbuffer@Ringbuffer{ringIndex = idx} =
   nextIndex ringbuffer >>= \nextIdx ->
     liftIO $ atomicModifyIORef' idx (const (nextIdx, nextIdx))
@@ -44,9 +44,9 @@ make_ items = do
   buf <- liftIO . V.thaw $ V.fromList items
   -- buf <- mapM newIORef items
   pure $ Ringbuffer { ringIndex = idx
-                    , ringSize = foldl' (\c _ -> c + 1) 0 items
-                    , ringBuffer = buf
-                    }
+                      , ringSize = foldl' (\c _ -> c + 1) 0 items
+                      , ringBuffer = buf
+                      }
 
 make :: (MonadIO m) => [a] -> m (Ringbuffer a)
 make items = make_ $ map Just items
@@ -58,17 +58,17 @@ put :: (MonadIO m) => Ringbuffer a -> a -> m ()
 put ringBuffer@Ringbuffer{ringBuffer = buffer} newItem =
   nextIndex ringBuffer
   >>= \idx -> do
-    liftIO $ MV.write buffer (fromIntegral idx) (Just newItem)
+    liftIO $ MV.write buffer idx (Just newItem)
     _ <- updateIndex ringBuffer
     pure ()
 
-toList' :: (MonadIO m) => Ringbuffer a -> Word -> Word -> [Maybe a] -> m [Maybe a]
+toList' :: (MonadIO m) => Ringbuffer a -> Int -> Int -> [Maybe a] -> m [Maybe a]
 toList' rb@Ringbuffer{ringBuffer = buffer} endIndex cIdx acc
   | endIndex == cIdx = do
-    currItem <- liftIO $ MV.read buffer (fromIntegral cIdx)
+    currItem <- liftIO $ MV.read buffer cIdx
     pure $ acc ++ [currItem]
   | otherwise = do
-    currItem <- liftIO $ MV.read buffer (fromIntegral cIdx)
+    currItem <- liftIO $ MV.read buffer cIdx
     toList' rb endIndex (previousIndex' rb cIdx) (acc ++ [currItem])
 
 toList :: (MonadIO m) => Ringbuffer a -> m [a]
