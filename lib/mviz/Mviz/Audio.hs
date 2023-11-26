@@ -27,7 +27,7 @@ import           Data.IORef                    (IORef, newIORef, readIORef,
 import qualified Data.Text                     as T
 import           Foreign                       (Ptr)
 import qualified Foreign                       as Ptr
-import           Foreign.C                     (CFloat (CFloat))
+import           Foreign.C                     (CFloat)
 import           Foreign.C.Error               (Errno, eOK)
 import           GHC.Stack                     (HasCallStack)
 import qualified Mviz.Audio.Client             as Client
