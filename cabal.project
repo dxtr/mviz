@@ -3,4 +3,5 @@ packages: ./*.cabal
 package mviz
     optimization: 1
 
-
+package mviz-prof
+    optimization: 0

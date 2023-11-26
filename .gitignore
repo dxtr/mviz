@@ -6,3 +6,7 @@ cabal.project.local
 *~
 *.tar
 *.tar.gz
+*.aux
+*.hp
+*.prof
+*.ps

@@ -157,6 +157,21 @@ executable mviz
     -- Base language which the package is written in.
     default-language: GHC2021
 
+executable mviz-prof
+    import:           warnings
+    import:           threaded
+    main-is:          Main.hs
+    hs-source-dirs:   app
+    default-language: GHC2021
+
+    build-depends:
+        base ^>=4.18.0.0,
+        mviz:mviz
+
+    ghc-options:
+      -fprof-auto
+      "-with-rtsopts=-N -p -s -hc -xc -i0.1"
+
 test-suite mviz-test
     -- Import common warning flags.
     import:           warnings
