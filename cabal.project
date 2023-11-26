@@ -1,7 +1,22 @@
 packages: ./*.cabal
 
 package mviz
-    optimization: 1
+    optimization: True
+    tests: True
+    coverage: True
+    profiling: False
+    benchmarks: False
+    debug-info: False
+    executable-stripping: True
+    library-stripping: True
 
 package mviz-prof
-    optimization: 0
+    optimization: False
+    profiling: True
+    profiling-detail: all-functions
+    tests: True
+    coverage: True
+    benchmarks: True
+    debug-info: True
+    executable-stripping: False
+    library-stripping: False
