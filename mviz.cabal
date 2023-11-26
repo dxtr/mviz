@@ -21,7 +21,10 @@ common warnings
     ghc-options: -Wall
 
 common threaded
-    ghc-options: -threaded -rtsopts -with-rtsopts=-N 
+    ghc-options:
+      -threaded
+      -rtsopts
+      -with-rtsopts=-N 
 
 library imgui
     import: warnings
@@ -76,6 +79,7 @@ library
         Mviz,
         Mviz.Audio,
         Mviz.Utils.Audio,
+        Mviz.Utils.Either,
         Paths_mviz
     other-modules:
         Mviz.Audio.Inputs,
@@ -101,7 +105,6 @@ library
         Mviz.Window.Types,
         Mviz.Window.Events
 
---    other-extensions: Strict
     build-depends:
         base ^>=4.18.0.0,
         OpenGL >= 3.0.3 && < 3.1,
@@ -133,33 +136,17 @@ library
     default-language: GHC2021
 
 executable mviz
-    -- Import common warning flags.
     import:           warnings
     import:           threaded
-
-    -- .hs or .lhs file containing the Main module.
     main-is:          Main.hs
-
-    -- Modules included in this executable, other than Main.
-    -- other-modules:
-
-    -- LANGUAGE extensions used by modules in this package.
-    -- other-extensions:
-
-    -- Other library packages from which modules are imported.
+    hs-source-dirs:   app
+    default-language: GHC2021
     build-depends:
         base ^>=4.18.0.0,
         mviz:mviz
 
-    -- Directories containing source files.
-    hs-source-dirs:   app
-
-    -- Base language which the package is written in.
-    default-language: GHC2021
-
 executable mviz-prof
     import:           warnings
-    import:           threaded
     main-is:          Main.hs
     hs-source-dirs:   app
     default-language: GHC2021
@@ -169,37 +156,25 @@ executable mviz-prof
         mviz:mviz
 
     ghc-options:
+      -threaded
       -fprof-auto
       "-with-rtsopts=-N -p -s -hc -xc -i0.1"
 
 test-suite mviz-test
-    -- Import common warning flags.
     import:           warnings
-
-    -- Base language which the package is written in.
     default-language: GHC2021
-
-    -- Modules included in this executable, other than Main.
     other-modules:
         AudioSpec,
         Utils.AudioSpec,
+        Utils.EitherSpec,
         Paths_mviz
 
-    -- LANGUAGE extensions used by modules in this package.
-    -- other-extensions:
-
-    -- The interface type and version of the test suite.
     type:             exitcode-stdio-1.0
-
-    -- Directories containing source files.
     hs-source-dirs:   test
-
-    -- The entrypoint to the test suite.
     main-is:          Spec.hs
-
-    -- Test dependencies.
     build-tool-depends: hspec-discover:hspec-discover
     build-depends:
         base ^>=4.18.0.0,
         hspec,
+        mtl,
         mviz
