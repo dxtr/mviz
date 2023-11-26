@@ -11,6 +11,7 @@ import           Data.Complex                (Complex ((:+)), imagPart,
                                               realPart)
 import           Data.List.NonEmpty          (NonEmpty)
 import qualified Data.List.NonEmpty          as NE
+import           GHC.Stack                   (HasCallStack)
 import qualified Numeric.FFTW.Rank1          as FFT
 import qualified Numeric.FFTW.Shape          as Spectrum
 
@@ -33,16 +34,18 @@ magnitude bin =
 
 -- TODO: Create a function for amplitude?
 
-fft :: Int -> NonEmpty Float -> NonEmpty (Complex Float)
-fft 0 _ = error "Size cannot be 0"
-fft bufferSize input =
-    NE.fromList . Arr.toList . FFT.fourierRC $ Arr.fromList shape inp
+fft :: (HasCallStack) => Word -> [Float] -> [Complex Float]
+fft _ [] = []
+fft bufferSize input
+  | bufferSize == 1 = error "buffer size too small"
+  | bufferLength /= fromIntegral bufferSize = error $ "input and bufferSize mismatch: " <> show bufferLength <> " " <> show bufferSize
+  | otherwise = Arr.toList . FFT.fourierRC $ Arr.fromList shape input
     where shape = Shape.Cyclic bufferSize
-          inp = NE.toList input
+          bufferLength = length input
 
-ffti :: Int -> NonEmpty (Complex Float) -> NonEmpty Float
-ffti 0 _ = error "Size cannot be 0"
-ffti bufferSize input =
-  NE.map (\x -> x / fromIntegral bufferSize) $ NE.fromList . Arr.toList . FFT.fourierCR $ Arr.fromList shape inp
-  where shape = Spectrum.Half bufferSize
-        inp = NE.toList input
+ffti :: (HasCallStack) => Word -> [Complex Float] -> [Float]
+ffti bufferSize input
+  | bufferSize <= 1 = error "buffer size too small"
+--  | length input /= fromIntegral bufferSize = error "input and bufferSize mismatch"
+  | otherwise = map (\x -> x / fromIntegral bufferSize) $ Arr.toList . FFT.fourierCR $ Arr.fromList shape input
+    where shape = Spectrum.Half bufferSize

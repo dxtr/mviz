@@ -74,10 +74,10 @@ library
     autogen-modules: Paths_mviz
     exposed-modules:
         Mviz,
+        Mviz.Audio,
         Mviz.Utils.Audio,
         Paths_mviz
     other-modules:
-        Mviz.Audio,
         Mviz.Audio.Inputs,
         Mviz.Audio.Client,
         Mviz.Audio.Types,
@@ -166,6 +166,7 @@ test-suite mviz-test
 
     -- Modules included in this executable, other than Main.
     other-modules:
+        AudioSpec,
         Utils.AudioSpec,
         Paths_mviz
 

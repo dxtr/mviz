@@ -28,6 +28,7 @@ import           Control.Exception                   (Exception)
 import qualified Control.Monad.Exception.Synchronous as Sync
 import           Control.Monad.Trans.Class           (lift)
 import           Control.Monad.Trans.Maybe           (MaybeT)
+import           Data.Complex                        (Complex)
 import           Data.IORef                          (IORef)
 import qualified Data.Text                           as T
 import           Foreign                             (Ptr)
@@ -68,7 +69,7 @@ data ClientAudioMessage
   | Inputs InputMap
   | SampleRate Word -- Inform the client about the sample rate
   | BufferSize Word -- Inform the client about the buffer size
-  | Samples [Float]
+  | Samples [Complex Float]
   deriving (Show)
 
 -- Messages directed to the server

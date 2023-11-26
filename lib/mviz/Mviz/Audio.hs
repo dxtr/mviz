@@ -3,6 +3,7 @@
 module Mviz.Audio
   ( runAudioSystem
   , shutdown
+  , mixChannelBuffers
   , ClientAudioMessage (..)
   , ServerAudioMessage (..)
   , HasServerChannel (..)
@@ -13,7 +14,7 @@ import           Control.Concurrent            (MVar, newEmptyMVar, putMVar,
                                                 takeMVar, tryPutMVar)
 import           Control.Concurrent.STM        (TQueue, atomically, writeTQueue)
 import           Control.Concurrent.STM.TQueue (readTQueue)
-import           Control.Exception             (evaluate, handle)
+import           Control.Exception             (handle)
 import           Control.Monad                 (when)
 import           Control.Monad.IO.Class        (MonadIO, liftIO)
 import           Control.Monad.IO.Unlift       (MonadUnliftIO)
@@ -26,7 +27,7 @@ import           Data.IORef                    (IORef, newIORef, readIORef,
 import qualified Data.Text                     as T
 import           Foreign                       (Ptr)
 import qualified Foreign                       as Ptr
-import           Foreign.C                     (CFloat)
+import           Foreign.C                     (CFloat (CFloat))
 import           Foreign.C.Error               (Errno, eOK)
 import           GHC.Stack                     (HasCallStack)
 import qualified Mviz.Audio.Client             as Client
@@ -43,9 +44,10 @@ import           Mviz.Audio.Types              (AudioError, AudioException,
                                                 MonadAudioServer (..),
                                                 MonadJack (..),
                                                 ServerAudioMessage (..))
+import qualified Mviz.Utils.Audio              as AU
 import qualified Sound.JACK                    as JACK
 import qualified Sound.JACK.Audio              as JACKA
-import           UnliftIO.Exception            (bracket_)
+import           UnliftIO.Exception            (bracket_, evaluate)
 
 data AudioState = AudioState
   { audioSendChannel  :: TQueue ClientAudioMessage
@@ -209,7 +211,8 @@ handleAudioMessage (SetInput _input@(inputName, channels)) = do
     newPortNames = [T.concat ["in_", T.pack $ show n] | n <- [0,1..(length targetPortNames - 1)]]
     srcTargets = zip newPortNames targetPortNames
 handleAudioMessage GetSamples = do
-  sampleBuffer >>= (serverSendMessage . Samples) . mixChannelBuffers
+  bufSize <- bufferSize
+  sampleBuffer >>= (serverSendMessage . Samples) . AU.fft bufSize . mixChannelBuffers
   pure Continue
 
 audioLoop :: ( HasAudioClient e
