@@ -20,7 +20,7 @@ import qualified ImGui
 import           Language.Haskell.TH
 import           Mviz.Logger          (LogMessage (..), MonadLog (..),
                                        logMessage)
-import           Mviz.UI.Types
+import           Mviz.UI.Types        (MonadUI)
 import           Mviz.UI.UIWindow     (LogWindow (..))
 
 class HasLogWindow a where

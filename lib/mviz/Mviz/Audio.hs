@@ -212,7 +212,11 @@ handleAudioMessage (SetInput _input@(inputName, channels)) = do
     srcTargets = zip newPortNames targetPortNames
 handleAudioMessage GetSamples = do
   bufSize <- bufferSize
-  sampleBuffer >>= (serverSendMessage . Samples) . AU.fft bufSize . mixChannelBuffers
+  buf <- sampleBuffer
+  let fft = AU.fft bufSize $ mixChannelBuffers buf
+  case fft of
+    Left err      -> liftIO $ putStrLn $ "Buffer error: " <> err
+    Right samples -> serverSendMessage $ Samples samples
   pure Continue
 
 audioLoop :: ( HasAudioClient e
