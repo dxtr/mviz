@@ -157,7 +157,6 @@ executable mviz-prof
 
     ghc-options:
       -threaded
-      -fprof-auto
       "-with-rtsopts=-N -p -s -hc -xc -i0.1"
 
 test-suite mviz-test
