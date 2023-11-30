@@ -7,6 +7,7 @@ module Mviz.UI.SettingsWindow
   ( HasSettingsWindow (..)
   , MonadSettingsWindow (..)
   , renderSettingsWindow
+  , selectedPorts
   ) where
 
 import           Control.Monad             (void)
@@ -25,8 +26,9 @@ import           ImGui                     (ImVec2 (ImVec2), beginGroup,
                                             withCollapsingHeader, withListBox)
 import           Mviz.Audio.Inputs         (InputMap, getChannels, getInputs)
 import           Mviz.UI.Types             (MonadUI)
-import           Mviz.UI.UIWindow          (SettingsWindow)
-import           UnliftIO                  (MonadUnliftIO)
+import           Mviz.UI.UIWindow          (SettingsWindow (SettingsWindow, settingsCheckedChannels, settingsSelectedInput))
+import           Mviz.Utils.Inputs         (combinePortNames)
+import           UnliftIO                  (MonadUnliftIO, readIORef)
 
 class HasSettingsWindow a where
     getSettingsWindow :: a -> SettingsWindow
@@ -39,6 +41,12 @@ class Monad m => MonadSettingsWindow m where
     getSelectedInput :: m (Maybe T.Text)
     setSelectedChannels :: [T.Text] -> m ()
     getSelectedChannels :: m [T.Text]
+
+selectedPorts :: (MonadIO m) => SettingsWindow -> m [T.Text]
+selectedPorts SettingsWindow{ settingsSelectedInput = selectedInput
+                            , settingsCheckedChannels = checkedChannels } = do
+    channels <- liftIO $ readIORef checkedChannels
+    maybe [] (`combinePortNames` channels) <$> readIORef selectedInput
 
 windowId :: T.Text
 windowId = "settingswindow"

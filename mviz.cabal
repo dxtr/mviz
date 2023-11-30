@@ -78,14 +78,18 @@ library
     exposed-modules:
         Mviz,
         Mviz.Audio,
+        Mviz.UI.SettingsWindow,
+        Mviz.UI.UIWindow,
         Mviz.Utils.Audio,
         Mviz.Utils.Either,
+        Mviz.Utils.Inputs,
         Paths_mviz
     other-modules:
         Mviz.Audio.Inputs,
         Mviz.Audio.Client,
         Mviz.Audio.Types,
         Mviz.Config,
+        Mviz.Config.Types,
         Mviz.GL,
         Mviz.GL.Types,
         Mviz.Graphics.Shader,
@@ -97,9 +101,7 @@ library
         Mviz.Types,
         Mviz.UI,
         Mviz.UI.Types,
-        Mviz.UI.UIWindow,
         Mviz.UI.LogWindow,
-        Mviz.UI.SettingsWindow,
         Mviz.Utils,
         Mviz.Utils.Ringbuffer,
         Mviz.Utils.Time,
@@ -149,25 +151,26 @@ executable mviz
         base ^>=4.18.0.0,
         mviz:mviz
 
-executable mviz-prof
-    import:           warnings
-    main-is:          Main.hs
-    hs-source-dirs:   app
-    default-language: GHC2021
+-- executable mviz-prof
+--     import:           warnings
+--     main-is:          Main.hs
+--     hs-source-dirs:   app
+--     default-language: GHC2021
 
-    build-depends:
-        base ^>=4.18.0.0,
-        mviz:mviz
+--     build-depends:
+--         base ^>=4.18.0.0,
+--         mviz:mviz
 
-    ghc-options:
-      -threaded
-      "-with-rtsopts=-N -p -s -hc -xc -i0.1"
+--     ghc-options:
+--       -threaded
+--       "-with-rtsopts=-N -p -s -hc -xc -i0.1"
 
 test-suite mviz-test
     import:           warnings
     default-language: GHC2021
     other-modules:
         AudioSpec,
+        UI.SettingsWindowSpec,
         Utils.AudioSpec,
         Utils.EitherSpec,
         Paths_mviz

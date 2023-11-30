@@ -28,6 +28,8 @@ import           Mviz.Audio.Types           (ClientAudioMessage (..),
                                              HasSampleRate (getSampleRateRef),
                                              MonadAudio, MonadAudioClient (..),
                                              ServerAudioMessage (GetSamples, SetInput))
+import           Mviz.Config                (dumpConfig, fetchConfig)
+import           Mviz.Config.Types          (Config (Config, configInputs, configShowUI))
 import qualified Mviz.GL                    (vendor, version)
 import           Mviz.Logger                (MonadLog (..), ringBufferOutput)
 import qualified Mviz.SDL
@@ -38,7 +40,8 @@ import           Mviz.Types                 (HasFramerate (..),
                                              getFramerate, runMviz)
 import qualified Mviz.UI
 import           Mviz.UI.LogWindow          (MonadLogWindow)
-import           Mviz.UI.SettingsWindow     (MonadSettingsWindow (getSelectedChannels, getSelectedInput))
+import           Mviz.UI.SettingsWindow     (MonadSettingsWindow (getSelectedChannels, getSelectedInput),
+                                             selectedPorts)
 import           Mviz.UI.Types              (HasUI, MonadUI (..))
 import           Mviz.UI.UIWindow           (makeLogWindow, makeSettingsWindow)
 import qualified Mviz.Utils.Ringbuffer      as RB
@@ -57,7 +60,6 @@ calculateFramerate = do
   if tickDifference >= 1000
     then (do let newFrameTime = fromIntegral tickDifference / fromIntegral frames
              let newFramerate = 1000.0 / newFrameTime
-             logDebugN $ "Framerate: " <> T.pack (show newFramerate)
              modifyFramerate $ fps { mvizFramerate = newFramerate
                                    , mvizFramerateTime = newFrameTime
                                    , mvizFramerateSample = ticks
@@ -147,6 +149,7 @@ startup :: IO MvizEnvironment
 startup = do
   ImGui.checkVersion
   Mviz.SDL.initialize
+  config <- either error id <$> fetchConfig
   wnd <- createWindow "mviz" True
   err <- Mviz.SDL.getError
   print err
@@ -158,11 +161,11 @@ startup = do
   audioThread <- async $ Mviz.Audio.runAudioSystem audioRecvChannel audioSendChannel
   logBuffer <- RB.empty 100
   logWindow <- makeLogWindow True
-  showUI <- newIORef True
+  showUI <- newIORef $ configShowUI config
   sampleRate <- newIORef 0
   bufferSize <- newIORef 0
   audioPorts <- newIORef []
-  settingsWindow <- makeSettingsWindow True
+  settingsWindow <- makeSettingsWindow True []
   fps <- newIORef $ MvizFramerate { mvizFramerate = 0.0
                                   , mvizFramerateTime = 0.0
                                   , mvizFramerateSample = 0
@@ -194,12 +197,21 @@ cleanup
                   , mvizUIContext = uiContext
                   , mvizAudioThread = audioThread
                   , mvizAudioSendChannel = audioSendChannel
+                  , mvizShowUI = showUI
+                  , mvizSettingsWindow = settingsWindow
                   } =
   Mviz.Audio.shutdown audioSendChannel
   >> Mviz.UI.shutdown
   >> Mviz.UI.destroyUIContext uiContext
   >> destroyWindow wnd
   >> Mviz.SDL.quit
+  >> do
+    sui <- readIORef showUI
+    ports <- selectedPorts settingsWindow
+    dumpConfig $ Config { configShowUI = sui
+                        , configInputs = ports
+                        }
+    pure ()
   >> wait audioThread
   >> pure ()
 
