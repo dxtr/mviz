@@ -3,6 +3,7 @@ module Mviz.Types
   , MvizEnvironment (..)
   , MvizFramerate (..)
   , MvizM (..)
+  , MvizGL (..)
   , HasFramerate (..)
   , MonadFramerate (..)
   , MonadUI (..)
@@ -62,6 +63,12 @@ data MvizError
   = IOError E.IOException
   | NoError
 
+data MvizGL = MvizGL
+  { mvizGLRenderer :: T.Text
+  , mvizGLVersion  :: T.Text
+  , mvizGLVendor   :: T.Text
+  }
+
 data MvizFramerate = MvizFramerate
   { mvizFramerate        :: Float -- The calculated framerate
   , mvizFramerateTime    :: Float -- The average frame time
@@ -86,6 +93,7 @@ data MvizEnvironment = MvizEnvironment
   , mvizLogWindow        :: LogWindow
   , mvizLogFunc          :: Loc -> LogSource -> LogLevel -> LogStr -> IO ()
   , mvizSettingsWindow   :: SettingsWindow
+  , mvizGL               :: MvizGL
   }
 
 newtype MvizM e a = MvizM { unMvizM :: ReaderT e IO a }
