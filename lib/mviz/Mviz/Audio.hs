@@ -251,12 +251,12 @@ runAudioSystem sendChan recvChan = do
   handle @(AudioException AudioError) handleException $ do
     Client.withClient clientName $ \c -> do
       let state = AudioState { audioSendChannel = sendChan
-                            , audioRecvChannel = recvChan
-                            , audioClient = c
-                            , audioInputPorts = inputPorts
-                            , audioSampleBuffer = sb
-                            , audioPortLock = portLock
-                            }
+                             , audioRecvChannel = recvChan
+                             , audioClient = c
+                             , audioInputPorts = inputPorts
+                             , audioSampleBuffer = sb
+                             , audioPortLock = portLock
+                             }
       runAudio state $ do
         sampleRate >>= serverSendMessage . SampleRate -- Send the configured sample rate to the client
         bufferSize >>= serverSendMessage . BufferSize -- Send the configured buffer size to the client

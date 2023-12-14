@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell   #-}
 
 module Mviz where
 
@@ -8,17 +7,15 @@ import           Control.Concurrent.STM     (newTQueueIO)
 import           Control.Exception          (bracket)
 import           Control.Monad              (unless, when)
 import           Control.Monad.IO.Class     (MonadIO, liftIO)
-import           Control.Monad.Logger       (MonadLogger, logDebugN, logInfo)
+import           Control.Monad.Logger       (MonadLogger, logDebugN)
 import           Control.Monad.Reader       (MonadReader, MonadTrans (lift),
                                              ask)
 import           Control.Monad.Reader.Class (asks)
-import           Control.Monad.Trans.Except (ExceptT (..), runExceptT)
 import           Control.Monad.Trans.Maybe  (MaybeT (MaybeT), runMaybeT)
 import           Data.Either                (isLeft)
 import           Data.Foldable              (for_)
 import           Data.IORef                 (newIORef, readIORef, writeIORef)
 import qualified Data.Map                   as M
-import           Data.Maybe                 (fromJust, isJust)
 import qualified Data.Text                  as T
 import           Data.Word                  (Word16)
 import qualified Graphics.Rendering.OpenGL  as OpenGL
@@ -33,7 +30,7 @@ import           Mviz.Audio.Types           (ClientAudioMessage (..),
                                              ServerAudioMessage (GetSamples, SetInput))
 import           Mviz.Config                (dumpConfig, fetchConfig)
 import           Mviz.Config.Types          (Config (Config, configInputs, configShowUI))
-import qualified Mviz.GL                    (renderer, vendor, version)
+import qualified Mviz.GL                    (renderer, version)
 import           Mviz.Logger                (MonadLog (..), ringBufferOutput)
 import qualified Mviz.SDL
 import           Mviz.Types                 (HasFramerate (..),
@@ -48,6 +45,7 @@ import           Mviz.UI.SettingsWindow     (MonadSettingsWindow (getSelectedCha
                                              selectedPorts)
 import           Mviz.UI.Types              (HasUI, MonadUI (..))
 import           Mviz.UI.UIWindow           (makeLogWindow, makeSettingsWindow)
+import           Mviz.Utils.Inputs          (splitInputs)
 import qualified Mviz.Utils.Ringbuffer      as RB
 import           Mviz.Window                (MonadDrawWindow (..), createWindow,
                                              destroyWindow, showWindow,
@@ -138,6 +136,7 @@ mainLoop = do
   swapWindowBuffers
   unless doQuit mainLoop
 
+-- TODO: Send a message to the audio thread with the ports to connect to
 run :: MvizM MvizEnvironment ()
 run = showWindow >> mainLoop
 
@@ -162,14 +161,15 @@ startup = do
   sampleRate <- newIORef 0
   bufferSize <- newIORef 0
   audioPorts <- newIORef []
-  settingsWindow <- makeSettingsWindow True []
+  let inputs = configInputs config
+  settingsWindow <- makeSettingsWindow True inputs
   fps <- newIORef $ MvizFramerate { mvizFramerate = 0.0
                                   , mvizFramerateTime = 0.0
                                   , mvizFramerateSample = 0
                                   , mvizFramerateCounter = 0
                                   }
   shaders <- newIORef M.empty
-  inputMap <- newIORef $ mkInputMap []
+  inputMap <- newIORef $ mkInputMap inputs
   imguiVersion <- Mviz.UI.version
 
   gl <- MvizGL <$> Mviz.GL.renderer
@@ -177,23 +177,23 @@ startup = do
                 <*> Mviz.GL.version
 
   pure $ MvizEnvironment { mvizWindow = wnd
-                          , mvizUIContext = uiContext
-                          , mvizAudioThread = audioThread
-                          , mvizAudioSendChannel = audioSendChannel
-                          , mvizAudioRecvChannel = audioRecvChannel
-                          , mvizLog = logBuffer
-                          , mvizLogFunc = ringBufferOutput logBuffer
-                          , mvizLogWindow = logWindow
-                          , mvizShowUI = showUI
-                          , mvizFPS = fps
-                          , mvizShaders = shaders
-                          , mvizSettingsWindow = settingsWindow
-                          , mvizAudioSampleRate = sampleRate
-                          , mvizAudioBufferSize = bufferSize
-                          , mvizAudioPorts = audioPorts
-                          , mvizAudioInputs = inputMap
-                          , mvizGL = gl
-                          }
+                         , mvizUIContext = uiContext
+                         , mvizAudioThread = audioThread
+                         , mvizAudioSendChannel = audioSendChannel
+                         , mvizAudioRecvChannel = audioRecvChannel
+                         , mvizLog = logBuffer
+                         , mvizLogFunc = ringBufferOutput logBuffer
+                         , mvizLogWindow = logWindow
+                         , mvizShowUI = showUI
+                         , mvizFPS = fps
+                         , mvizShaders = shaders
+                         , mvizSettingsWindow = settingsWindow
+                         , mvizAudioSampleRate = sampleRate
+                         , mvizAudioBufferSize = bufferSize
+                         , mvizAudioPorts = audioPorts
+                         , mvizAudioInputs = inputMap
+                         , mvizGL = gl
+                         }
 
 cleanup :: MvizEnvironment -> IO ()
 cleanup

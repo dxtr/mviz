@@ -14,5 +14,7 @@ splitInputs inputs = foldr go Nothing split
           | accInput == input = Just (input, accChannels <> channels)
           | otherwise = error "cannot have multiple different inputs"
 
+-- TODO: Should probably take a (T.Text, [T.Text]) as input to be consistent
+-- with splitInputs
 combinePortNames :: T.Text -> [T.Text] -> [T.Text]
 combinePortNames input channels = zipWith (\i c -> T.intercalate ":" [i, c]) (replicate (length channels) input) channels
