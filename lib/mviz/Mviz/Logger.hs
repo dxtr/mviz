@@ -12,14 +12,14 @@ import           Control.Monad.Logger  (Loc, LogLevel (..), LogSource, LogStr,
 import qualified Data.Text             as T
 import qualified Data.Text.Encoding    as T
 import           Data.Time.LocalTime   (ZonedTime, getZonedTime)
-import           Mviz.Utils.Time     (formatTimeRFC3339)
 import qualified Data.Vector           as V
 import qualified Mviz.Utils.Ringbuffer as RB
+import           Mviz.Utils.Time       (formatTimeRFC3339)
 
 class Monad m => MonadLog m where
   getLogVector :: m (V.Vector LogMessage)
 
-data LogMessage = LogMessage ZonedTime Loc LogSource LogLevel LogStr
+data LogMessage = LogMessage !ZonedTime !Loc !LogSource !LogLevel !LogStr
   deriving (Show)
 
 logMessage :: LogMessage -> T.Text

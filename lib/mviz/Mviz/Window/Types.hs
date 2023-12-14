@@ -16,8 +16,8 @@ data Window = Window
 data WindowMode = Fullscreen | FullscreenDesktop | Windowed
 
 data Size = Size
-  { sizeWidth  :: Int
-  , sizeHeight :: Int
+  { sizeWidth  :: !Int
+  , sizeHeight :: !Int
   }
   deriving (Show)
 

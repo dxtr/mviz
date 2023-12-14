@@ -215,7 +215,6 @@ cleanup
     dumpConfig $ Config { configShowUI = sui
                         , configInputs = ports
                         }
-    pure ()
   >> wait audioThread
   >> pure ()
 

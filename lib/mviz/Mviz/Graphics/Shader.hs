@@ -18,14 +18,14 @@ type Program = GL.Program
 type UniformSpec = (GL.GLint, GL.VariableType, String)
 
 data ShaderSource = ShaderSource
-  { shaderType   :: ShaderType
-  , shaderSource :: B.ByteString
+  { shaderType   :: !ShaderType
+  , shaderSource :: !B.ByteString
   }
   deriving (Show)
 
 data ProgramObject = ProgramObject
-  { programObjectId :: Int
-  , programUniforms :: [UniformSpec]
+  { programObjectId :: !Int
+  , programUniforms :: ![UniformSpec]
   }
   deriving (Show)
 

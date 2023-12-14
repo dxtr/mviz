@@ -14,15 +14,15 @@ import           Mviz.Utils.Inputs (splitInputs)
 data LogWindow = LogWindow
   { logWindowInputBuffer  :: !T.Text
   , logWindowAutoScroll   :: !Bool
-  , logWindowSelectedLine :: IORef Int
-  , logWindowOpen         :: IORef Bool
+  , logWindowSelectedLine :: !(IORef Int)
+  , logWindowOpen         :: !(IORef Bool)
 --  , logWindowScrollToBottom :: Bool
   }
 
 data SettingsWindow = SettingsWindow
-  { settingsWindowOpen      :: IORef Bool
-  , settingsSelectedInput   :: IORef (Maybe T.Text)
-  , settingsCheckedChannels :: IORef [T.Text]
+  { settingsWindowOpen      :: !(IORef Bool)
+  , settingsSelectedInput   :: !(IORef (Maybe T.Text))
+  , settingsCheckedChannels :: !(IORef [T.Text])
   }
 
 makeLogWindow :: Bool -> IO LogWindow

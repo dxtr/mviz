@@ -16,9 +16,9 @@ import qualified Data.Vector            as V
 import qualified Data.Vector.Mutable    as MV
 
 data Ringbuffer a = Ringbuffer
-  { ringIndex  :: IORef Int
+  { ringIndex  :: !(IORef Int)
   , ringSize   :: !Word
-  , ringBuffer :: MV.MVector (MV.PrimState IO) (Maybe a)
+  , ringBuffer :: !(MV.MVector (MV.PrimState IO) (Maybe a))
   }
 
 currentIndex :: (MonadIO m) => Ringbuffer a -> m Int

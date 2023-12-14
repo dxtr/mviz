@@ -8,8 +8,8 @@ import           Toml.FromValue (FromValue (fromValue), parseTableFromValue,
 import           Toml.ToValue   (ToTable (toTable), ToValue (toValue),
                                  defaultTableToValue, table, (.=))
 
-data Config = Config { configInputs :: [T.Text]
-                     , configShowUI :: Bool
+data Config = Config { configInputs :: ![T.Text]
+                     , configShowUI :: !Bool
                      } deriving (Show)
 
 instance FromValue Config where

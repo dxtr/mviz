@@ -9,10 +9,10 @@ import qualified Data.Text   as T
 import           Mviz.Logger (LogMessage)
 
 data ConsoleWindow = ConsoleWindow
-  { consoleWindowBuffer         :: [LogMessage]
-  , consoleWindowInputBuffer    :: T.Text
-  , consoleWindowAutoScroll     :: Bool
-  , consoleWindowScrollToBottom :: Bool
+  { consoleWindowBuffer         :: ![LogMessage]
+  , consoleWindowInputBuffer    :: !T.Text
+  , consoleWindowAutoScroll     :: !Bool
+  , consoleWindowScrollToBottom :: !Bool
   }
 
 renderConsoleWindow :: IO ()

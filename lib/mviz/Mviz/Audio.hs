@@ -50,12 +50,12 @@ import qualified Sound.JACK.Audio              as JACKA
 import           UnliftIO.Exception            (bracket_, evaluate)
 
 data AudioState = AudioState
-  { audioSendChannel  :: TQueue ClientAudioMessage
-  , audioRecvChannel  :: TQueue ServerAudioMessage
-  , audioClient       :: JACK.Client
-  , audioInputPorts   :: IORef [InputPort] -- These are the ports that connect to the device we want to listen on
-  , audioSampleBuffer :: IORef [[JACKA.Sample]]
-  , audioPortLock     :: MVar ()
+  { audioSendChannel  :: !(TQueue ClientAudioMessage)
+  , audioRecvChannel  :: !(TQueue ServerAudioMessage)
+  , audioClient       :: !(JACK.Client)
+  , audioInputPorts   :: !(IORef [InputPort]) -- These are the ports that connect to the device we want to listen on
+  , audioSampleBuffer :: !(IORef [[JACKA.Sample]])
+  , audioPortLock     :: !(MVar ())
   }
 
 newtype AudioM e a = AudioM (ReaderT e IO a)

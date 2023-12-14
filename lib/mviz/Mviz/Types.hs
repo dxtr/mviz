@@ -64,36 +64,36 @@ data MvizError
   | NoError
 
 data MvizGL = MvizGL
-  { mvizGLRenderer :: T.Text
-  , mvizGLVersion  :: T.Text
-  , mvizGLVendor   :: T.Text
+  { mvizGLRenderer :: !T.Text
+  , mvizGLVersion  :: !T.Text
+  , mvizGLVendor   :: !T.Text
   }
 
 data MvizFramerate = MvizFramerate
-  { mvizFramerate        :: Float -- The calculated framerate
-  , mvizFramerateTime    :: Float -- The average frame time
-  , mvizFramerateSample  :: Word64 -- The last time (In ticks) the framerate was sampled
-  , mvizFramerateCounter :: Word16 -- The amount of frames drawn since the last sample was taken
+  { mvizFramerate        :: !Float -- The calculated framerate
+  , mvizFramerateTime    :: !Float -- The average frame time
+  , mvizFramerateSample  :: !Word64 -- The last time (In ticks) the framerate was sampled
+  , mvizFramerateCounter :: !Word16 -- The amount of frames drawn since the last sample was taken
   }
 
 data MvizEnvironment = MvizEnvironment
-  { mvizWindow           :: Window
-  , mvizUIContext        :: UIContext
-  , mvizAudioThread      :: Async ()
-  , mvizAudioSendChannel :: TQueue ServerAudioMessage
-  , mvizAudioRecvChannel :: TQueue ClientAudioMessage
-  , mvizAudioSampleRate  :: IORef Word
-  , mvizAudioBufferSize  :: IORef Word
-  , mvizAudioPorts       :: IORef [T.Text]
-  , mvizAudioInputs      :: IORef InputMap
-  , mvizLog              :: RB.Ringbuffer LogMessage
-  , mvizShowUI           :: IORef Bool
-  , mvizFPS              :: IORef MvizFramerate
-  , mvizShaders          :: IORef (Map.Map T.Text Shader.ProgramObject)
-  , mvizLogWindow        :: LogWindow
+  { mvizWindow           :: !Window
+  , mvizUIContext        :: !UIContext
+  , mvizAudioThread      :: !(Async ())
+  , mvizAudioSendChannel :: !(TQueue ServerAudioMessage)
+  , mvizAudioRecvChannel :: !(TQueue ClientAudioMessage)
+  , mvizAudioSampleRate  :: !(IORef Word)
+  , mvizAudioBufferSize  :: !(IORef Word)
+  , mvizAudioPorts       :: !(IORef [T.Text])
+  , mvizAudioInputs      :: !(IORef InputMap)
+  , mvizLog              :: !(RB.Ringbuffer LogMessage)
+  , mvizShowUI           :: !(IORef Bool)
+  , mvizFPS              :: !(IORef MvizFramerate)
+  , mvizShaders          :: !(IORef (Map.Map T.Text Shader.ProgramObject))
+  , mvizLogWindow        :: !LogWindow
   , mvizLogFunc          :: Loc -> LogSource -> LogLevel -> LogStr -> IO ()
-  , mvizSettingsWindow   :: SettingsWindow
-  , mvizGL               :: MvizGL
+  , mvizSettingsWindow   :: !SettingsWindow
+  , mvizGL               :: !MvizGL
   }
 
 newtype MvizM e a = MvizM { unMvizM :: ReaderT e IO a }

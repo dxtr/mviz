@@ -13,6 +13,9 @@ spec = do
         it "returns selected ports" $ do
             checkedChannels <- newIORef ["foo", "bar"]
             selectedInput <- newIORef $ Just "Input"
+            windowOpen <- newIORef True
             let sw = SettingsWindow { settingsCheckedChannels = checkedChannels
-                                    , settingsSelectedInput = selectedInput }
+                                    , settingsSelectedInput = selectedInput
+                                    , settingsWindowOpen = windowOpen
+                                    }
             selectedPorts sw `shouldReturn` ["Input:foo", "Input:bar"]
