@@ -136,9 +136,14 @@ mainLoop = do
   swapWindowBuffers
   unless doQuit mainLoop
 
--- TODO: Send a message to the audio thread with the ports to connect to
 run :: MvizM MvizEnvironment ()
-run = showWindow >> mainLoop
+run = do
+  showWindow
+  channels <- getSelectedChannels
+  _ <- runMaybeT $ do
+    input <- MaybeT getSelectedInput
+    clientSendMessage $ SetInput (input, channels)
+  mainLoop
 
 startup :: IO MvizEnvironment
 startup = do
