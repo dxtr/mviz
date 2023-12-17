@@ -29,18 +29,18 @@ import           UnliftIO.Exception      (Exception, throwIO)
 
 data SDLErrorKind
   = CallFailed
-      { sdlErrorCaller   :: !T.Text
-      , sdlErrorFunction :: !T.Text
-      , sdlErrorMessage  :: !T.Text
+      { _sdlErrorCaller   :: !T.Text
+      , _sdlErrorFunction :: !T.Text
+      , _sdlErrorMessage  :: !T.Text
       }
   | UnexpectedArgument
-      { sdlErrorCaller   :: !T.Text
-      , sdlErrorFunction :: !T.Text
-      , sdlErrorValue    :: !String
+      { _sdlErrorCaller   :: !T.Text
+      , _sdlErrorFunction :: !T.Text
+      , _sdlErrorValue    :: !String
       }
   | UnknownHintValue
-      { sdlErrorHint  :: !String
-      , sdlErrorValue :: !String
+      { _sdlErrorHint  :: !String
+      , _sdlErrorValue :: !String
       }
   deriving (Show)
 

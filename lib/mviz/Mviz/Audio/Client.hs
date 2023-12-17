@@ -10,7 +10,6 @@ module Mviz.Audio.Client
   , withActivation
   ) where
 
-import           Control.Exception                   (throwIO)
 import qualified Control.Monad.Exception.Synchronous as Sync
 import           Control.Monad.IO.Class              (MonadIO, liftIO)
 import           Data.Functor                        ((<&>))
@@ -23,6 +22,7 @@ import qualified Sound.JACK                          as JACK
 import qualified Sound.JACK.Exception                as JACKE
 import           UnliftIO                            (MonadUnliftIO, bracket,
                                                       bracket_)
+import           UnliftIO.Exception                  (throwIO)
 
 mapJackException :: JACKE.All -> AudioError
 mapJackException (JACKE.Status statusSet) =

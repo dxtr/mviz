@@ -18,7 +18,7 @@ source-repository head
     branch: trunk
 
 common warnings
-    ghc-options: -Wall
+    ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
 
 common threaded
     ghc-options:

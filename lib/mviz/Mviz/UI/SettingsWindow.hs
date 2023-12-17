@@ -61,7 +61,7 @@ renderStaticText sampleRate bufferSize = do
     _ <- textUnformatted $ "Buffer size: " <> T.pack (show bufferSize)
     endGroup
 
-renderPortBox :: (MonadUnliftIO m, MonadIO m) => InputMap -> Maybe T.Text -> [T.Text] -> m (Maybe (T.Text, [T.Text]))
+renderPortBox :: (MonadUnliftIO m) => InputMap -> Maybe T.Text -> [T.Text] -> m (Maybe (T.Text, [T.Text]))
 renderPortBox inputs selectedInput selectedChannels = withCollapsingHeader "Ports" [] $ \case
     False -> pure Nothing
     True -> do

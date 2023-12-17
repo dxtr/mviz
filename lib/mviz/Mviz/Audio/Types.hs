@@ -24,7 +24,6 @@ module Mviz.Audio.Types
 
 import           Control.Concurrent                  (MVar)
 import           Control.Concurrent.STM              (TQueue)
-import           Control.Exception                   (Exception)
 import qualified Control.Monad.Exception.Synchronous as Sync
 import           Control.Monad.Trans.Class           (lift)
 import           Control.Monad.Trans.Maybe           (MaybeT)
@@ -38,6 +37,7 @@ import           Mviz.Audio.Inputs                   (InputMap)
 import qualified Sound.JACK                          as JACK
 import qualified Sound.JACK.Audio                    as JACKA
 import qualified Sound.JACK.Exception                as JACKE
+import           UnliftIO.Exception                  (Exception, SomeException)
 
 type JackReturnType a = Sync.ExceptionalT JACKE.All IO a
 
@@ -56,7 +56,7 @@ data AudioException a where
   AudioException :: (Show a, HasCallStack) => a -> AudioException a
 
 instance Show (AudioException a) where
-  show (AudioException e) = "AudioException\n" <> show e <> "\n" <> prettyCallStack callStack
+  show (AudioException e) = "AudioException: " <> show e <> "\n" <> prettyCallStack callStack
 
 -- instance Exception AudioError
 instance Exception (AudioException AudioError)
@@ -70,6 +70,7 @@ data ClientAudioMessage
   | SampleRate Word -- Inform the client about the sample rate
   | BufferSize Word -- Inform the client about the buffer size
   | Samples [Complex Float]
+  | AudioThreadError SomeException
   deriving (Show)
 
 -- Messages directed to the server
@@ -134,6 +135,7 @@ class HasBufferSize a where
 
 class HasSampleRate a where
   getSampleRateRef :: a -> IORef Word
+  getSampleRate :: a -> IO Word
 
 class HasPortLock a where
   getPortLock :: a -> MVar ()
@@ -158,17 +160,17 @@ class HasSamples a where
 --   getSendChannel :: a -> TQueue ClientAudioMessage
 
 instance (MonadAudioClient m) => MonadAudioClient (MaybeT m) where
-  clientRecvChannel :: MonadAudioClient m => MaybeT m (TQueue ClientAudioMessage)
+  clientRecvChannel :: MaybeT m (TQueue ClientAudioMessage)
   clientRecvChannel = lift clientRecvChannel
 
-  clientSendChannel :: MonadAudioClient m => MaybeT m (TQueue ServerAudioMessage)
+  clientSendChannel :: MaybeT m (TQueue ServerAudioMessage)
   clientSendChannel = lift clientSendChannel
 
-  clientRecvMessage :: MonadAudioClient m => MaybeT m (Maybe ClientAudioMessage)
+  clientRecvMessage :: MaybeT m (Maybe ClientAudioMessage)
   clientRecvMessage = lift clientRecvMessage
 
-  clientRecvMessages :: MonadAudioClient m => MaybeT m [ClientAudioMessage]
+  clientRecvMessages :: MaybeT m [ClientAudioMessage]
   clientRecvMessages = lift clientRecvMessages
 
-  clientSendMessage :: MonadAudioClient m => ServerAudioMessage -> MaybeT m ()
+  clientSendMessage :: ServerAudioMessage -> MaybeT m ()
   clientSendMessage = lift . clientSendMessage

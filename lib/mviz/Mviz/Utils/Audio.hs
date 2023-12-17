@@ -9,7 +9,6 @@ import qualified Data.Array.Comfort.Shape    as Shape
 import qualified Data.Array.Comfort.Storable as Arr (fromList, toList)
 import           Data.Complex                (Complex ((:+)), imagPart,
                                               realPart)
-import           GHC.Stack                   (HasCallStack)
 import qualified Numeric.FFTW.Rank1          as FFT
 import qualified Numeric.FFTW.Shape          as Spectrum
 
@@ -31,7 +30,7 @@ magnitude bin =
 
 -- TODO: Create a function for amplitude?
 
-fft :: (HasCallStack) => Word -> [Float] -> Either String [Complex Float]
+fft :: Word -> [Float] -> Either String [Complex Float]
 fft 0 _ = Right []
 fft _ [] = Right []
 fft bufferSize input
@@ -39,7 +38,7 @@ fft bufferSize input
   | otherwise = Right . Arr.toList . FFT.fourierRC $ Arr.fromList shape input
     where shape = Shape.Cyclic bufferSize
 
-ffti :: (HasCallStack) => Word -> [Complex Float] -> Either String [Float]
+ffti :: Word -> [Complex Float] -> Either String [Float]
 ffti 0 _ = Right []
 ffti _ [] = Right []
 ffti bufferSize input

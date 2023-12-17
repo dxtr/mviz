@@ -34,7 +34,7 @@ import           Mviz.UI.LogWindow         (MonadLogWindow (..),
                                             renderLogWindow)
 import           Mviz.UI.SettingsWindow    (MonadSettingsWindow,
                                             renderSettingsWindow)
-import           Mviz.UI.Types             (HasUI, MonadUI, UIContext)
+import           Mviz.UI.Types             (MonadUI, UIContext)
 import           Mviz.Utils                ((<&&>))
 import           Mviz.Window.Events        (Event (IgnoredEvent, Quit, WindowResized))
 import           Mviz.Window.Types         (HasNativeWindow (..))
@@ -90,8 +90,7 @@ newFrame = do
 endFrame :: (MonadIO m) => m ()
 endFrame = ImGui.endFrame
 
-render :: ( HasUI e
-          , MonadReader e m
+render :: ( MonadReader e m
           , MonadLogWindow m
           , MonadSettingsWindow m
           , MonadLog m
