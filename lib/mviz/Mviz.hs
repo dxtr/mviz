@@ -4,10 +4,9 @@ module Mviz where
 
 import           Control.Concurrent.Async   (async, wait)
 import           Control.Concurrent.STM     (newTQueueIO)
-import           Control.Exception          (bracket)
 import           Control.Monad              (unless, when)
 import           Control.Monad.IO.Class     (MonadIO, liftIO)
-import           Control.Monad.Logger       (MonadLogger, logDebugN)
+import           Control.Monad.Logger       (MonadLogger, logDebugN, logErrorN)
 import           Control.Monad.Reader       (MonadReader, MonadTrans (lift),
                                              ask)
 import           Control.Monad.Reader.Class (asks)
@@ -45,15 +44,15 @@ import           Mviz.UI.SettingsWindow     (MonadSettingsWindow (getSelectedCha
                                              selectedPorts)
 import           Mviz.UI.Types              (HasUI, MonadUI (..))
 import           Mviz.UI.UIWindow           (makeLogWindow, makeSettingsWindow)
-import           Mviz.Utils.Inputs          (splitInputs)
 import qualified Mviz.Utils.Ringbuffer      as RB
 import           Mviz.Window                (MonadDrawWindow (..), createWindow,
                                              destroyWindow, showWindow,
                                              swapWindowBuffers)
 import qualified Mviz.Window.Events
 import           Mviz.Window.Types          (HasWindow (..))
+import           UnliftIO.Exception         (bracket)
 
-calculateFramerate :: (MonadReader e m, MonadFramerate m, MonadLogger m, MonadIO m, HasFramerate e) => m ()
+calculateFramerate :: (MonadReader e m, MonadFramerate m, MonadIO m, HasFramerate e) => m ()
 calculateFramerate = do
   ticks <- fromIntegral <$> Mviz.SDL.ticks
   state <- ask
@@ -87,11 +86,12 @@ handleAudioMessage (BufferSize bs) = asks getBufferSizeRef >>= \bsRef ->
   liftIO $ writeIORef bsRef bs
 handleAudioMessage (Samples samples) = do
   logDebugN $ "Got samples: " <> T.pack (show samples)
+handleAudioMessage (AudioThreadError ex) = do
+  logErrorN $ "Audio thread error: " <> T.pack (show ex)
 
 mainLoop :: (MonadReader e m,
              MonadFramerate m,
              MonadLogger m,
-             MonadIO m,
              MonadLogWindow m,
              MonadSettingsWindow m,
              MonadLog m,
@@ -99,7 +99,6 @@ mainLoop :: (MonadReader e m,
              MonadDrawWindow m,
              MonadAudioClient m,
              MonadAudio m,
-             HasWindow e,
              HasUI e,
              HasFramerate e,
              HasSampleRate e,
