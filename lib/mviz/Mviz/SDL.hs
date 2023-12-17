@@ -45,8 +45,8 @@ data SDLErrorKind
   deriving (Show)
 
 data SDLError
-  = CreateWindow SDLErrorKind
-  | SDLMessage T.Text
+  = CreateWindow !SDLErrorKind
+  | SDLMessage !T.Text
   deriving Show
 
 instance Exception SDLError

@@ -10,20 +10,21 @@ module Mviz.GL
   ) where
 
 import           Control.Monad.IO.Class    (MonadIO)
+import qualified Data.Text                 as T
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Mviz.SDL.Types            as Mviz.SDL (GLContext)
 import           Mviz.Window.Types         (HasNativeWindow (..),
                                             Window (windowGlContext))
 import qualified SDL
 
-vendor :: IO String
-vendor = GL.get GL.vendor
+vendor :: IO T.Text
+vendor = T.pack <$> GL.get GL.vendor
 
-renderer :: IO String
-renderer = GL.get GL.renderer
+renderer :: IO T.Text
+renderer = T.pack <$> GL.get GL.renderer
 
-version :: IO String
-version = GL.get GL.glVersion
+version :: IO T.Text
+version = T.pack <$> GL.get GL.glVersion
 
 class HasGLContext a where
   getGLContext :: a -> Mviz.SDL.GLContext

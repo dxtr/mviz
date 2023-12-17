@@ -50,12 +50,12 @@ import qualified Sound.JACK.Audio              as JACKA
 import           UnliftIO.Exception            (bracket_, evaluate)
 
 data AudioState = AudioState
-  { audioSendChannel  :: TQueue ClientAudioMessage
-  , audioRecvChannel  :: TQueue ServerAudioMessage
-  , audioClient       :: JACK.Client
-  , audioInputPorts   :: IORef [InputPort] -- These are the ports that connect to the device we want to listen on
-  , audioSampleBuffer :: IORef [[JACKA.Sample]]
-  , audioPortLock     :: MVar ()
+  { audioSendChannel  :: !(TQueue ClientAudioMessage)
+  , audioRecvChannel  :: !(TQueue ServerAudioMessage)
+  , audioClient       :: !(JACK.Client)
+  , audioInputPorts   :: !(IORef [InputPort]) -- These are the ports that connect to the device we want to listen on
+  , audioSampleBuffer :: !(IORef [[JACKA.Sample]])
+  , audioPortLock     :: !(MVar ())
   }
 
 newtype AudioM e a = AudioM (ReaderT e IO a)
@@ -251,12 +251,12 @@ runAudioSystem sendChan recvChan = do
   handle @(AudioException AudioError) handleException $ do
     Client.withClient clientName $ \c -> do
       let state = AudioState { audioSendChannel = sendChan
-                            , audioRecvChannel = recvChan
-                            , audioClient = c
-                            , audioInputPorts = inputPorts
-                            , audioSampleBuffer = sb
-                            , audioPortLock = portLock
-                            }
+                             , audioRecvChannel = recvChan
+                             , audioClient = c
+                             , audioInputPorts = inputPorts
+                             , audioSampleBuffer = sb
+                             , audioPortLock = portLock
+                             }
       runAudio state $ do
         sampleRate >>= serverSendMessage . SampleRate -- Send the configured sample rate to the client
         bufferSize >>= serverSendMessage . BufferSize -- Send the configured buffer size to the client
