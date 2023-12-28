@@ -21,7 +21,6 @@ import           Control.Monad.Logger     (Loc, LogLevel, LogSource, LogStr,
 import           Control.Monad.Reader     (MonadReader, ReaderT, ask, asks,
                                            runReaderT)
 import           Data.Functor             ((<&>))
-import           Data.IORef               (IORef, atomicWriteIORef, readIORef)
 import qualified Data.Map.Strict          as Map
 import qualified Data.Text                as T
 import qualified Data.Vector              as V
@@ -56,6 +55,8 @@ import           Mviz.Window              (MonadDrawWindow (..),
                                            MonadWindow (..))
 import           Mviz.Window.Types        (HasNativeWindow (..), HasWindow (..),
                                            Window)
+import           UnliftIO                 (IORef, atomicWriteIORef,
+                                           modifyIORef', readIORef)
 import qualified UnliftIO.Exception       as E
 
 -- Types
@@ -128,7 +129,7 @@ instance HasLog MvizEnvironment where
   getLogFunc = mvizLogFunc
 
 instance HasUI MvizEnvironment where
-  getUIShownRef :: MvizEnvironment -> IORef Bool
+  getUIShown = readIORef . getUIShownRef
   getUIShownRef = mvizShowUI
 
 instance HasLogWindow MvizEnvironment where
@@ -229,10 +230,16 @@ instance (HasLog env) => MonadLog (MvizM env) where
 
 instance (HasUI env, HasServerChannel env, HasLogWindow env, HasSettingsWindow env, HasLog env, HasInputs env, HasBufferSize env, HasSampleRate env) => MonadUI (MvizM env) where
   isUIShown :: MvizM env Bool
-  isUIShown = ask >>= liftIO . readIORef . getUIShownRef
+  isUIShown = ask >>= liftIO . getUIShown
 
   renderUI :: MvizM env Bool
   renderUI = Mviz.UI.render
+
+  toggleUI :: MvizM env ()
+  toggleUI = do
+    env <- ask
+    let suiRef = getUIShownRef env
+    liftIO $ modifyIORef' suiRef not
 
 instance (HasServerChannel env, HasClientChannel env) => MonadAudioClient (MvizM env) where
   clientRecvChannel :: MvizM env (TQueue ClientAudioMessage)

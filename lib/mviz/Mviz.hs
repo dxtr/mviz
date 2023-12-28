@@ -6,7 +6,8 @@ import           Control.Concurrent.Async   (async, wait)
 import           Control.Concurrent.STM     (newTQueueIO)
 import           Control.Monad              (unless, when)
 import           Control.Monad.IO.Class     (MonadIO, liftIO)
-import           Control.Monad.Logger       (MonadLogger, logDebugN, logErrorN)
+import           Control.Monad.Logger       (MonadLogger, logDebug, logDebugN,
+                                             logErrorN)
 import           Control.Monad.Reader       (MonadReader, MonadTrans (lift),
                                              ask)
 import           Control.Monad.Reader.Class (asks)
@@ -85,15 +86,25 @@ handleAudioMessage (SampleRate sr) = asks getSampleRateRef >>= \srRef ->
 handleAudioMessage (BufferSize bs) = asks getBufferSizeRef >>= \bsRef ->
   liftIO $ writeIORef bsRef bs
 handleAudioMessage (Samples samples) = do
-  logDebugN $ "Got samples: " <> T.pack (show samples)
+  pure ()
+--  logDebugN $ "Got samples: " <> T.pack (show samples)
 handleAudioMessage (AudioThreadError ex) = do
   logErrorN $ "Audio thread error: " <> T.pack (show ex)
 
 shouldHandleEvent :: Mviz.Window.Events.Event -> Bool
-shouldHandleEvent Mviz.Window.Events.ToggleUI         = True
-shouldHandleEvent Mviz.Window.Events.ToggleFullscreen = True
-shouldHandleEvent Mviz.Window.Events.Quit             = True
-shouldHandleEvent _                                   = False
+shouldHandleEvent (Mviz.Window.Events.IgnoredEvent _) = False
+shouldHandleEvent _                                   = True
+
+handleEvent :: (MonadLogger m, MonadLog m, MonadUI m) => Mviz.Window.Events.Event -> m ()
+handleEvent (Mviz.Window.Events.IgnoredEvent evt) = do
+  logDebugN "Ignored event"
+  logDebugN $ T.pack $ show evt
+  pure ()
+handleEvent Mviz.Window.Events.ToggleUI         = do
+  logDebugN "Toggling UI"
+  toggleUI
+handleEvent Mviz.Window.Events.ToggleFullscreen = pure () -- TODO
+handleEvent Mviz.Window.Events.Quit             = pure () -- TODO
 
 mainLoop :: (MonadReader e m,
              MonadFramerate m,
@@ -119,11 +130,12 @@ mainLoop = do
   -- TODO: Read all messages in one go?
   _ <- runMaybeT $ do
     audioMessage <- MaybeT clientRecvMessage
-    logDebugN $ "Audio message: " <> T.pack (show audioMessage)
     lift $ handleAudioMessage audioMessage
 
-  events <- liftIO (filter shouldHandleEvent <$> Mviz.UI.collectEvents)
-  let doQuit = Mviz.Window.Events.Quit `elem` events
+  events <- liftIO Mviz.UI.collectEvents
+  mapM_ handleEvent events
+
+  let doQuit = Mviz.Window.Events.Quit `elem` events -- This should probably be handled in handleEvent
 
   OpenGL.clearColor OpenGL.$= OpenGL.Color4 0 0 0 1
   liftIO $ OpenGL.clear [OpenGL.ColorBuffer]
