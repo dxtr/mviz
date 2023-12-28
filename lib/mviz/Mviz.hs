@@ -6,8 +6,7 @@ import           Control.Concurrent.Async   (async, wait)
 import           Control.Concurrent.STM     (newTQueueIO)
 import           Control.Monad              (unless, when)
 import           Control.Monad.IO.Class     (MonadIO, liftIO)
-import           Control.Monad.Logger       (MonadLogger, logDebug, logDebugN,
-                                             logErrorN)
+import           Control.Monad.Logger       (MonadLogger, logErrorN)
 import           Control.Monad.Reader       (MonadReader, MonadTrans (lift),
                                              ask)
 import           Control.Monad.Reader.Class (asks)
@@ -85,9 +84,9 @@ handleAudioMessage (SampleRate sr) = asks getSampleRateRef >>= \srRef ->
   liftIO $ writeIORef srRef sr
 handleAudioMessage (BufferSize bs) = asks getBufferSizeRef >>= \bsRef ->
   liftIO $ writeIORef bsRef bs
-handleAudioMessage (Samples samples) = do
+handleAudioMessage (Samples _samples) = do
+  -- TODO: Send the samples to the shader
   pure ()
---  logDebugN $ "Got samples: " <> T.pack (show samples)
 handleAudioMessage (AudioThreadError ex) = do
   logErrorN $ "Audio thread error: " <> T.pack (show ex)
 
@@ -95,14 +94,9 @@ shouldHandleEvent :: Mviz.Window.Events.Event -> Bool
 shouldHandleEvent (Mviz.Window.Events.IgnoredEvent _) = False
 shouldHandleEvent _                                   = True
 
-handleEvent :: (MonadLogger m, MonadLog m, MonadUI m) => Mviz.Window.Events.Event -> m ()
-handleEvent (Mviz.Window.Events.IgnoredEvent evt) = do
-  logDebugN "Ignored event"
-  logDebugN $ T.pack $ show evt
-  pure ()
-handleEvent Mviz.Window.Events.ToggleUI         = do
-  logDebugN "Toggling UI"
-  toggleUI
+handleEvent :: (MonadLogger m, MonadUI m) => Mviz.Window.Events.Event -> m ()
+handleEvent (Mviz.Window.Events.IgnoredEvent _) = pure ()
+handleEvent Mviz.Window.Events.ToggleUI         = toggleUI
 handleEvent Mviz.Window.Events.ToggleFullscreen = pure () -- TODO
 handleEvent Mviz.Window.Events.Quit             = pure () -- TODO
 
