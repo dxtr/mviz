@@ -5,7 +5,7 @@ import qualified SDL
 
 data Event
   = Quit
-  | KeyUpEvent
-  | WindowResized !Word32 !Word32
+  | ToggleUI
+  | ToggleFullscreen
   | IgnoredEvent !SDL.EventPayload
   deriving (Show, Eq)

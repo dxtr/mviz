@@ -176,9 +176,10 @@ startup = do
   inputMap <- newIORef $ mkInputMap inputs
   imguiVersion <- Mviz.UI.version
 
-  gl <- MvizGL <$> Mviz.GL.renderer
-                <*> Mviz.GL.version
-                <*> Mviz.GL.version
+  gl <- MvizGL
+        <$> Mviz.GL.renderer
+        <*> Mviz.GL.version
+        <*> Mviz.GL.version
 
   pure $ MvizEnvironment { mvizWindow = wnd
                          , mvizUIContext = uiContext

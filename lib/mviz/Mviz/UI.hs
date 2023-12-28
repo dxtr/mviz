@@ -1,4 +1,5 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE PatternSynonyms     #-}
 
 module Mviz.UI
   ( collectEvents
@@ -15,6 +16,7 @@ module Mviz.UI
   , showUserGuide
   , shutdown
   , version
+  , handleEvents
   ) where
 
 import           Control.Monad.IO.Class    (MonadIO, liftIO)
@@ -36,12 +38,14 @@ import           Mviz.UI.SettingsWindow    (MonadSettingsWindow,
                                             renderSettingsWindow)
 import           Mviz.UI.Types             (MonadUI, UIContext)
 import           Mviz.Utils                ((<&&>))
-import           Mviz.Window.Events        (Event (IgnoredEvent, Quit, WindowResized))
+import           Mviz.Window.Events        (Event (..))
 import           Mviz.Window.Types         (HasNativeWindow (..))
-import qualified SDL                       (EventPayload (QuitEvent, WindowResizedEvent),
-                                            V2 (..),
-                                            WindowResizedEventData (..),
-                                            eventPayload)
+import qualified SDL                       (EventPayload (KeyboardEvent, QuitEvent),
+                                            InputMotion (..),
+                                            KeyboardEventData (..), Keysym (..),
+                                            eventPayload, pattern KeycodeEscape,
+                                            pattern KeycodeF1,
+                                            pattern KeycodeF11)
 
 version :: IO T.Text
 version = ImGui.getVersion
@@ -123,16 +127,18 @@ render = do
 
 translateEvent :: SDL.EventPayload -> Mviz.Window.Events.Event
 translateEvent SDL.QuitEvent = Mviz.Window.Events.Quit
-translateEvent (SDL.WindowResizedEvent SDL.WindowResizedEventData{SDL.windowResizedEventSize = SDL.V2 newX newY}) =
-  Mviz.Window.Events.WindowResized (fromIntegral newX) (fromIntegral newY)
--- translateEvent (SDL.KeyboardEvent SDL.KeyboardEventData{ SDL.keyboardEventKeyMotion = SDL.Pressed
---                                                        , SDL.keyboardEventRepeat = repeat
---                                                        , SDL.keyboardEventKeysym = keysym
---                                                        }) = IgnoredEvent
--- translateEvent (SDL.KeyboardEvent SDL.KeyboardEventData { SDL.keyboardEventKeyMotion = SDL.Released
---                                                         , SDL.keyboardEventRepeat = repeat
---                                                         , SDL.keyboardEventKeysym = keysym
---                                                         }) = Mviz.Window.Events.Quit
+translateEvent (SDL.KeyboardEvent SDL.KeyboardEventData { SDL.keyboardEventKeyMotion = SDL.Released
+                                                        , SDL.keyboardEventRepeat = False
+                                                        , SDL.keyboardEventKeysym = SDL.Keysym { SDL.keysymKeycode = SDL.KeycodeEscape }
+                                                        }) = Mviz.Window.Events.Quit
+translateEvent (SDL.KeyboardEvent SDL.KeyboardEventData { SDL.keyboardEventKeyMotion = SDL.Released
+                                                        , SDL.keyboardEventRepeat = False
+                                                        , SDL.keyboardEventKeysym = SDL.Keysym { SDL.keysymKeycode = SDL.KeycodeF11 }
+                                                        }) = Mviz.Window.Events.ToggleFullscreen
+translateEvent (SDL.KeyboardEvent SDL.KeyboardEventData { SDL.keyboardEventKeyMotion = SDL.Released
+                                                        , SDL.keyboardEventRepeat = False
+                                                        , SDL.keyboardEventKeysym = SDL.Keysym { SDL.keysymKeycode = SDL.KeycodeF1 }
+                                                        }) = Mviz.Window.Events.ToggleUI
 translateEvent ignoredEvent = IgnoredEvent ignoredEvent
 
 pollEvent :: IO (Maybe Mviz.Window.Events.Event)
@@ -143,3 +149,10 @@ collectEvents = pollEvent >>= f
  where
   f Nothing  = pure []
   f (Just e) = (e :) <$> collectEvents
+
+handleEvents :: (Mviz.Window.Events.Event -> IO ()) -> IO ()
+handleEvents f = do
+  evt <- pollEvent
+  case evt of
+    Nothing -> pure ()
+    Just e  -> f e >> handleEvents f
