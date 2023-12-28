@@ -1,11 +1,11 @@
-module Mviz.Window.Events where
+module Mviz.Window.Events (Event (..)) where
 
 import           Data.Word (Word32)
 import qualified SDL
 
 data Event
   = Quit
-  | KeyUpEvent
-  | WindowResized !Word32 !Word32
+  | ToggleUI
+  | ToggleFullscreen
   | IgnoredEvent !SDL.EventPayload
   deriving (Show, Eq)
