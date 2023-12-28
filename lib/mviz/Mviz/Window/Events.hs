@@ -1,4 +1,4 @@
-module Mviz.Window.Events where
+module Mviz.Window.Events (Event (..)) where
 
 import           Data.Word (Word32)
 import qualified SDL

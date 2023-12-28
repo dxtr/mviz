@@ -89,6 +89,12 @@ handleAudioMessage (Samples samples) = do
 handleAudioMessage (AudioThreadError ex) = do
   logErrorN $ "Audio thread error: " <> T.pack (show ex)
 
+shouldHandleEvent :: Mviz.Window.Events.Event -> Bool
+shouldHandleEvent Mviz.Window.Events.ToggleUI         = True
+shouldHandleEvent Mviz.Window.Events.ToggleFullscreen = True
+shouldHandleEvent Mviz.Window.Events.Quit             = True
+shouldHandleEvent _                                   = False
+
 mainLoop :: (MonadReader e m,
              MonadFramerate m,
              MonadLogger m,
@@ -116,7 +122,7 @@ mainLoop = do
     logDebugN $ "Audio message: " <> T.pack (show audioMessage)
     lift $ handleAudioMessage audioMessage
 
-  events <- liftIO Mviz.UI.collectEvents
+  events <- liftIO (filter shouldHandleEvent <$> Mviz.UI.collectEvents)
   let doQuit = Mviz.Window.Events.Quit `elem` events
 
   OpenGL.clearColor OpenGL.$= OpenGL.Color4 0 0 0 1
