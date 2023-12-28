@@ -22,7 +22,7 @@ magnitude :: Complex Float -> Float
 magnitude (0.0 :+ 0.0) = 0.0
 magnitude (1.0 :+ 0.0) = 1.0
 magnitude (0.0 :+ 1.0) = 1.0
-magnitude (1.0 :+ 1.0) = pi
+magnitude (1.0 :+ 1.0) = 1.4142135
 magnitude bin =
     sqrt (re*re + im*im)
     where re = realPart bin
