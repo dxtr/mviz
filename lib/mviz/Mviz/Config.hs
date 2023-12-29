@@ -2,7 +2,6 @@ module Mviz.Config
   ( configDirectory
   , configFile
   , defaultConfig
-  , ensureConfigDirectory
   , readConfig
   , parseConfig
   , configExists
@@ -10,14 +9,14 @@ module Mviz.Config
   , dumpConfig
   ) where
 
-import           Control.Monad.IO.Class (MonadIO, liftIO)
-import           Mviz.Config.Types      (Config (..))
-import           System.FilePath        (combine)
-import           Toml                   (Result (Failure, Success), decode,
-                                         encode)
-import           UnliftIO.Directory     (XdgDirectory (XdgConfig),
-                                         createDirectoryIfMissing,
-                                         doesFileExist, getXdgDirectory)
+import           Mviz.Config.Types     (Config (..))
+import           Mviz.Utils.Filesystem
+import           System.FilePath       (combine)
+import           Toml                  (Result (Failure, Success), decode,
+                                        encode)
+import           UnliftIO              (MonadIO, liftIO)
+import           UnliftIO.Directory    (XdgDirectory (XdgConfig), doesFileExist,
+                                        getXdgDirectory)
 
 configDirectory :: (MonadIO m) => m FilePath
 configDirectory = getXdgDirectory XdgConfig "mviz"
@@ -29,9 +28,6 @@ defaultConfig :: Config
 defaultConfig = Config { configInputs = []
                        , configShowUI = False
                        }
-
-ensureConfigDirectory :: (MonadIO m) => FilePath -> m ()
-ensureConfigDirectory = createDirectoryIfMissing True
 
 readConfig :: (MonadIO m) => FilePath -> m (Either String Config)
 readConfig path = do
@@ -59,7 +55,7 @@ fetchConfig = do
     if cfgExists then
         readConfig cfgFile
     else do
-        ensureConfigDirectory =<< configDirectory
+        ensureDirectory =<< configDirectory
         let cfg = defaultConfig
         writeConfig cfgFile cfg
         pure $ Right cfg
@@ -71,6 +67,6 @@ dumpConfig config = do
     if cfgExists then
         writeConfig cfgFile config
     else do
-        ensureConfigDirectory =<< configDirectory
+        ensureDirectory =<< configDirectory
         let cfg = defaultConfig
         writeConfig cfgFile cfg

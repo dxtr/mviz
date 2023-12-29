@@ -83,6 +83,7 @@ library
         Mviz.Utils.Audio,
         Mviz.Utils.Either,
         Mviz.Utils.Inputs,
+        Mviz.Utils.Filesystem,
         Paths_mviz
     other-modules:
         Mviz.Audio.Inputs,
