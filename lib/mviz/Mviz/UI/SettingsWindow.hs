@@ -89,21 +89,22 @@ renderPortBox inputs selectedInput selectedChannels = withCollapsingHeader "Port
     where inputLabel = "Input"
           channelsLabel = "Channels"
 
-renderShaderList :: MonadUnliftIO m => m ()
-renderShaderList = do
+renderShaderList :: MonadUnliftIO m => [T.Text] -> m ()
+renderShaderList shaders = do
     beginGroup
     _ <- withCollapsingHeader "Shaders" [] $ \case
         False -> pure Nothing
         True -> do
-            void (selectable "Shader 1" False [])
-            pure $ Just ()
+          mapM_ (\s -> selectable s False []) shaders
+--            void (selectable "Shader 1" False [])
+          pure $ Just ()
     endGroup
 
 renderSettingsWindow :: ( MonadUI m
                         , MonadSettingsWindow m
                         , MonadLogger m
-                        ) => Word -> Word -> InputMap -> m Bool
-renderSettingsWindow sampleRate bufferSize inputs = do
+                        ) => Word -> Word -> InputMap -> [T.Text] -> m Bool
+renderSettingsWindow sampleRate bufferSize inputs shaders = do
     isOpen <- isSettingsWindowOpen
     selectedInput <- getSelectedInput
     checkedChannels <- getSelectedChannels
@@ -122,7 +123,7 @@ renderSettingsWindow sampleRate bufferSize inputs = do
                         setSelectedInput (Just s)
                         setSelectedChannels c
                         pure True
-            liftIO renderShaderList
+            liftIO $ renderShaderList shaders
             pure inputChanged
         setSettingsWindowOpen closed
         pure $ fromMaybe False changed

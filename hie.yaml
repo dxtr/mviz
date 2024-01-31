@@ -1,0 +1,13 @@
+cradle:
+  cabal:
+    - path: "./lib/imgui"
+      component: "mviz:lib:imgui"
+
+    - path: "./lib/mviz"
+      component: "lib:mviz"
+
+    - path: "./app/Main.hs"
+      component: "mviz:exe:mviz"
+
+    - path: "./test"
+      component: "mviz:test:mviz-test"

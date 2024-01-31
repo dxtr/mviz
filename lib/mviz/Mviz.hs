@@ -32,6 +32,9 @@ import           Mviz.Config.Types          (Config (Config, configInputs, confi
 import qualified Mviz.GL                    (renderer, version)
 import           Mviz.Logger                (MonadLog (..), ringBufferOutput)
 import qualified Mviz.SDL
+import           Mviz.Shader                (shaderDirectory)
+import qualified Mviz.Shader                as Shader (listShaders)
+import           Mviz.Shader.Types          (listShaders)
 import           Mviz.Types                 (HasFramerate (..),
                                              MonadFramerate (..),
                                              MvizEnvironment (..),
@@ -44,12 +47,14 @@ import           Mviz.UI.SettingsWindow     (MonadSettingsWindow (getSelectedCha
                                              selectedPorts)
 import           Mviz.UI.Types              (HasUI, MonadUI (..))
 import           Mviz.UI.UIWindow           (makeLogWindow, makeSettingsWindow)
+import           Mviz.Utils.Filesystem      (ensureDirectory)
 import qualified Mviz.Utils.Ringbuffer      as RB
 import           Mviz.Window                (MonadDrawWindow (..), createWindow,
                                              destroyWindow, showWindow,
                                              swapWindowBuffers)
 import qualified Mviz.Window.Events
 import           Mviz.Window.Types          (HasWindow (..))
+import           System.INotify
 import           UnliftIO.Exception         (bracket)
 
 calculateFramerate :: (MonadReader e m, MonadFramerate m, MonadIO m, HasFramerate e) => m ()
@@ -160,7 +165,9 @@ startup :: IO MvizEnvironment
 startup = do
   ImGui.checkVersion
   Mviz.SDL.initialize
+  ensureDirectory =<< shaderDirectory
   config <- either error id <$> fetchConfig
+--  shaders <- Shader.listShaders
   wnd <- createWindow "mviz" True
   err <- Mviz.SDL.getError
   for_ err (error . T.unpack)
@@ -177,8 +184,10 @@ startup = do
   sampleRate <- newIORef 0
   bufferSize <- newIORef 0
   audioPorts <- newIORef []
+  watches <- newIORef []
   let inputs = configInputs config
   settingsWindow <- makeSettingsWindow True inputs
+  inotify <- initINotify
   fps <- newIORef $ MvizFramerate { mvizFramerate = 0.0
                                   , mvizFramerateTime = 0.0
                                   , mvizFramerateSample = 0
@@ -210,6 +219,8 @@ startup = do
                          , mvizAudioPorts = audioPorts
                          , mvizAudioInputs = inputMap
                          , mvizGL = gl
+                         , mvizInotify = inotify
+                         , mvizWatches = watches
                          }
 
 cleanup :: MvizEnvironment -> IO ()
@@ -220,12 +231,14 @@ cleanup
                   , mvizAudioSendChannel = audioSendChannel
                   , mvizShowUI = showUI
                   , mvizSettingsWindow = settingsWindow
+                  , mvizInotify = inotify
                   } =
   Mviz.Audio.shutdown audioSendChannel
   >> Mviz.UI.shutdown
   >> Mviz.UI.destroyUIContext uiContext
   >> destroyWindow wnd
   >> Mviz.SDL.quit
+  >> killINotify inotify
   >> do
     sui <- readIORef showUI
     ports <- selectedPorts settingsWindow

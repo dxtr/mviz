@@ -13,6 +13,7 @@ module Mviz.Types
 import           Control.Concurrent.Async (Async)
 import           Control.Concurrent.STM   (TQueue, atomically, flushTQueue,
                                            tryReadTQueue, writeTQueue)
+import           Control.Monad            (filterM)
 import           Control.Monad.IO.Class   (MonadIO, liftIO)
 import           Control.Monad.IO.Unlift  (MonadUnliftIO)
 import           Control.Monad.Logger     (Loc, LogLevel, LogSource, LogStr,
@@ -20,6 +21,7 @@ import           Control.Monad.Logger     (Loc, LogLevel, LogSource, LogStr,
                                            ToLogStr (toLogStr))
 import           Control.Monad.Reader     (MonadReader, ReaderT, ask, asks,
                                            runReaderT)
+import qualified Data.ByteString.Char8    as C8
 import           Data.Functor             ((<&>))
 import qualified Data.Map.Strict          as Map
 import qualified Data.Text                as T
@@ -40,6 +42,8 @@ import qualified Mviz.Graphics.Shader     as Shader
 import           Mviz.Logger              (LogMessage, MonadLog (..))
 import qualified Mviz.SDL
 import qualified Mviz.SDL.Types
+import qualified Mviz.Shader              as S
+import           Mviz.Shader.Types
 import           Mviz.UI                  (render)
 import           Mviz.UI.LogWindow        (HasLogWindow (..),
                                            MonadLogWindow (..))
@@ -49,14 +53,17 @@ import           Mviz.UI.Types            (HasUI (..), MonadUI (..), UIContext)
 import           Mviz.UI.UIWindow         (LogWindow (..),
                                            SettingsWindow (settingsCheckedChannels, settingsSelectedInput, settingsWindowOpen))
 import qualified Mviz.Utils.Ringbuffer    as RB
+import           Mviz.Watch
 import           Mviz.Window              (MonadDrawWindow (..),
                                            MonadHideWindow (..),
                                            MonadShowWindow (..),
                                            MonadWindow (..))
 import           Mviz.Window.Types        (HasNativeWindow (..), HasWindow (..),
                                            Window)
+import qualified System.INotify           as IN
+import           System.INotify           (INotify, WatchDescriptor)
 import           UnliftIO                 (IORef, atomicWriteIORef,
-                                           modifyIORef', readIORef)
+                                           modifyIORef', readIORef, writeIORef)
 import qualified UnliftIO.Exception       as E
 
 -- Types
@@ -95,6 +102,8 @@ data MvizEnvironment = MvizEnvironment
   , mvizLogFunc          :: Loc -> LogSource -> LogLevel -> LogStr -> IO ()
   , mvizSettingsWindow   :: !SettingsWindow
   , mvizGL               :: !MvizGL
+  , mvizInotify          :: !INotify
+  , mvizWatches          :: !(IORef [WatchDescriptor])
   }
 
 newtype MvizM e a = MvizM { unMvizM :: ReaderT e IO a }
@@ -274,6 +283,28 @@ instance (HasLog env) => MonadLogger (MvizM env) where
   monadLoggerLog :: (ToLogStr msg) => Loc -> LogSource -> LogLevel -> msg -> MvizM env ()
   monadLoggerLog loc logSource logLevel msg = asks getLogFunc >>=
     \logFunc -> liftIO $ logFunc loc logSource logLevel (toLogStr msg)
+
+instance MonadShader (MvizM MvizEnvironment) where
+  listShaders = S.listShaders
+  loadShader _shaderName = pure $ Shader undefined undefined -- TODO
+
+instance HasINotify MvizEnvironment where
+  getINotify = mvizInotify
+  getWatches = liftIO . readIORef . getWatchesRef
+  getWatchesRef = mvizWatches
+
+instance (HasINotify env) => MonadWatch (MvizM env) where
+  addWatch fp =
+    let callback _a = pure () in -- TODO: Sort out a proper callback
+      asks getINotify
+      >>= \inotify -> liftIO $ IN.addWatch inotify [IN.Modify] (C8.pack fp) callback
+  setWatches new = asks getWatchesRef >>= liftIO . flip writeIORef new
+  removeWatch watch = do
+    liftIO $ IN.removeWatch watch
+    asks getWatches >>= liftIO >>= setWatches . filter (/= watch)
+  removeAllWatches = do
+    asks getWatches >>= liftIO >>= mapM_ (liftIO . IN.removeWatch)
+    setWatches []
 
 -- Functions
 runMviz :: MvizEnvironment -> MvizM MvizEnvironment a -> IO a

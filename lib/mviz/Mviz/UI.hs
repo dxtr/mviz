@@ -112,7 +112,7 @@ render = do
   inputs <- audioInputs
 
   renderLogWindow
-  settingsChanged <- renderSettingsWindow sampleRate bufferSize inputs
+  settingsChanged <- renderSettingsWindow sampleRate bufferSize inputs []
   -- when settingsChanged $ do
   --   -- TODO: Send the new ports to the audio thread
   --   channels <- getSelectedChannels
