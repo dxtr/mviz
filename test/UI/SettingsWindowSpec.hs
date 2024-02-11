@@ -11,11 +11,10 @@ spec :: Spec
 spec = do
     describe "selectedPorts" $ do
         it "returns selected ports" $ do
-            checkedChannels <- newIORef ["foo", "bar"]
-            selectedInput <- newIORef $ Just "Input"
-            windowOpen <- newIORef True
-            let sw = SettingsWindow { settingsCheckedChannels = checkedChannels
-                                    , settingsSelectedInput = selectedInput
-                                    , settingsWindowOpen = windowOpen
+            let sw = SettingsWindow { settingsCheckedChannels = ["foo", "bar"]
+                                    , settingsSelectedInput = Just "Input"
+                                    , settingsWindowOpen = True
+                                    , settingsChanged = False
+                                    , settingsShader = Nothing
                                     }
             selectedPorts sw `shouldReturn` ["Input:foo", "Input:bar"]

@@ -44,7 +44,7 @@ import           Mviz.Types                 (HasFramerate (..),
 import qualified Mviz.UI
 import           Mviz.UI.LogWindow          (MonadLogWindow)
 import           Mviz.UI.SettingsWindow     (MonadSettingsWindow (getSelectedChannels, getSelectedInput),
-                                             selectedPorts)
+                                             getSettingsWindow, selectedPorts)
 import           Mviz.UI.Types              (HasUI, MonadUI (..))
 import           Mviz.UI.UIWindow           (makeLogWindow, makeSettingsWindow)
 import           Mviz.Utils.Filesystem      (ensureDirectory)
@@ -240,8 +240,9 @@ cleanup
   >> Mviz.SDL.quit
   >> killINotify inotify
   >> do
+    sw <- readIORef settingsWindow
     sui <- readIORef showUI
-    ports <- selectedPorts settingsWindow
+    ports <- selectedPorts sw
     dumpConfig $ Config { configShowUI = sui
                         , configInputs = ports
                         }

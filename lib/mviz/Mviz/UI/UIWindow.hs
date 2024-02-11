@@ -20,9 +20,11 @@ data LogWindow = LogWindow
   }
 
 data SettingsWindow = SettingsWindow
-  { settingsWindowOpen      :: !(IORef Bool)
-  , settingsSelectedInput   :: !(IORef (Maybe T.Text))
-  , settingsCheckedChannels :: !(IORef [T.Text])
+  { settingsWindowOpen      :: !Bool
+  , settingsSelectedInput   :: !(Maybe T.Text)
+  , settingsCheckedChannels :: ![T.Text]
+  , settingsChanged         :: !Bool
+  , settingsShader          :: !(Maybe T.Text)
   }
 
 makeLogWindow :: Bool -> IO LogWindow
@@ -35,13 +37,14 @@ makeLogWindow showWindow = do
                    , logWindowOpen = windowOpen
                    }
 
-makeSettingsWindow :: Bool -> [T.Text] -> IO SettingsWindow
+makeSettingsWindow :: Bool -> [T.Text] -> IO (IORef SettingsWindow)
 makeSettingsWindow showWindow selectedInputs = do
-  windowOpen <- newIORef showWindow
-  selectedInput <- newIORef (fst <$> inputs)
-  checkedChannels <- newIORef $ maybe [] snd inputs
-  pure $ SettingsWindow { settingsWindowOpen = windowOpen
-                        , settingsSelectedInput = selectedInput
-                        , settingsCheckedChannels = checkedChannels
-                        }
+  let selectedInput = fst <$> inputs
+      checkedChannels = maybe [] snd inputs
+  newIORef $ SettingsWindow { settingsWindowOpen = showWindow
+                            , settingsSelectedInput = selectedInput
+                            , settingsCheckedChannels = checkedChannels
+                            , settingsChanged = False
+                            , settingsShader = Nothing
+                            }
   where inputs = splitInputs selectedInputs

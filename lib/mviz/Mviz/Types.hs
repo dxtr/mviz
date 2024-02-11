@@ -47,7 +47,7 @@ import           Mviz.Shader.Types
 import           Mviz.UI                  (render)
 import           Mviz.UI.LogWindow        (HasLogWindow (..),
                                            MonadLogWindow (..))
-import           Mviz.UI.SettingsWindow   (HasSettingsWindow (getSettingsWindow),
+import           Mviz.UI.SettingsWindow   (HasSettingsWindow (getSettingsWindow, setSettingsWindow),
                                            MonadSettingsWindow (..))
 import           Mviz.UI.Types            (HasUI (..), MonadUI (..), UIContext)
 import           Mviz.UI.UIWindow         (LogWindow (..),
@@ -100,7 +100,7 @@ data MvizEnvironment = MvizEnvironment
   , mvizShaders          :: !(IORef (Map.Map T.Text Shader.ProgramObject))
   , mvizLogWindow        :: !LogWindow
   , mvizLogFunc          :: Loc -> LogSource -> LogLevel -> LogStr -> IO ()
-  , mvizSettingsWindow   :: !SettingsWindow
+  , mvizSettingsWindow   :: !(IORef SettingsWindow)
   , mvizGL               :: !MvizGL
   , mvizInotify          :: !INotify
   , mvizWatches          :: !(IORef [WatchDescriptor])
@@ -146,7 +146,8 @@ instance HasLogWindow MvizEnvironment where
   getLogWindow = mvizLogWindow
 
 instance HasSettingsWindow MvizEnvironment where
-  getSettingsWindow = mvizSettingsWindow
+  getSettingsWindow = readIORef . mvizSettingsWindow
+  setSettingsWindow env window = writeIORef (mvizSettingsWindow env) window
 
 instance HasWindow MvizEnvironment where
   getWindow :: MvizEnvironment -> Window
@@ -198,23 +199,17 @@ instance (HasSettingsWindow env) => MonadSettingsWindow (MvizM env) where
   openSettingsWindow :: T.Text -> MvizM env Bool -> MvizM env (Bool, Maybe Bool)
   openSettingsWindow label = ImGui.withCloseableWindow label []
 
-  isSettingsWindowOpen :: MvizM env Bool
-  isSettingsWindowOpen = liftIO . readIORef . settingsWindowOpen =<< asks getSettingsWindow
-
-  setSettingsWindowOpen :: Bool -> MvizM env ()
-  setSettingsWindowOpen = (asks getSettingsWindow >>=) . (liftIO .) . flip (atomicWriteIORef . settingsWindowOpen)
-
-  setSelectedInput :: Maybe T.Text -> MvizM env ()
-  setSelectedInput = (asks getSettingsWindow >>=) . (liftIO .) . flip (atomicWriteIORef . settingsSelectedInput)
-
   getSelectedInput :: MvizM env (Maybe T.Text)
-  getSelectedInput = liftIO . readIORef . settingsSelectedInput =<< asks getSettingsWindow
-
-  setSelectedChannels :: [T.Text] -> MvizM env ()
-  setSelectedChannels = (asks getSettingsWindow >>=) . (liftIO .) . flip (atomicWriteIORef . settingsCheckedChannels)
+  getSelectedInput = do
+    sw <- asks getSettingsWindow
+    sw2 <- liftIO sw
+    return $ settingsSelectedInput sw2
 
   getSelectedChannels :: MvizM env [T.Text]
-  getSelectedChannels = liftIO . readIORef . settingsCheckedChannels =<< asks getSettingsWindow
+  getSelectedChannels = do
+    sw <- liftIO =<< asks getSettingsWindow
+    return $ settingsCheckedChannels sw
+--    liftIO . readIORef . settingsCheckedChannels =<< asks getSettingsWindow
 
 instance (HasNativeWindow env) => MonadShowWindow (MvizM env) where
   showWindow :: MvizM env ()
