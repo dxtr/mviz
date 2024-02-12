@@ -19,9 +19,10 @@ module Mviz.UI
   , handleEvents
   ) where
 
+import           Control.Monad              (when)
 import           Control.Monad.IO.Class     (MonadIO, liftIO)
 import           Control.Monad.Logger       (MonadLogger)
-import           Control.Monad.Reader       (MonadReader, asks)
+import           Control.Monad.Reader       (MonadReader, ask, asks)
 import           Control.Monad.State.Strict (runStateT)
 import           Control.Monad.Trans.Maybe  (MaybeT (..), runMaybeT)
 import           Data.Functor               ((<&>))
@@ -38,8 +39,10 @@ import           Mviz.UI.LogWindow          (MonadLogWindow (..),
 import           Mviz.UI.SettingsWindow     (HasSettingsWindow,
                                              MonadSettingsWindow,
                                              getSettingsWindow,
-                                             renderSettingsWindow)
+                                             renderSettingsWindow,
+                                             setSettingsWindow)
 import           Mviz.UI.Types              (MonadUI, UIContext)
+import           Mviz.UI.UIWindow           (SettingsWindow (..))
 import           Mviz.Utils                 ((<&&>))
 import           Mviz.Window.Events         (Event (..))
 import           Mviz.Window.Types          (HasNativeWindow (..))
@@ -112,14 +115,22 @@ render = do
     newFrame
     ImGui.showDemoWindow
 
+  env <- ask
   sampleRate <- audioSampleRate
   bufferSize <- audioBufferSize
   inputs <- audioInputs
   sw <- liftIO =<< asks getSettingsWindow
 
   renderLogWindow
-  (portsChanged, _) <- runStateT (renderSettingsWindow sampleRate bufferSize inputs []) sw
-  let settingsChanged = portsChanged
+  (settingsChanged, newSettings) <- runStateT (renderSettingsWindow sampleRate bufferSize inputs []) sw
+  let selectedInput = settingsSelectedInput newSettings
+      selectedChannels = settingsCheckedChannels newSettings
+  liftIO $ putStrLn ("Settings changed: " <> show settingsChanged)
+  liftIO $ setSettingsWindow env newSettings
+  when settingsChanged $ do
+    liftIO $ putStrLn "Settings changed!"
+    liftIO $ setSettingsWindow env newSettings
+  --  clientSendMessage $ SetInput (selectedInput, selectedChannels)
   -- when settingsChanged $ do
   --   -- TODO: Send the new ports to the audio thread
   --   channels <- getSelectedChannels

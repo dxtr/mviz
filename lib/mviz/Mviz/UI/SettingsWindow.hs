@@ -10,7 +10,7 @@ module Mviz.UI.SettingsWindow
   , selectedPorts
   ) where
 
-import           Control.Monad              (liftM, void)
+import           Control.Monad              (liftM, unless, void, when)
 import           Control.Monad.IO.Class     (MonadIO, liftIO)
 import           Control.Monad.Logger       (MonadLogger, logDebugN)
 import           Control.Monad.Reader       (MonadReader, ask, asks, runReaderT)
@@ -51,7 +51,7 @@ class HasSettingsWindow a where
   setSettingsWindow :: a -> SettingsWindow -> IO ()
 
 class Monad m => MonadSettingsWindow m where
-  openSettingsWindow :: T.Text -> m Bool -> m (Bool, Maybe Bool)
+  openSettingsWindow :: T.Text -> m a -> m (Bool, Maybe a)
   getSelectedInput :: m (Maybe T.Text)
   getSelectedChannels :: m [T.Text]
   isSettingsChanged :: m Bool
@@ -79,21 +79,20 @@ data PortBox = PortBox
   { portBoxInputs           :: InputMap
   , portBoxSelectedInput    :: Maybe T.Text
   , portBoxSelectedChannels :: [T.Text]
-  }
+  } deriving (Show)
 
 instance Eq PortBox where
   x == y = (portBoxSelectedInput x == portBoxSelectedInput y) &&
-    (portBoxSelectedChannels x == portBoxSelectedChannels y)
+    (sort (portBoxSelectedChannels x) == sort (portBoxSelectedChannels y))
 
-renderPortBox :: ( MonadUnliftIO m
-                 , MonadReader PortBox m
-                 ) => m (Bool, PortBox)
-renderPortBox = withCollapsingHeader "Ports" [] $ \case
-  False -> do
-    pb <- ask
-    return (False, pb)
+sInputText :: Maybe T.Text -> [Char]
+sInputText Nothing  = ""
+sInputText (Just t) = T.unpack t
+
+renderPortBox :: (MonadUnliftIO m) => PortBox -> m (Bool, PortBox)
+renderPortBox pb = withCollapsingHeader "Ports" [] $ \case
+  False -> return (False, pb)
   True -> do
-    pb <- ask
     ImVec2 regionSizeX _ <- contentRegionAvail
     ImVec2 spacingX _ <- itemSpacing
     ImVec2 inputsLabelSize _ <- calcTextSize inputLabel True
@@ -117,37 +116,9 @@ renderPortBox = withCollapsingHeader "Ports" [] $ \case
       pure $ pb { portBoxSelectedInput = newSelectedInput
                 , portBoxSelectedChannels = checkedChannels
                 }
-    return $ maybe (False, pb) (\a -> (a == pb, a)) s
+    return $ maybe (False, pb) (\a -> (a /= pb, a)) s
   where inputLabel = "Input"
         channelsLabel = "Channels"
-
--- renderPortBox :: (MonadUnliftIO m) => InputMap -> Maybe T.Text -> [T.Text] -> m (Maybe (T.Text, [T.Text]))
--- renderPortBox inputs selectedInput selectedChannels = withCollapsingHeader "Ports" [] $ \case
---     False -> pure Nothing
---     True -> do
---       ImVec2 regionSizeX _ <- contentRegionAvail
---       ImVec2 spacingX _ <- itemSpacing
---       ImVec2 inputsLabelSize _ <- calcTextSize inputLabel True
---       ImVec2 channelsLabelSize _ <- calcTextSize channelsLabel True
---       let sizeX = regionSizeX * 0.5
---           calcSize = flip subtract (sizeX - spacingX)
---           sortedInputs = sort $ getInputs inputs
-
---       runMaybeT $ do
---         newSelectedInput <- MaybeT . liftIO $ withListBox inputLabel (ImVec2 (calcSize inputsLabelSize) 0.0) $ do
---           items <- uncons . filter snd <$> mapM (\p -> (p, ) <$> selectable p (Just p == selectedInput) []) sortedInputs
---             case items of
---               Nothing     -> pure selectedInput
---               Just (i, _) -> pure . Just . fst $ i
---           sameLine
---           let channels = maybe [] (sort . getChannels inputs) newSelectedInput
---           checkedChannels <- MaybeT . liftIO $ withListBox channelsLabel (ImVec2 (calcSize channelsLabelSize) 0.0) $ do
---             chans <- mapM (\c -> (c, ) <$> checkbox c (c `elem` selectedChannels)) channels
---             pure . map fst $ filter (\(_, (_, c)) -> c) chans
---           sInput <- hoistMaybe newSelectedInput
---           pure (sInput, checkedChannels)
---     where inputLabel = "Input"
---           channelsLabel = "Channels"
 
 renderShaderList :: MonadUnliftIO m => [T.Text] -> m ()
 renderShaderList shaders = do
@@ -170,18 +141,18 @@ renderSettingsWindow sampleRate bufferSize inputs shaders = do
   let isOpen = settingsWindowOpen wnd
       selectedInput = settingsSelectedInput wnd
       checkedChannels = settingsCheckedChannels wnd
+      pb = PortBox { portBoxInputs = inputs
+                   , portBoxSelectedInput = selectedInput
+                   , portBoxSelectedChannels = checkedChannels
+                   }
   if isOpen then do
-    (closed, changed) <- openSettingsWindow windowTitle $ do
-      _ <- liftIO $ renderStaticText sampleRate bufferSize
-      (changed, pb) <- liftIO $ runReaderT renderPortBox $
-        PortBox { portBoxInputs = inputs
-                , portBoxSelectedInput = selectedInput
-                , portBoxSelectedChannels = checkedChannels
-                }
-      put $ wnd { settingsSelectedInput = portBoxSelectedInput pb
-                , settingsCheckedChannels = portBoxSelectedChannels pb
-                }
-      return changed
-    put $ wnd { settingsWindowOpen = not closed }
-    return $ fromMaybe False changed
+    (open, retData) <- openSettingsWindow windowTitle $ liftIO $ do
+      _ <- renderStaticText sampleRate bufferSize
+      renderPortBox pb
+    let (changed, newState) = fromMaybe (False, pb) retData
+    put $ wnd { settingsWindowOpen = open
+              , settingsSelectedInput = portBoxSelectedInput newState
+              , settingsCheckedChannels = portBoxSelectedChannels newState
+              }
+    return changed
     else return False

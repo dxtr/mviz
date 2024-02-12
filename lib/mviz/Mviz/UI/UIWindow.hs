@@ -25,7 +25,7 @@ data SettingsWindow = SettingsWindow
   , settingsCheckedChannels :: ![T.Text]
   , settingsChanged         :: !Bool
   , settingsShader          :: !(Maybe T.Text)
-  }
+  } deriving (Show)
 
 makeLogWindow :: Bool -> IO LogWindow
 makeLogWindow showWindow = do

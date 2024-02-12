@@ -13,7 +13,6 @@ module Mviz.Types
 import           Control.Concurrent.Async (Async)
 import           Control.Concurrent.STM   (TQueue, atomically, flushTQueue,
                                            tryReadTQueue, writeTQueue)
-import           Control.Monad            (filterM)
 import           Control.Monad.IO.Class   (MonadIO, liftIO)
 import           Control.Monad.IO.Unlift  (MonadUnliftIO)
 import           Control.Monad.Logger     (Loc, LogLevel, LogSource, LogStr,
@@ -51,7 +50,7 @@ import           Mviz.UI.SettingsWindow   (HasSettingsWindow (getSettingsWindow,
                                            MonadSettingsWindow (..))
 import           Mviz.UI.Types            (HasUI (..), MonadUI (..), UIContext)
 import           Mviz.UI.UIWindow         (LogWindow (..),
-                                           SettingsWindow (settingsCheckedChannels, settingsSelectedInput, settingsWindowOpen))
+                                           SettingsWindow (settingsCheckedChannels, settingsSelectedInput))
 import qualified Mviz.Utils.Ringbuffer    as RB
 import           Mviz.Watch
 import           Mviz.Window              (MonadDrawWindow (..),
@@ -196,7 +195,6 @@ instance (HasLogWindow env) => MonadLogWindow (MvizM env) where
   setLogWindowOpen = (asks getLogWindow >>=) . (liftIO .) . flip (atomicWriteIORef . logWindowOpen)
 
 instance (HasSettingsWindow env) => MonadSettingsWindow (MvizM env) where
-  openSettingsWindow :: T.Text -> MvizM env Bool -> MvizM env (Bool, Maybe Bool)
   openSettingsWindow label = ImGui.withCloseableWindow label []
 
   getSelectedInput :: MvizM env (Maybe T.Text)
@@ -209,7 +207,6 @@ instance (HasSettingsWindow env) => MonadSettingsWindow (MvizM env) where
   getSelectedChannels = do
     sw <- liftIO =<< asks getSettingsWindow
     return $ settingsCheckedChannels sw
---    liftIO . readIORef . settingsCheckedChannels =<< asks getSettingsWindow
 
 instance (HasNativeWindow env) => MonadShowWindow (MvizM env) where
   showWindow :: MvizM env ()
