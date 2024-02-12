@@ -125,11 +125,9 @@ render = do
   (settingsChanged, newSettings) <- runStateT (renderSettingsWindow sampleRate bufferSize inputs []) sw
   let selectedInput = settingsSelectedInput newSettings
       selectedChannels = settingsCheckedChannels newSettings
-  liftIO $ putStrLn ("Settings changed: " <> show settingsChanged)
   liftIO $ setSettingsWindow env newSettings
   when settingsChanged $ do
     liftIO $ putStrLn "Settings changed!"
-    liftIO $ setSettingsWindow env newSettings
   --  clientSendMessage $ SetInput (selectedInput, selectedChannels)
   -- when settingsChanged $ do
   --   -- TODO: Send the new ports to the audio thread
