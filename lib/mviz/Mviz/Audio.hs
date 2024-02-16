@@ -197,7 +197,9 @@ handleAudioMessage Quit          = pure Stop
 handleAudioMessage GetBufferSize = bufferSize >>= serverSendMessage . BufferSize >> pure Continue
 handleAudioMessage GetSampleRate = sampleRate >>= serverSendMessage . SampleRate >> pure Continue
 handleAudioMessage GetInputs = inputs >>= serverSendMessage . Inputs >> pure Continue
-handleAudioMessage (SetInput _input@(inputName, channels)) = do
+handleAudioMessage (SetInput Nothing) = do
+  pure Continue
+handleAudioMessage (SetInput (Just (inputName, channels))) = do
   withPortLock $ do
     mapM_ disposePort =<< getPorts -- Remove the old ports
     p <- mapM (uncurry newPort) srcTargets -- Create new ports

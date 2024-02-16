@@ -30,7 +30,9 @@ import qualified Data.Text                  as T
 import qualified ImGui
 import qualified ImGui.GL
 import qualified ImGui.SDL
-import           Mviz.Audio.Types           (MonadAudio (..))
+import           Mviz.Audio.Types           (MonadAudio (..),
+                                             MonadAudioClient (..),
+                                             ServerAudioMessage (..))
 import           Mviz.GL                    (GLMakeCurrent (..),
                                              HasGLContext (..))
 import           Mviz.Logger                (MonadLog (..))
@@ -106,7 +108,6 @@ render :: ( MonadReader e m
           , MonadLogWindow m
           , MonadSettingsWindow m
           , MonadLog m
-          , MonadLogger m
           , MonadUI m
           , MonadAudio m
           ) => m Bool
@@ -119,24 +120,11 @@ render = do
   sampleRate <- audioSampleRate
   bufferSize <- audioBufferSize
   inputs <- audioInputs
-  sw <- liftIO =<< asks getSettingsWindow
 
   renderLogWindow
-  (settingsChanged, newSettings) <- runStateT (renderSettingsWindow sampleRate bufferSize inputs []) sw
-  let selectedInput = settingsSelectedInput newSettings
-      selectedChannels = settingsCheckedChannels newSettings
+  (settingsChanged, newSettings) <- (asks getSettingsWindow >>= liftIO) >>=
+    runStateT (renderSettingsWindow sampleRate bufferSize inputs [])
   liftIO $ setSettingsWindow env newSettings
-  when settingsChanged $ do
-    liftIO $ putStrLn "Settings changed!"
-  --  clientSendMessage $ SetInput (selectedInput, selectedChannels)
-  -- when settingsChanged $ do
-  --   -- TODO: Send the new ports to the audio thread
-  --   channels <- getSelectedChannels
-  --   _ <- runMaybeT $ do
-  --     input <- MaybeT getSelectedInput
-  --     clientSendMessage $ SetInput (input, channels)
-  --   pure ()
-
   ImGui.render
   ImGui.GL.glRenderDrawData =<< ImGui.getDrawData
   pure settingsChanged

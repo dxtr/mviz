@@ -11,6 +11,7 @@ import           Control.Monad.Reader       (MonadReader, MonadTrans (lift),
                                              ask)
 import           Control.Monad.Reader.Class (asks)
 import           Control.Monad.Trans.Maybe  (MaybeT (MaybeT), runMaybeT)
+import           Data.Bitraversable         (bitraverse)
 import           Data.Either                (isLeft)
 import           Data.Foldable              (for_)
 import           Data.IORef                 (newIORef, readIORef, writeIORef)
@@ -105,6 +106,9 @@ handleEvent Mviz.Window.Events.ToggleUI         = toggleUI
 handleEvent Mviz.Window.Events.ToggleFullscreen = pure () -- TODO
 handleEvent Mviz.Window.Events.Quit             = pure () -- TODO
 
+mkSetInputMessage :: Maybe T.Text -> [T.Text] -> ServerAudioMessage
+mkSetInputMessage input channels = SetInput $ (,channels) <$> input
+
 mainLoop :: (MonadReader e m,
              MonadFramerate m,
              MonadLogger m,
@@ -144,10 +148,8 @@ mainLoop = do
     changes <- renderUI
     when changes $ do
       channels <- getSelectedChannels
-      _ <- runMaybeT $ do
-        input <- MaybeT getSelectedInput
-        clientSendMessage $ SetInput (input, channels)
-      return ()
+      input <- getSelectedInput
+      clientSendMessage $ mkSetInputMessage input channels
 
   swapWindowBuffers
   unless doQuit mainLoop
@@ -156,9 +158,8 @@ run :: MvizM MvizEnvironment ()
 run = do
   showWindow
   channels <- getSelectedChannels
-  _ <- runMaybeT $ do
-    input <- MaybeT getSelectedInput
-    clientSendMessage $ SetInput (input, channels)
+  input <- getSelectedInput
+  clientSendMessage $ mkSetInputMessage input channels
   mainLoop
 
 startup :: IO MvizEnvironment
