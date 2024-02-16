@@ -80,7 +80,7 @@ data ServerAudioMessage
   | GetSampleRate
   | GetBufferSize
   | GetInputs
-  | SetInput (T.Text, [T.Text])
+  | SetInput !(Maybe (T.Text, [T.Text]))
   deriving (Show)
 
 class Monad m => MonadAudio m where

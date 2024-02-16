@@ -1,5 +1,5 @@
-{-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE PatternSynonyms     #-}
+--{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE PatternSynonyms #-}
 
 module Mviz.UI
   ( collectEvents
@@ -19,33 +19,42 @@ module Mviz.UI
   , handleEvents
   ) where
 
-import           Control.Monad.IO.Class    (MonadIO, liftIO)
-import           Control.Monad.Logger      (MonadLogger)
-import           Control.Monad.Reader      (MonadReader)
-import           Control.Monad.Trans.Maybe (MaybeT (..), runMaybeT)
-import           Data.Functor              ((<&>))
-import qualified Data.Text                 as T
+import           Control.Monad              (when)
+import           Control.Monad.IO.Class     (MonadIO, liftIO)
+import           Control.Monad.Logger       (MonadLogger)
+import           Control.Monad.Reader       (MonadReader, ask, asks)
+import           Control.Monad.State.Strict (runStateT)
+import           Control.Monad.Trans.Maybe  (MaybeT (..), runMaybeT)
+import           Data.Functor               ((<&>))
+import qualified Data.Text                  as T
 import qualified ImGui
 import qualified ImGui.GL
 import qualified ImGui.SDL
-import           Mviz.Audio.Types          (MonadAudio (..))
-import           Mviz.GL                   (GLMakeCurrent (..),
-                                            HasGLContext (..))
-import           Mviz.Logger               (MonadLog (..))
-import           Mviz.UI.LogWindow         (MonadLogWindow (..),
-                                            renderLogWindow)
-import           Mviz.UI.SettingsWindow    (MonadSettingsWindow,
-                                            renderSettingsWindow)
-import           Mviz.UI.Types             (MonadUI, UIContext)
-import           Mviz.Utils                ((<&&>))
-import           Mviz.Window.Events        (Event (..))
-import           Mviz.Window.Types         (HasNativeWindow (..))
-import qualified SDL                       (EventPayload (KeyboardEvent, QuitEvent),
-                                            InputMotion (..),
-                                            KeyboardEventData (..), Keysym (..),
-                                            eventPayload, pattern KeycodeEscape,
-                                            pattern KeycodeF1,
-                                            pattern KeycodeF11)
+import           Mviz.Audio.Types           (MonadAudio (..),
+                                             MonadAudioClient (..),
+                                             ServerAudioMessage (..))
+import           Mviz.GL                    (GLMakeCurrent (..),
+                                             HasGLContext (..))
+import           Mviz.Logger                (MonadLog (..))
+import           Mviz.UI.LogWindow          (MonadLogWindow (..),
+                                             renderLogWindow)
+import           Mviz.UI.SettingsWindow     (HasSettingsWindow,
+                                             MonadSettingsWindow,
+                                             getSettingsWindow,
+                                             renderSettingsWindow,
+                                             setSettingsWindow)
+import           Mviz.UI.Types              (MonadUI, UIContext)
+import           Mviz.UI.UIWindow           (SettingsWindow (..))
+import           Mviz.Utils                 ((<&&>))
+import           Mviz.Window.Events         (Event (..))
+import           Mviz.Window.Types          (HasNativeWindow (..))
+import qualified SDL                        (EventPayload (KeyboardEvent, QuitEvent),
+                                             InputMotion (..),
+                                             KeyboardEventData (..),
+                                             Keysym (..), eventPayload,
+                                             pattern KeycodeEscape,
+                                             pattern KeycodeF1,
+                                             pattern KeycodeF11)
 
 version :: IO T.Text
 version = ImGui.getVersion
@@ -95,10 +104,10 @@ endFrame :: (MonadIO m) => m ()
 endFrame = ImGui.endFrame
 
 render :: ( MonadReader e m
+          , HasSettingsWindow e
           , MonadLogWindow m
           , MonadSettingsWindow m
           , MonadLog m
-          , MonadLogger m
           , MonadUI m
           , MonadAudio m
           ) => m Bool
@@ -107,20 +116,15 @@ render = do
     newFrame
     ImGui.showDemoWindow
 
+  env <- ask
   sampleRate <- audioSampleRate
   bufferSize <- audioBufferSize
   inputs <- audioInputs
 
   renderLogWindow
-  settingsChanged <- renderSettingsWindow sampleRate bufferSize inputs
-  -- when settingsChanged $ do
-  --   -- TODO: Send the new ports to the audio thread
-  --   channels <- getSelectedChannels
-  --   _ <- runMaybeT $ do
-  --     input <- MaybeT getSelectedInput
-  --     clientSendMessage $ SetInput (input, channels)
-  --   pure ()
-
+  (settingsChanged, newSettings) <- (asks getSettingsWindow >>= liftIO) >>=
+    runStateT (renderSettingsWindow sampleRate bufferSize inputs [])
+  liftIO $ setSettingsWindow env newSettings
   ImGui.render
   ImGui.GL.glRenderDrawData =<< ImGui.getDrawData
   pure settingsChanged

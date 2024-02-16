@@ -10,3 +10,4 @@ cabal.project.local
 *.hp
 *.prof
 *.ps
+*.swp
