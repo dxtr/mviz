@@ -198,6 +198,9 @@ handleAudioMessage GetBufferSize = bufferSize >>= serverSendMessage . BufferSize
 handleAudioMessage GetSampleRate = sampleRate >>= serverSendMessage . SampleRate >> pure Continue
 handleAudioMessage GetInputs = inputs >>= serverSendMessage . Inputs >> pure Continue
 handleAudioMessage (SetInput Nothing) = do
+  withPortLock $ do
+    mapM_ disposePort =<< getPorts
+  setPorts []
   pure Continue
 handleAudioMessage (SetInput (Just (inputName, channels))) = do
   withPortLock $ do
